@@ -13,3 +13,18 @@ export const TransactionListWrapper = styled.div`
   height: 100%;
   width: 100%;
 `;
+
+interface WhiteGradientProps {
+  $direction?: "top" | "bottom";
+}
+
+export const WhiteGradient = styled.div<WhiteGradientProps>`
+  background: linear-gradient(
+    to ${(props) => props.$direction ?? "top"},
+    white,
+    transparent
+  );
+
+  height: 40px;
+  width: 100%;
+`;

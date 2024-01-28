@@ -38,7 +38,12 @@ export const ActionBar = styled.div`
   top: 60px;
   left: 0;
 
-  background-color: ${COLORS.background};
+  background: linear-gradient(
+    to bottom,
+    ${COLORS.background} 0%,
+    ${COLORS.background} 95%,
+    transparent 100%
+  );
 
   display: flex;
   flex-direction: column;
@@ -48,7 +53,7 @@ export const ActionBar = styled.div`
   min-height: 300px;
   width: 100%;
 
-  padding-bottom: 1rem;
+  padding-bottom: 2rem;
 
   ${fadeIn}
 `;
@@ -58,7 +63,12 @@ export const ActionBarSmall = styled.div`
   top: 60px;
   left: 0;
 
-  background-color: ${COLORS.background};
+  background: linear-gradient(
+    to bottom,
+    ${COLORS.background} 0%,
+    ${COLORS.background} 85%,
+    transparent 100%
+  );
 
   display: flex;
   flex-direction: column;
@@ -68,7 +78,7 @@ export const ActionBarSmall = styled.div`
   min-height: 100px;
   width: 100%;
 
-  padding-bottom: 1rem;
+  padding-bottom: 2rem;
 
   ${fadeIn}
 `;

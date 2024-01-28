@@ -23,7 +23,7 @@ import LogoIcon from "@/assets/icons/logo.svg";
 import { faArrowUp } from "@fortawesome/free-solid-svg-icons/faArrowUp";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons/faArrowDown";
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons/faEllipsis";
-import { TransactionListWrapper } from "./styles";
+import { TransactionListWrapper, WhiteGradient } from "./styles";
 import {
   CurrencyAmountLarge,
   CurrencySymbolLarge,
@@ -159,6 +159,7 @@ export default function Wallet() {
         )}
         {!loading && txs.map((tx) => <TransactionRow key={tx.id} tx={tx} />)}
       </TransactionListWrapper>
+      <WhiteGradient style={{ position: "fixed", bottom: 0 }} />
       <OutlinedIconButton
         style={{ position: "fixed", bottom: "40px" }}
         icon={faQrcode}

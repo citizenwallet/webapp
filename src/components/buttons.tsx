@@ -1,16 +1,31 @@
 "use client";
-import styled, { css } from "styled-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import styled, { CSSProperties, css } from "styled-components";
+import {
+  FontAwesomeIcon,
+  FontAwesomeIconProps,
+} from "@fortawesome/react-fontawesome";
 import { COLORS } from "@/theme/colors";
-import { faSizeToPixelSize, iconSizeMapper } from "@/theme/iconSizeMapper";
+import { faSizeToPixelSize } from "@/theme/iconSizeMapper";
+import { MouseEventHandler } from "react";
 
 interface IconButtonProps {
   $color?: string;
   $backgroundColor?: string;
   size?: string;
+  style?: CSSProperties | undefined;
+  onClick?: MouseEventHandler<SVGSVGElement> | undefined;
 }
 
-const BaseIconButton = css<IconButtonProps>`
+const BaseIconButton = css`
+  cursor: pointer;
+  outline: none;
+  padding: 16px;
+  margin: 0;
+
+  border-radius: 50%;
+`;
+
+const BaseIconButtonDimensions = css<IconButtonProps>`
   cursor: pointer;
   outline: none;
   padding: 16px;
@@ -24,6 +39,7 @@ const BaseIconButton = css<IconButtonProps>`
 
 export const IconButton = styled(FontAwesomeIcon)<IconButtonProps>`
   ${BaseIconButton}
+  ${BaseIconButtonDimensions}
 
   background-color: ${(props) => props.$backgroundColor || COLORS.primary};
   color: ${(props) => props.$color || COLORS.white};
@@ -33,6 +49,7 @@ export const IconButton = styled(FontAwesomeIcon)<IconButtonProps>`
 
 export const AltIconButton = styled(FontAwesomeIcon)<IconButtonProps>`
   ${BaseIconButton}
+  ${BaseIconButtonDimensions}
 
   background-color: ${(props) => props.$backgroundColor || COLORS.secondary};
   color: ${(props) => props.$color || COLORS.primary};
@@ -40,14 +57,42 @@ export const AltIconButton = styled(FontAwesomeIcon)<IconButtonProps>`
   border: solid 3px ${(props) => props.$color || COLORS.secondary};
 `;
 
-export const OutlinedIconButton = styled(FontAwesomeIcon)<IconButtonProps>`
+const IconButtonContainer = styled.div<IconButtonProps>`
   ${BaseIconButton}
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   background-color: ${(props) => props.$backgroundColor || COLORS.white};
   color: ${(props) => props.$color || COLORS.primary};
 
   border: solid 3px ${(props) => props.$color || COLORS.primary};
+
+  height: ${(props) => `${faSizeToPixelSize(props.size) * 2}px`};
+  width: ${(props) => `${faSizeToPixelSize(props.size) * 2}px`};
 `;
+
+// in trying to keep things simple, this component got a bit convoluted
+// this was done because Safari clips the svg icon even when you set a border radius there is enough space
+export const OutlinedIconButton = ({
+  $color,
+  $backgroundColor,
+  size,
+  style,
+  onClick,
+  ...props
+}: FontAwesomeIconProps & IconButtonProps) => (
+  <IconButtonContainer
+    $color={$color}
+    $backgroundColor={$backgroundColor}
+    size={size}
+    style={style}
+    onClick={onClick}
+  >
+    <FontAwesomeIcon size={size} {...props} />
+  </IconButtonContainer>
+);
 
 export const PrimaryButton = styled.button`
   height: 50px;

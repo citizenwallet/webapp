@@ -10,10 +10,10 @@ export const Main = styled.main`
   align-items: center;
   padding: 1rem;
 
-  height: 100dvh;
+  min-height: 100dvh;
   width: 100dvw;
 
-  overflow: hidden;
+  overflow: auto;
 `;
 
 interface LayoutProps {

@@ -1,6 +1,12 @@
 import { Transaction } from "@/state/transactions/state";
-import { Column, Expanded, Row, VerticalSpacer } from "../base";
-import { SubtleSubtitle, TextBold } from "../text";
+import {
+  Column,
+  Expanded,
+  HorizontalSpacer,
+  Row,
+  VerticalSpacer,
+} from "../base";
+import { TextSubtle, TextBold } from "../text";
 import RoundedImage from "../RoundedImage";
 import UserIcon from "@/assets/icons/user.svg";
 
@@ -10,19 +16,26 @@ interface TransactionRowProps {
 
 export default function TransactionRow({ tx }: TransactionRowProps) {
   return (
-    <Row key={tx.id}>
-      <RoundedImage src={UserIcon} size={42} />
-      <Column>
-        <TextBold>{tx.name}</TextBold>
-        <VerticalSpacer $spacing={0.5} />
-        <SubtleSubtitle>{tx.description}</SubtleSubtitle>
-      </Column>
-      <Expanded />
-      <Column>
-        <TextBold>{tx.amount} RGN</TextBold>
-        <VerticalSpacer $spacing={0.5} />
-        <SubtleSubtitle>{tx.status}</SubtleSubtitle>
-      </Column>
-    </Row>
+    <Column $fill key={tx.id}>
+      <VerticalSpacer $spacing={0.5} />
+      <Row>
+        <HorizontalSpacer $spacing={0.5} />
+        <RoundedImage src={UserIcon} size={42} />
+        <HorizontalSpacer $spacing={0.5} />
+        <Column $horizontal="start">
+          <TextBold>{tx.name}</TextBold>
+          <VerticalSpacer $spacing={0.1} />
+          <TextSubtle>{tx.description}</TextSubtle>
+        </Column>
+        <Expanded />
+        <Column $horizontal="end">
+          <TextBold>{tx.amount} RGN</TextBold>
+          <VerticalSpacer $spacing={0.1} />
+          <TextSubtle>{tx.status}</TextSubtle>
+        </Column>
+        <HorizontalSpacer $spacing={0.5} />
+      </Row>
+      <VerticalSpacer $spacing={0.5} />
+    </Column>
   );
 }

@@ -50,7 +50,7 @@ export const OutlinedIconButton = styled(FontAwesomeIcon)<IconButtonProps>`
 `;
 
 export const PrimaryButton = styled.button`
-  height: 44px;
+  height: 50px;
   padding: 5px 2rem;
   margin: 0;
 
@@ -61,7 +61,25 @@ export const PrimaryButton = styled.button`
   border: none;
   outline: none;
 
-  border-radius: 22px;
+  border-radius: 25px;
+
+  cursor: pointer;
+`;
+
+export const OutlinedPrimaryButton = styled.button`
+  height: 50px;
+  padding: 5px 2rem;
+  margin: 0;
+
+  font-size: 1.2rem;
+  color: ${COLORS.primary};
+
+  background-color: ${COLORS.white};
+  border: none;
+  outline: none;
+
+  border-radius: 25px;
+  border: solid 3px ${COLORS.primary};
 
   cursor: pointer;
 `;

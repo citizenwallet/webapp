@@ -3,25 +3,37 @@
 import { Main } from "@/components/base";
 import {
   ActionBar,
+  ActionBarSmall,
   ChildWrapper,
-  ContentWrapper,
   HeaderWrapper,
 } from "./styles";
+import { useScrollPosition } from "@/hooks/page";
 
 interface WalletLayoutProps {
   header?: React.ReactNode;
   actions?: React.ReactNode;
+  smallActions?: React.ReactNode;
   children: React.ReactNode;
 }
 
-const WalletLayout = ({ header, actions, children }: WalletLayoutProps) => {
+const WalletLayout = ({
+  header,
+  actions,
+  smallActions,
+  children,
+}: WalletLayoutProps) => {
+  const position = useScrollPosition();
+
+  const showSmall = position > 100;
+
   return (
     <Main>
-      <ContentWrapper>
-        {header && <HeaderWrapper>{header}</HeaderWrapper>}
-        {actions && <ActionBar>{actions}</ActionBar>}
-        {children && <ChildWrapper>{children}</ChildWrapper>}
-      </ContentWrapper>
+      {header && <HeaderWrapper>{header}</HeaderWrapper>}
+      {actions && !showSmall && <ActionBar>{actions}</ActionBar>}
+      {smallActions && showSmall && (
+        <ActionBarSmall>{smallActions}</ActionBarSmall>
+      )}
+      {children && <ChildWrapper>{children}</ChildWrapper>}
     </Main>
   );
 };

@@ -13,6 +13,8 @@ import {
   AltIconButton,
   IconButton,
   OutlinedIconButton,
+  PrimaryButton,
+  OutlinedPrimaryButton,
 } from "@/components/buttons";
 import WalletLayout from "@/layouts/Wallet";
 import { faQrcode } from "@fortawesome/free-solid-svg-icons/faQrcode";
@@ -26,12 +28,17 @@ import {
   CurrencyAmountLarge,
   CurrencySymbolLarge,
   SubtleSubtitle,
+  Text,
   TextBold,
 } from "@/components/text";
 import { useTransactionStore } from "@/state/transactions/state";
 import { useTransactionLogic } from "@/state/transactions/logic";
 import { useEffect } from "react";
 import TransactionRow from "@/components/TransactionRow";
+import Image from "next/image";
+
+import SpinnerIcon from "@/assets/icons/spinner.svg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function Wallet() {
   const txStore = useTransactionStore();
@@ -45,6 +52,7 @@ export default function Wallet() {
     console.log("QRCode");
   };
 
+  const loading = useTransactionStore((state) => state.loading);
   const txs = useTransactionStore((state) => state.transactions);
 
   return (
@@ -54,6 +62,49 @@ export default function Wallet() {
           <Expanded />
           <Profile />
         </Row>
+      }
+      smallActions={
+        <Column $fill>
+          <Row $horizontal="center">
+            <Profile src={LogoIcon} size={40} />
+            <HorizontalSpacer />
+            <CurrencyAmountLarge>42.00</CurrencyAmountLarge>
+            <HorizontalSpacer $spacing={0.5} />
+            <CurrencySymbolLarge>RGN</CurrencySymbolLarge>
+          </Row>
+          <VerticalSpacer $spacing={2} />
+          <Row $horizontal="space-between">
+            <HorizontalSpacer $spacing={0.5} />
+            <Column>
+              <PrimaryButton>
+                <Row>
+                  <Text fontSize="0.8rem">Send</Text>
+                  <HorizontalSpacer $spacing={0.5} />
+                  <FontAwesomeIcon icon={faArrowUp} size="xs" />
+                </Row>
+              </PrimaryButton>
+            </Column>
+            <Column>
+              <PrimaryButton>
+                <Row>
+                  <Text fontSize="0.8rem">Receive</Text>
+                  <HorizontalSpacer $spacing={0.5} />
+                  <FontAwesomeIcon icon={faArrowDown} size="xs" />
+                </Row>
+              </PrimaryButton>
+            </Column>
+            <Column>
+              <OutlinedPrimaryButton>
+                <Row>
+                  <Text fontSize="0.8rem">More</Text>
+                  <HorizontalSpacer $spacing={0.5} />
+                  <FontAwesomeIcon icon={faEllipsis} size="xs" />
+                </Row>
+              </OutlinedPrimaryButton>
+            </Column>
+            <HorizontalSpacer $spacing={0.5} />
+          </Row>
+        </Column>
       }
       actions={
         <Column $fill>
@@ -93,9 +144,20 @@ export default function Wallet() {
         <TextBold>Transaction history</TextBold>
         <VerticalSpacer $spacing={0.5} />
         <Divider />
-        {txs.map((tx) => (
-          <TransactionRow key={tx.id} tx={tx} />
-        ))}
+        {loading && (
+          <>
+            <VerticalSpacer $spacing={3} />
+            <Row $horizontal="center">
+              <Image
+                src={SpinnerIcon}
+                alt="loading spinner"
+                height={30}
+                width={30}
+              />
+            </Row>
+          </>
+        )}
+        {!loading && txs.map((tx) => <TransactionRow key={tx.id} tx={tx} />)}
       </TransactionListWrapper>
       <OutlinedIconButton
         style={{ position: "fixed", bottom: "40px" }}

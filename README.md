@@ -1,6 +1,6 @@
 <h1 align="center">
   <img style="height: 100px; width: 100px;" src="https://github.com/citizenwallet/citizenwallet/blob/main/assets/logo.png" alt="citizen wallet logo"/><br/>
-  Community Dashboard
+  Citizen Wallet - Web Wallet
 </h1>
 
 Receive and send citizen coins to pay at participating events.

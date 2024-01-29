@@ -85,4 +85,10 @@ export class ConfigService {
 
     return this.config!;
   }
+
+  async getCommunity(alias: string): Promise<Config> {
+    const config = await this.get();
+
+    return config.find((c) => c.community.alias === alias)!;
+  }
 }

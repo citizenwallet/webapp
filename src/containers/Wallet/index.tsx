@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import Profile from "@/components/RoundedImage";
 import {
   Column,
@@ -39,19 +41,33 @@ import Image from "next/image";
 
 import SpinnerIcon from "@/assets/icons/spinner.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useCommunitiesStore } from "@/state/communities/state";
+import { useCommunitiesLogic } from "@/state/communities/logic";
 
 export default function Wallet() {
+  const router = useRouter();
+
+  const communityStore = useCommunitiesStore();
+  const communityLogic = useCommunitiesLogic(communityStore, "gt.celo");
+
   const txStore = useTransactionStore();
   const logic = useTransactionLogic(txStore);
 
   useEffect(() => {
+    communityLogic.fetchCommunity();
     logic.fetchTransactions();
-  }, [logic]);
+  }, [communityLogic, logic]);
 
   const handleQRCode = () => {
     console.log("QRCode");
   };
 
+  const handleTransactionClick = (txid: string) => {
+    router.push(`wallet/tx/${txid}`);
+  };
+
+  const communityLoading = useCommunitiesStore((state) => state.loading);
+  const community = useCommunitiesStore((state) => state.community);
   const loading = useTransactionStore((state) => state.loading);
   const txs = useTransactionStore((state) => state.transactions);
 
@@ -110,7 +126,9 @@ export default function Wallet() {
         <Column $fill>
           <Profile src={LogoIcon} size={80} />
           <VerticalSpacer />
-          <SubtleSubtitle>Community Name</SubtleSubtitle>
+          <SubtleSubtitle>
+            {communityLoading || !community ? "..." : community.community.name}
+          </SubtleSubtitle>
           <VerticalSpacer />
           <Row $horizontal="center">
             <CurrencyAmountLarge>42.00</CurrencyAmountLarge>
@@ -144,7 +162,7 @@ export default function Wallet() {
         <TextBold>Transaction history</TextBold>
         <VerticalSpacer $spacing={0.5} />
         <Divider />
-        {loading && (
+        {loading && txs.length == 0 && (
           <>
             <VerticalSpacer $spacing={3} />
             <Row $horizontal="center">
@@ -157,7 +175,13 @@ export default function Wallet() {
             </Row>
           </>
         )}
-        {!loading && txs.map((tx) => <TransactionRow key={tx.id} tx={tx} />)}
+        {txs.map((tx) => (
+          <TransactionRow
+            key={tx.id}
+            tx={tx}
+            onClick={handleTransactionClick}
+          />
+        ))}
       </TransactionListWrapper>
       <WhiteGradient style={{ position: "fixed", bottom: 0 }} />
       <OutlinedIconButton

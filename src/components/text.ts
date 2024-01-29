@@ -79,3 +79,20 @@ export const CurrencySymbolLarge = styled.h1`
   overflow: hidden;
   text-overflow: ellipsis;
 `;
+
+interface CurrentAmountProps {
+  $positive?: boolean;
+}
+
+export const CurrencyAmountSmall = styled.p<CurrentAmountProps>`
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.05rem;
+  margin: 0;
+
+  color: ${(props) => (props.$positive ? COLORS.success : COLORS.text)};
+
+  &::before {
+    content: "${(props) => (props.$positive ? "+" : "")}";
+  }
+`;

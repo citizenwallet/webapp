@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
 import type {} from "@redux-devtools/extension"; // required for devtools typing
+import { devtools } from "zustand/middleware";
 
 export type txType = "sending" | "pending" | "success" | "failed";
 

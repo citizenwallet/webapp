@@ -6,4 +6,5 @@ export const COLORS = {
   white: "#ffffff",
   subtle: "#8F8A9D",
   divider: "#F0E9F4",
+  success: "#41BA47",
 };

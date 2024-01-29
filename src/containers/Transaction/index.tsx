@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import CoverImage from "@/assets/images/cover.svg";
 import { ImageContainer } from "./styles";
 import { VerticalSpacer } from "@/components/base";
@@ -9,10 +9,12 @@ import { PrimaryButton } from "@/components/buttons";
 import OnboardingLayout from "@/layouts/Onboarding";
 import { Subtitle, Title } from "@/components/text";
 
-interface HomeProps {}
+interface TransactionProps {}
 
-export default function Home({}: HomeProps) {
+export default function Transaction({}: TransactionProps) {
   const router = useRouter();
+
+  const { txid } = useParams() as { txid: string };
 
   const handleStart = () => {
     router.replace("/wallet");
@@ -25,7 +27,7 @@ export default function Home({}: HomeProps) {
           <ImageContainer>
             <Image fill src={CoverImage} alt="Cover Image" />
           </ImageContainer>
-          <Title>Citizen Wallet</Title>
+          <Title>Citizen Wallet {txid}</Title>
           <VerticalSpacer $spacing={2} />
           <Subtitle>A wallet for your community.</Subtitle>
         </>

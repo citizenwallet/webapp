@@ -9,12 +9,17 @@ import { faSizeToPixelSize } from "@/theme/iconSizeMapper";
 import { MouseEventHandler } from "react";
 
 interface IconButtonProps {
+  $shadow?: boolean;
   $color?: string;
   $backgroundColor?: string;
   size?: string;
   style?: CSSProperties | undefined;
   onClick?: MouseEventHandler<SVGSVGElement> | undefined;
 }
+
+const ButtonShadow = css`
+  box-shadow: 0px 4px 15px rgba(41.17, 6.73, 85, 0.12);
+`;
 
 const BaseIconButton = css`
   cursor: pointer;
@@ -40,6 +45,7 @@ const BaseIconButtonDimensions = css<IconButtonProps>`
 export const IconButton = styled(FontAwesomeIcon)<IconButtonProps>`
   ${BaseIconButton}
   ${BaseIconButtonDimensions}
+  ${(props) => props.$shadow && ButtonShadow}
 
   background-color: ${(props) => props.$backgroundColor || COLORS.primary};
   color: ${(props) => props.$color || COLORS.white};
@@ -50,6 +56,7 @@ export const IconButton = styled(FontAwesomeIcon)<IconButtonProps>`
 export const AltIconButton = styled(FontAwesomeIcon)<IconButtonProps>`
   ${BaseIconButton}
   ${BaseIconButtonDimensions}
+  ${(props) => props.$shadow && ButtonShadow}
 
   background-color: ${(props) => props.$backgroundColor || COLORS.secondary};
   color: ${(props) => props.$color || COLORS.primary};
@@ -59,6 +66,7 @@ export const AltIconButton = styled(FontAwesomeIcon)<IconButtonProps>`
 
 const IconButtonContainer = styled.div<IconButtonProps>`
   ${BaseIconButton}
+  ${(props) => props.$shadow && ButtonShadow}
 
   display: flex;
   justify-content: center;
@@ -76,6 +84,7 @@ const IconButtonContainer = styled.div<IconButtonProps>`
 // in trying to keep things simple, this component got a bit convoluted
 // this was done because Safari clips the svg icon even when you set a border radius there is enough space
 export const OutlinedIconButton = ({
+  $shadow,
   $color,
   $backgroundColor,
   size,
@@ -84,6 +93,7 @@ export const OutlinedIconButton = ({
   ...props
 }: FontAwesomeIconProps & IconButtonProps) => (
   <IconButtonContainer
+    $shadow={$shadow}
     $color={$color}
     $backgroundColor={$backgroundColor}
     size={size}

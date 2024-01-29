@@ -25,7 +25,11 @@ import LogoIcon from "@/assets/icons/logo.svg";
 import { faArrowUp } from "@fortawesome/free-solid-svg-icons/faArrowUp";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons/faArrowDown";
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons/faEllipsis";
-import { TransactionListWrapper, WhiteGradient } from "./styles";
+import {
+  ActionsWrapper,
+  TransactionListWrapper,
+  WhiteGradient,
+} from "./styles";
 import {
   CurrencyAmountLarge,
   CurrencySymbolLarge,
@@ -35,7 +39,7 @@ import {
 } from "@/components/text";
 import { useTransactionStore } from "@/state/transactions/state";
 import { useTransactionLogic } from "@/state/transactions/logic";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import TransactionRow from "@/components/TransactionRow";
 import Image from "next/image";
 
@@ -43,8 +47,15 @@ import SpinnerIcon from "@/assets/icons/spinner.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCommunitiesStore } from "@/state/communities/state";
 import { useCommunitiesLogic } from "@/state/communities/logic";
+import { useScrollPosition } from "@/hooks/page";
+import { delay } from "@/utils/delay";
+import { faPlus } from "@fortawesome/free-solid-svg-icons/faPlus";
+import { faUsers } from "@fortawesome/free-solid-svg-icons/faUsers";
 
 export default function Wallet() {
+  const position = useScrollPosition();
+
+  const [more, setMore] = useState(false);
   const router = useRouter();
 
   const communityStore = useCommunitiesStore();
@@ -58,8 +69,23 @@ export default function Wallet() {
     logic.fetchTransactions();
   }, [communityLogic, logic]);
 
+  useEffect(() => {
+    if (more && position > 100) {
+      console.log("set more false");
+      setMore(false);
+    }
+  }, [position, more]);
+
   const handleQRCode = () => {
     console.log("QRCode");
+  };
+
+  const handleMore = async () => {
+    if (position > 100) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      await delay(650);
+    }
+    setMore(!more);
   };
 
   const handleTransactionClick = (txid: string) => {
@@ -110,7 +136,7 @@ export default function Wallet() {
               </PrimaryButton>
             </Column>
             <Column>
-              <OutlinedPrimaryButton>
+              <OutlinedPrimaryButton onClick={handleMore}>
                 <Row>
                   <Text fontSize="0.8rem">More</Text>
                   <HorizontalSpacer $spacing={0.5} />
@@ -139,17 +165,22 @@ export default function Wallet() {
           <Row $horizontal="space-between">
             <HorizontalSpacer $spacing={0.5} />
             <Column>
-              <IconButton icon={faArrowUp} size="2x" />
+              <IconButton icon={faArrowUp} size="2x" $shadow />
               <VerticalSpacer $spacing={0.5} />
               <TextBold>Send</TextBold>
             </Column>
             <Column>
-              <IconButton icon={faArrowDown} size="2x" />
+              <IconButton icon={faArrowDown} size="2x" $shadow />
               <VerticalSpacer $spacing={0.5} />
               <TextBold>Receive</TextBold>
             </Column>
             <Column>
-              <AltIconButton icon={faEllipsis} size="2x" />
+              <OutlinedIconButton
+                icon={faEllipsis}
+                size="2x"
+                $shadow
+                onClick={handleMore}
+              />
               <VerticalSpacer $spacing={0.5} />
               <TextBold>More</TextBold>
             </Column>
@@ -158,6 +189,40 @@ export default function Wallet() {
         </Column>
       }
     >
+      <ActionsWrapper $show={more}>
+        <Divider style={{ width: "80%" }} />
+        <VerticalSpacer />
+        <Row>
+          <HorizontalSpacer $spacing={3} />
+          <OutlinedIconButton icon={faPlus} size="sm" />
+          <HorizontalSpacer />
+          <Expanded>
+            <TextBold>Top up</TextBold>
+          </Expanded>
+          <HorizontalSpacer $spacing={3} />
+        </Row>
+        <VerticalSpacer />
+        <Row>
+          <HorizontalSpacer $spacing={3} />
+          <OutlinedIconButton icon={faEllipsis} size="sm" />
+          <HorizontalSpacer />
+          <Expanded>
+            <TextBold>Custom Action</TextBold>
+          </Expanded>
+          <HorizontalSpacer $spacing={3} />
+        </Row>
+        <VerticalSpacer />
+        <Row>
+          <HorizontalSpacer $spacing={3} />
+          <OutlinedIconButton icon={faUsers} size="sm" />
+          <HorizontalSpacer />
+          <Expanded>
+            <TextBold>View Community Dashboard</TextBold>
+          </Expanded>
+          <HorizontalSpacer $spacing={3} />
+        </Row>
+        <VerticalSpacer />
+      </ActionsWrapper>
       <TransactionListWrapper>
         <TextBold>Transaction history</TextBold>
         <VerticalSpacer $spacing={0.5} />
@@ -188,6 +253,7 @@ export default function Wallet() {
         style={{ position: "fixed", bottom: "40px" }}
         icon={faQrcode}
         size="2x"
+        $shadow
         onClick={handleQRCode}
       />
     </WalletLayout>

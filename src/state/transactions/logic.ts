@@ -18,9 +18,11 @@ class TransactionLogic {
     this.store = store;
   }
 
-  fetchTransactions = async () => {
+  fetchTransactions = async (address: string) => {
     try {
       this.store.fetchTransactionsRequest();
+
+      console.log("address", address);
 
       await delay(1000);
 

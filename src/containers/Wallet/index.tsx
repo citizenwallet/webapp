@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import Profile from "@/components/RoundedImage";
 import {
@@ -58,6 +58,8 @@ export default function Wallet() {
   const [more, setMore] = useState(false);
   const router = useRouter();
 
+  const { address } = useParams() as { address: string };
+
   const communityStore = useCommunitiesStore();
   const communityLogic = useCommunitiesLogic(communityStore, "gt.celo");
 
@@ -66,8 +68,8 @@ export default function Wallet() {
 
   useEffect(() => {
     communityLogic.fetchCommunity();
-    logic.fetchTransactions();
-  }, [communityLogic, logic]);
+    logic.fetchTransactions(address);
+  }, [communityLogic, logic, address]);
 
   useEffect(() => {
     if (more && position > 100) {

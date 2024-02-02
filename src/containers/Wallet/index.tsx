@@ -91,7 +91,7 @@ export default function Wallet() {
   };
 
   const handleTransactionClick = (txid: string) => {
-    router.push(`wallet/tx/${txid}`);
+    router.push(`wallet/tx?txid=${txid}`);
   };
 
   const communityLoading = useCommunitiesStore((state) => state.loading);

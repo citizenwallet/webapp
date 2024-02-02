@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import CoverImage from "@/assets/images/cover.svg";
 import { ImageContainer } from "./styles";
 import { VerticalSpacer } from "@/components/base";
@@ -14,7 +14,9 @@ interface TransactionProps {}
 export default function Transaction({}: TransactionProps) {
   const router = useRouter();
 
-  const { txid } = useParams() as { txid: string };
+  const params = useSearchParams();
+
+  const txid = params.get("txid");
 
   const handleStart = () => {
     router.replace("/wallet");

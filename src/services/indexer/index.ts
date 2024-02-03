@@ -1,50 +1,46 @@
-import { ApiService } from "../api";
+import { ApiService } from "../api"
 
 export interface FetchNewTransactionsQueryParams {
-  fromDate?: Date;
-  limit?: number;
+  fromDate?: Date
+  limit?: number
 }
 
 export interface FetchTransactionsQueryParams {
-  maxDate?: Date;
-  limit?: number;
-  offset?: number;
+  maxDate?: Date
+  limit?: number
+  offset?: number
 }
 
 interface IndexerResponse {
-  array?: any[];
-  object?: any;
-  meta?: { limit: number; offset: number; total: number };
-  response_type: "array" | "object";
+  array?: any[]
+  object?: any
+  meta?: { limit: number; offset: number; total: number }
+  response_type: "array" | "object"
 }
 
-export type TransactionStatusType =
-  | "sending"
-  | "pending"
-  | "success"
-  | "failed";
+export type TransactionStatusType = "sending" | "pending" | "success" | "failed"
 
-export type TransactionDateType = {
-  description: string;
-};
+export type TransactionDataType = {
+  description: string
+}
 
 export interface TransactionType {
-  created_at: string;
-  data: TransactionDateType | null;
-  from: string;
-  hash: string;
-  nonce: number;
-  status: TransactionStatusType;
-  to: string;
-  token_id: number;
-  tx_hash: string;
-  value: bigint;
+  created_at: string
+  data: TransactionDataType | null
+  from: string
+  hash: string
+  nonce: bigint
+  status: TransactionStatusType
+  to: string
+  token_id: number
+  tx_hash: string
+  value: bigint
 }
 
 export class IndexerService {
   constructor(private api: ApiService, private token: string) {
-    this.api = api;
-    this.token = token;
+    this.api = api
+    this.token = token
   }
 
   async fetchNewTransactions(
@@ -61,17 +57,17 @@ export class IndexerService {
       `/logs/v2/transfers/${
         this.token
       }/${address}/new?fromDate=${fromDate.toISOString()}&limit=${limit}`
-    );
+    )
 
     if (response.response_type !== "array") {
-      throw new Error("Invalid response type");
+      throw new Error("Invalid response type")
     }
 
     if (!response.array) {
-      throw new Error("Invalid response");
+      throw new Error("Invalid response")
     }
 
-    return response.array;
+    return response.array
   }
 
   async fetchTransactions(
@@ -90,36 +86,36 @@ export class IndexerService {
       `/logs/v2/transfers/${
         this.token
       }/${address}?maxDate=${maxDate.toISOString()}&limit=${limit}&offset=${offset}`
-    );
+    )
 
     if (response.response_type !== "array") {
-      throw new Error("Invalid response type");
+      throw new Error("Invalid response type")
     }
 
     if (!response.array) {
-      throw new Error("Invalid response");
+      throw new Error("Invalid response")
     }
 
-    return response.array;
+    return response.array
   }
 
   listenForNewTransactions(
     address: string,
     onNewTransactions: (txs: TransactionType[]) => void
   ): () => void {
-    this.pollingAddress = address;
+    this.pollingAddress = address
 
-    this.lastFetchedTransactionDate = new Date(new Date().getTime() - 1000);
+    this.lastFetchedTransactionDate = new Date(new Date().getTime() - 1000)
 
-    this.pollForNewTransactions(address, onNewTransactions);
+    this.pollForNewTransactions(address, onNewTransactions)
 
     return () => {
-      this.pollingAddress = undefined;
-    };
+      this.pollingAddress = undefined
+    }
   }
 
-  lastFetchedTransactionDate: Date | undefined;
-  pollingAddress: string | undefined;
+  lastFetchedTransactionDate: Date | undefined
+  pollingAddress: string | undefined
 
   async pollForNewTransactions(
     address: string,
@@ -127,24 +123,24 @@ export class IndexerService {
   ): Promise<void> {
     if (!this.pollingAddress || this.pollingAddress !== address) {
       // make sure we don't start polling two addresses at the same time
-      return;
+      return
     }
 
     // TODO: stop duplicate pollling
 
     const txs = await this.fetchNewTransactions(address, {
       fromDate: this.lastFetchedTransactionDate,
-    });
+    })
 
     if (txs.length) {
-      onNewTransactions(txs);
+      onNewTransactions(txs)
       this.lastFetchedTransactionDate = new Date(
         new Date(txs[0].created_at).getTime() + 500
-      );
+      )
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    return this.pollForNewTransactions(address, onNewTransactions);
+    return this.pollForNewTransactions(address, onNewTransactions)
   }
 }

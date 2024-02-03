@@ -1,3 +1,4 @@
 "use client"
 
-export const locale = window?.navigator?.language || "en";
+export const locale =
+  typeof window !== "undefined" ? window?.navigator?.language || "en" : "en"

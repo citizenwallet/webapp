@@ -55,6 +55,24 @@ class AccountLogic {
       this.state.fetchTransactionsFailure();
     }
   };
+
+  cancel?: () => void;
+
+  startListeningForTransactions = async (address: string) => {
+    try {
+      this.cancel = this.indexer.listenForNewTransactions(address, (txs) =>
+        this.state.addNewTransactions(txs)
+      );
+    } catch (error) {
+      console.error("Error listening for transactions", error);
+    }
+  };
+
+  stopListeningForTransactions = () => {
+    this.cancel?.();
+
+    this.cancel = undefined;
+  };
 }
 
 export const useAccountLogic = (config: ConfigType) => {

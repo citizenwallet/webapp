@@ -102,4 +102,49 @@ export class IndexerService {
 
     return response.array;
   }
+
+  listenForNewTransactions(
+    address: string,
+    onNewTransactions: (txs: TransactionType[]) => void
+  ): () => void {
+    this.pollingAddress = address;
+
+    this.lastFetchedTransactionDate = new Date(new Date().getTime() - 1000);
+
+    this.pollForNewTransactions(address, onNewTransactions);
+
+    return () => {
+      this.pollingAddress = undefined;
+    };
+  }
+
+  lastFetchedTransactionDate: Date | undefined;
+  pollingAddress: string | undefined;
+
+  async pollForNewTransactions(
+    address: string,
+    onNewTransactions: (txs: TransactionType[]) => void
+  ): Promise<void> {
+    if (!this.pollingAddress || this.pollingAddress !== address) {
+      // make sure we don't start polling two addresses at the same time
+      return;
+    }
+
+    // TODO: stop duplicate pollling
+
+    const txs = await this.fetchNewTransactions(address, {
+      fromDate: this.lastFetchedTransactionDate,
+    });
+
+    if (txs.length) {
+      onNewTransactions(txs);
+      this.lastFetchedTransactionDate = new Date(
+        new Date(txs[0].created_at).getTime() + 500
+      );
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    return this.pollForNewTransactions(address, onNewTransactions);
+  }
 }

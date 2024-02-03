@@ -12,6 +12,7 @@ export type AccountStateType = {
   fetchTransactionsRequest: () => void;
   fetchTransactionsSuccess: (transactions: TransactionType[]) => void;
   fetchTransactionsFailure: () => void;
+  addNewTransactions: (transactions: TransactionType[]) => void;
 };
 
 export const useAccountState = create<AccountStateType>()((set) => ({
@@ -29,4 +30,9 @@ export const useAccountState = create<AccountStateType>()((set) => ({
   fetchTransactionsSuccess: (transactions: TransactionType[]) =>
     set({ transactions, loading: false, error: false }),
   fetchTransactionsFailure: () => set({ loading: false, error: true }),
+  addNewTransactions: (transactions: TransactionType[]) => {
+    set((state) => ({
+      transactions: [...transactions, ...state.transactions],
+    }));
+  },
 }));

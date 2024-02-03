@@ -30,7 +30,7 @@ import {
   TransactionListWrapper,
   WhiteGradient,
   ActionBar,
-  ActionBarSmall
+  ActionBarSmall,
 } from "./styles";
 
 import {
@@ -42,7 +42,6 @@ import {
 } from "@/components/text";
 
 import ReceiveAction from "@/components/ReceiveAction";
-
 
 import { formatBigIntAmount } from "@/utils/amount";
 
@@ -64,7 +63,7 @@ import { ConfigType } from "@/types/config";
 import { useAccountState } from "@/state/account/state";
 
 interface AccountProps {
-  config: ConfigType
+  config: ConfigType;
 }
 
 export default function Account(props: AccountProps) {
@@ -87,8 +86,15 @@ export default function Account(props: AccountProps) {
   useEffect(() => {
     logic.fetchBalance(address);
     logic.fetchTransactions(address);
-
   }, [communityLogic, logic, address]);
+
+  useEffect(() => {
+    logic.startListeningForTransactions(address);
+
+    return () => {
+      logic.stopListeningForTransactions();
+    };
+  }, [logic, address]);
 
   useEffect(() => {
     if (more && position > 100) {
@@ -117,85 +123,92 @@ export default function Account(props: AccountProps) {
   const community = useCommunitiesStore((state) => state.community);
   const loading = useAccountState((state) => state.loading);
   const txs = useAccountState((state) => state.transactions);
-  const balance = useAccountState((state) => formatBigIntAmount(state.balance, navigator.language, config.token.decimals));
+  const balance = useAccountState((state) =>
+    formatBigIntAmount(state.balance, "en", config.token.decimals)
+  );
 
   const showSmall = position > 100;
 
+  const actions = (
+    <Column $fill>
+      <RoundedImage src={config.community.logo || LogoIcon} size={80} />
+      <VerticalSpacer />
+      <SubtleSubtitle>
+        {communityLoading || !community ? "..." : community.community.name}
+      </SubtleSubtitle>
+      <VerticalSpacer />
+      <Row $horizontal="center">
+        <CurrencyAmountLarge>{balance}</CurrencyAmountLarge>
+        <HorizontalSpacer $spacing={0.5} />
+        <CurrencySymbolLarge>RGN</CurrencySymbolLarge>
+      </Row>
+      <VerticalSpacer $spacing={2} />
+      <Row $horizontal="space-between">
+        <HorizontalSpacer $spacing={0.5} />
+        <Column>
+          <IconButton icon={faArrowUp} size="2x" $shadow />
+          <VerticalSpacer $spacing={0.5} />
+          <TextBold>Send</TextBold>
+        </Column>
+        <Column>
+          <ReceiveAction variant="vertical" config={config} address={address} />
+        </Column>
+        <Column>
+          <OutlinedIconButton
+            icon={faEllipsis}
+            size="2x"
+            $shadow
+            onClick={handleMore}
+          />
+          <VerticalSpacer $spacing={0.5} />
+          <TextBold>More</TextBold>
+        </Column>
+        <HorizontalSpacer $spacing={0.5} />
+      </Row>
+    </Column>
+  );
 
-
-  
-const actions = (<Column $fill>
-  <RoundedImage src={config.community.logo || LogoIcon} size={80} />
-  <VerticalSpacer />
-  <SubtleSubtitle>
-    {communityLoading || !community ? "..." : community.community.name}
-  </SubtleSubtitle>
-  <VerticalSpacer />
-  <Row $horizontal="center">
-    <CurrencyAmountLarge>{balance}</CurrencyAmountLarge>
-    <HorizontalSpacer $spacing={0.5} />
-    <CurrencySymbolLarge>RGN</CurrencySymbolLarge>
-  </Row>
-  <VerticalSpacer $spacing={2} />
-  <Row $horizontal="space-between">
-    <HorizontalSpacer $spacing={0.5} />
-    <Column>
-      <IconButton icon={faArrowUp} size="2x" $shadow />
-      <VerticalSpacer $spacing={0.5} />
-      <TextBold>Send</TextBold>
+  const smallActions = (
+    <Column $fill>
+      <Row $horizontal="center">
+        <RoundedImage src={config.community.logo} size={40} />
+        <HorizontalSpacer />
+        <CurrencyAmountLarge>{balance}</CurrencyAmountLarge>
+        <HorizontalSpacer $spacing={0.5} />
+        <CurrencySymbolLarge>RGN</CurrencySymbolLarge>
+      </Row>
+      <VerticalSpacer $spacing={2} />
+      <Row $horizontal="space-between">
+        <HorizontalSpacer $spacing={0.5} />
+        <Column>
+          <PrimaryButton>
+            <Row>
+              <Text fontSize="0.8rem">Send</Text>
+              <HorizontalSpacer $spacing={0.5} />
+              <FontAwesomeIcon icon={faArrowUp} size="xs" />
+            </Row>
+          </PrimaryButton>
+        </Column>
+        <Column>
+          <ReceiveAction
+            variant="horizontal"
+            config={config}
+            address={address}
+          />
+        </Column>
+        <Column>
+          <OutlinedPrimaryButton onClick={handleMore}>
+            <Row>
+              <Text fontSize="0.8rem">More</Text>
+              <HorizontalSpacer $spacing={0.5} />
+              <FontAwesomeIcon icon={faEllipsis} size="xs" />
+            </Row>
+          </OutlinedPrimaryButton>
+        </Column>
+        <HorizontalSpacer $spacing={0.5} />
+      </Row>
     </Column>
-    <Column>
-      <ReceiveAction variant="vertical" config={config} address={address} />
-    </Column>
-    <Column>
-      <OutlinedIconButton
-        icon={faEllipsis}
-        size="2x"
-        $shadow
-        onClick={handleMore}
-      />
-      <VerticalSpacer $spacing={0.5} />
-      <TextBold>More</TextBold>
-    </Column>
-    <HorizontalSpacer $spacing={0.5} />
-  </Row>
-</Column>);
-
-const smallActions = (<Column $fill>
-  <Row $horizontal="center">
-    <RoundedImage src={config.community.logo} size={40} />
-    <HorizontalSpacer />
-    <CurrencyAmountLarge>{balance}</CurrencyAmountLarge>
-    <HorizontalSpacer $spacing={0.5} />
-    <CurrencySymbolLarge>RGN</CurrencySymbolLarge>
-  </Row>
-  <VerticalSpacer $spacing={2} />
-  <Row $horizontal="space-between">
-    <HorizontalSpacer $spacing={0.5} />
-    <Column>
-      <PrimaryButton>
-        <Row>
-          <Text fontSize="0.8rem">Send</Text>
-          <HorizontalSpacer $spacing={0.5} />
-          <FontAwesomeIcon icon={faArrowUp} size="xs" />
-        </Row>
-      </PrimaryButton>
-    </Column>
-    <Column>
-      <ReceiveAction variant="horizontal" config={config} address={address} />
-    </Column>
-    <Column>
-      <OutlinedPrimaryButton onClick={handleMore}>
-        <Row>
-          <Text fontSize="0.8rem">More</Text>
-          <HorizontalSpacer $spacing={0.5} />
-          <FontAwesomeIcon icon={faEllipsis} size="xs" />
-        </Row>
-      </OutlinedPrimaryButton>
-    </Column>
-    <HorizontalSpacer $spacing={0.5} />
-  </Row>
-</Column>);
+  );
 
   return (
     <AccountLayout
@@ -206,11 +219,10 @@ const smallActions = (<Column $fill>
         </Row>
       }
     >
-            {actions && !showSmall && <ActionBar>{actions}</ActionBar>}
+      {actions && !showSmall && <ActionBar>{actions}</ActionBar>}
       {smallActions && showSmall && (
         <ActionBarSmall>{smallActions}</ActionBarSmall>
       )}
-
 
       <ActionsWrapper $show={more}>
         <Divider style={{ width: "80%" }} />
@@ -265,7 +277,7 @@ const smallActions = (<Column $fill>
         )}
         {txs.map((tx) => (
           <TransactionRow
-            key={tx.id}
+            key={tx.hash}
             tx={tx}
             onClick={handleTransactionClick}
           />

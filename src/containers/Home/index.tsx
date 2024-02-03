@@ -8,15 +8,27 @@ import { VerticalSpacer } from "@/components/base";
 import { PrimaryButton } from "@/components/buttons";
 import OnboardingLayout from "@/layouts/Onboarding";
 import { Subtitle, Title } from "@/components/text";
+import { useBootLogic } from "@/state/boot/logic";
+import { useEffect } from "react";
+import { ConfigType } from "@/types/config";
 
-interface HomeProps {}
+interface HomeProps {
+  config: ConfigType
+}
 
-export default function Home({}: HomeProps) {
+export default function Home({ config }: HomeProps) {
   const router = useRouter();
 
-  const handleStart = () => {
-    router.replace("/wallet");
-  };
+  const logic = useBootLogic(config);
+
+  useEffect(() => {
+    async function init() {
+      const accountAddress = await logic.createOrRestore();
+      if (!accountAddress) return;
+      router.replace('/account?address=' + accountAddress);
+    }
+    init();
+  }, [logic, router]);
 
   return (
     <OnboardingLayout
@@ -30,7 +42,6 @@ export default function Home({}: HomeProps) {
           <Subtitle>A wallet for your community.</Subtitle>
         </>
       }
-      action={<PrimaryButton onClick={handleStart}>Start</PrimaryButton>}
     />
   );
 }

@@ -15,7 +15,8 @@ export const useScrollPosition = (): number => {
     const handleScroll = throttle(
       200,
       () => {
-        setScrollPosition(window.scrollY);
+        const rect = document.body.getBoundingClientRect();
+        setScrollPosition(rect.y * -1);
       },
       { noLeading: false, noTrailing: false }
     );

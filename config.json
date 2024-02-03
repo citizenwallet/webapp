@@ -1,0 +1,45 @@
+{
+  "community": {
+    "name": "HackaToken",
+    "description": "Read Charles Eisenstein and eat chips, what else!",
+    "url": "https://citizenwallet.xyz",
+    "alias": "hackatoken",
+    "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg"
+  },
+  "scan": {
+    "url": "https://alfajores.celoscan.io",
+    "name": "Celo Explorer"
+  },
+  "indexer": {
+    "url": "http://192.168.1.26:3000",
+    "ipfs_url": "http://192.168.1.26:3000",
+    "key": "x"
+  },
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
+  },
+  "node": {
+    "chainId": 44787,
+    "url": "https://alfajores-forno.celo-testnet.org",
+    "ws_url": "wss://alfajores-forno.celo-testnet.org/ws"
+  },
+  "erc4337": {
+    "rpc_url": "http://192.168.1.26:3000/rpc",
+    "paymaster_address": "0xc3142BCBA2285d0a48A38e7Ea9Cbf28a12B235bB",
+    "entrypoint_address": "0x04C6070bA72e0A49B8b16491b6c1371e3423912E",
+    "account_factory_address": "0x6789B72B035B3d63cC5145Fee9dB9520ea50D825",
+    "paymaster_rpc_url": "http://192.168.1.26:3000/rpc",
+    "paymaster_type": "cw"
+  },
+  "token": {
+    "standard": "erc20",
+    "address": "0x150068E4644669cC1A937dC60D728a51E7a42A03",
+    "name": "HackaToken",
+    "symbol": "HKT",
+    "decimals": 6
+  },
+  "profile": {
+    "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD"
+  },
+  "version": 1
+}

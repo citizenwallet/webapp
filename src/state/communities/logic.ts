@@ -1,6 +1,7 @@
 import { CommunitiesStore } from "./state";
 import { useRef } from "react";
-import { Config, ConfigService } from "@/services/config";
+import { ConfigService } from "@/services/config";
+import { ConfigType } from "@/types/config";
 import { ApiService } from "@/services/api";
 
 class CommunitiesLogic {
@@ -17,7 +18,7 @@ class CommunitiesLogic {
     try {
       this.store.fetchCommunityRequest();
 
-      const community: Config = await this.configService.getCommunity(
+      const community: ConfigType = await this.configService.getCommunity(
         this.alias
       );
 

@@ -1,57 +1,5 @@
 import { ApiService } from "../api";
-
-export interface Config {
-  community: {
-    name: string;
-    description: string;
-    url: string;
-    alias: string;
-    logo: string;
-    customDomain?: string;
-    hidden?: boolean;
-  };
-  scan: {
-    url: string;
-    name: string;
-  };
-  indexer: {
-    url: string;
-    ipfs_url: string;
-    key: string;
-  };
-  ipfs: {
-    url: string;
-  };
-  node: {
-    url: string;
-    ws_url: string;
-  };
-  erc4337: {
-    rpc_url: string;
-    paymaster_address?: string;
-    entrypoint_address: string;
-    account_factory_address: string;
-    paymaster_rpc_url: string;
-    paymaster_type: string;
-    gas_extra_percentage?: number;
-  };
-  token: {
-    standard: string;
-    address: string;
-    name: string;
-    symbol: string;
-    decimals: number;
-  };
-  profile: {
-    address: string;
-  };
-  plugins?: {
-    name: string;
-    icon: string;
-    url: string;
-  }[];
-  version: number;
-}
+import { ConfigType } from "@/types/config";
 
 export class ConfigService {
   constructor(api: ApiService) {
@@ -60,7 +8,7 @@ export class ConfigService {
 
   api: ApiService;
 
-  config?: Config[];
+  config?: ConfigType[];
 
   cacheBuster() {
     return Math.floor(new Date().getTime() / 1000);
@@ -72,7 +20,7 @@ export class ConfigService {
     );
   }
 
-  async get(): Promise<Config[]> {
+  async get(): Promise<ConfigType[]> {
     if (!this.config) {
       this.config = await this.api.get(
         "communities.json?cacheBuster=" + this.cacheBuster()
@@ -86,7 +34,7 @@ export class ConfigService {
     return this.config!;
   }
 
-  async getCommunity(alias: string): Promise<Config> {
+  async getCommunity(alias: string): Promise<ConfigType> {
     const config = await this.get();
 
     return config.find((c) => c.community.alias === alias)!;

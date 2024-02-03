@@ -4,7 +4,7 @@ import { devtools } from "zustand/middleware";
 
 export type txType = "sending" | "pending" | "success" | "failed";
 
-export interface Transaction {
+export interface TransactionType {
   id: string;
   name: string;
   description: string;
@@ -13,22 +13,32 @@ export interface Transaction {
   status: txType;
 }
 
-export type TransactionStore = {
-  transactions: Transaction[];
+export type AccountStateType = {
   loading: boolean;
   error: boolean;
+  balance: bigint;
+  transactions: TransactionType[];
+  fetchBalanceRequest: () => void;
+  fetchBalanceSuccess: (balance: bigint) => void;
+  fetchBalanceFailure: () => void;
   fetchTransactionsRequest: () => void;
-  fetchTransactionsSuccess: (communities: Transaction[]) => void;
+  fetchTransactionsSuccess: (transactions: TransactionType[]) => void;
   fetchTransactionsFailure: () => void;
 };
 
-export const useTransactionStore = create<TransactionStore>()(
+export const useAccountState = create<AccountStateType>()(
   devtools((set) => ({
+    balance: BigInt(0),
     transactions: [],
     loading: false,
     error: false,
+    fetchBalanceRequest: () => set({ loading: true, error: false }),
+    fetchBalanceSuccess: (balance: bigint) => set({ balance, loading: false, error: false }),
+    fetchBalanceFailure() {
+      set({ loading: false, error: true });
+    },
     fetchTransactionsRequest: () => set({ loading: true, error: false }),
-    fetchTransactionsSuccess: (transactions: Transaction[]) =>
+    fetchTransactionsSuccess: (transactions: TransactionType[]) =>
       set({ transactions, loading: false, error: false }),
     fetchTransactionsFailure: () => set({ loading: false, error: true }),
   }))

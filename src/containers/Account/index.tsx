@@ -1,8 +1,8 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
-import Profile from "@/components/RoundedImage";
+import RoundedImage from "@/components/RoundedImage";
 import {
   Column,
   Expanded,
@@ -18,7 +18,7 @@ import {
   PrimaryButton,
   OutlinedPrimaryButton,
 } from "@/components/buttons";
-import WalletLayout from "@/layouts/Wallet";
+import AccountLayout from "@/layouts/Account";
 import { faQrcode } from "@fortawesome/free-solid-svg-icons/faQrcode";
 
 import LogoIcon from "@/assets/icons/logo.svg";
@@ -29,7 +29,10 @@ import {
   ActionsWrapper,
   TransactionListWrapper,
   WhiteGradient,
+  ActionBar,
+  ActionBarSmall
 } from "./styles";
+
 import {
   CurrencyAmountLarge,
   CurrencySymbolLarge,
@@ -37,8 +40,13 @@ import {
   Text,
   TextBold,
 } from "@/components/text";
-import { useTransactionStore } from "@/state/transactions/state";
-import { useTransactionLogic } from "@/state/transactions/logic";
+
+import ReceiveAction from "@/components/ReceiveAction";
+
+
+import { formatBigIntAmount } from "@/utils/amount";
+
+import { useAccountLogic } from "@/state/account/logic";
 import { useEffect, useState } from "react";
 import TransactionRow from "@/components/TransactionRow";
 import Image from "next/image";
@@ -51,24 +59,35 @@ import { useScrollPosition } from "@/hooks/page";
 import { delay } from "@/utils/delay";
 import { faPlus } from "@fortawesome/free-solid-svg-icons/faPlus";
 import { faUsers } from "@fortawesome/free-solid-svg-icons/faUsers";
+import { ConfigType } from "@/types/config";
 
-export default function Wallet() {
+import { useAccountState } from "@/state/account/state";
+
+interface AccountProps {
+  config: ConfigType
+}
+
+export default function Account(props: AccountProps) {
+  const { config } = props;
   const position = useScrollPosition();
+
+  // const state = useAccountState();
 
   const [more, setMore] = useState(false);
   const router = useRouter();
 
-  const { address } = useParams() as { address: string };
+  const searchParams = useSearchParams();
+  const address = searchParams.get("address") || "";
 
   const communityStore = useCommunitiesStore();
   const communityLogic = useCommunitiesLogic(communityStore, "gt.celo");
 
-  const txStore = useTransactionStore();
-  const logic = useTransactionLogic(txStore);
+  const logic = useAccountLogic(config);
 
   useEffect(() => {
-    communityLogic.fetchCommunity();
+    logic.fetchBalance(address);
     logic.fetchTransactions(address);
+
   }, [communityLogic, logic, address]);
 
   useEffect(() => {
@@ -91,106 +110,108 @@ export default function Wallet() {
   };
 
   const handleTransactionClick = (txid: string) => {
-    router.push(`wallet/tx?txid=${txid}`);
+    router.push(`Account/tx?txid=${txid}`);
   };
 
   const communityLoading = useCommunitiesStore((state) => state.loading);
   const community = useCommunitiesStore((state) => state.community);
-  const loading = useTransactionStore((state) => state.loading);
-  const txs = useTransactionStore((state) => state.transactions);
+  const loading = useAccountState((state) => state.loading);
+  const txs = useAccountState((state) => state.transactions);
+  const balance = useAccountState((state) => formatBigIntAmount(state.balance, navigator.language, config.token.decimals));
+
+  const showSmall = position > 100;
+
+
+
+  
+const actions = (<Column $fill>
+  <RoundedImage src={config.community.logo || LogoIcon} size={80} />
+  <VerticalSpacer />
+  <SubtleSubtitle>
+    {communityLoading || !community ? "..." : community.community.name}
+  </SubtleSubtitle>
+  <VerticalSpacer />
+  <Row $horizontal="center">
+    <CurrencyAmountLarge>{balance}</CurrencyAmountLarge>
+    <HorizontalSpacer $spacing={0.5} />
+    <CurrencySymbolLarge>RGN</CurrencySymbolLarge>
+  </Row>
+  <VerticalSpacer $spacing={2} />
+  <Row $horizontal="space-between">
+    <HorizontalSpacer $spacing={0.5} />
+    <Column>
+      <IconButton icon={faArrowUp} size="2x" $shadow />
+      <VerticalSpacer $spacing={0.5} />
+      <TextBold>Send</TextBold>
+    </Column>
+    <Column>
+      <ReceiveAction variant="vertical" config={config} address={address} />
+    </Column>
+    <Column>
+      <OutlinedIconButton
+        icon={faEllipsis}
+        size="2x"
+        $shadow
+        onClick={handleMore}
+      />
+      <VerticalSpacer $spacing={0.5} />
+      <TextBold>More</TextBold>
+    </Column>
+    <HorizontalSpacer $spacing={0.5} />
+  </Row>
+</Column>);
+
+const smallActions = (<Column $fill>
+  <Row $horizontal="center">
+    <RoundedImage src={config.community.logo} size={40} />
+    <HorizontalSpacer />
+    <CurrencyAmountLarge>{balance}</CurrencyAmountLarge>
+    <HorizontalSpacer $spacing={0.5} />
+    <CurrencySymbolLarge>RGN</CurrencySymbolLarge>
+  </Row>
+  <VerticalSpacer $spacing={2} />
+  <Row $horizontal="space-between">
+    <HorizontalSpacer $spacing={0.5} />
+    <Column>
+      <PrimaryButton>
+        <Row>
+          <Text fontSize="0.8rem">Send</Text>
+          <HorizontalSpacer $spacing={0.5} />
+          <FontAwesomeIcon icon={faArrowUp} size="xs" />
+        </Row>
+      </PrimaryButton>
+    </Column>
+    <Column>
+      <ReceiveAction variant="horizontal" config={config} address={address} />
+    </Column>
+    <Column>
+      <OutlinedPrimaryButton onClick={handleMore}>
+        <Row>
+          <Text fontSize="0.8rem">More</Text>
+          <HorizontalSpacer $spacing={0.5} />
+          <FontAwesomeIcon icon={faEllipsis} size="xs" />
+        </Row>
+      </OutlinedPrimaryButton>
+    </Column>
+    <HorizontalSpacer $spacing={0.5} />
+  </Row>
+</Column>);
 
   return (
-    <WalletLayout
+    <AccountLayout
       header={
         <Row>
           <Expanded />
-          <Profile />
+          <RoundedImage />
         </Row>
       }
-      smallActions={
-        <Column $fill>
-          <Row $horizontal="center">
-            <Profile src={LogoIcon} size={40} />
-            <HorizontalSpacer />
-            <CurrencyAmountLarge>42.00</CurrencyAmountLarge>
-            <HorizontalSpacer $spacing={0.5} />
-            <CurrencySymbolLarge>RGN</CurrencySymbolLarge>
-          </Row>
-          <VerticalSpacer $spacing={2} />
-          <Row $horizontal="space-between">
-            <HorizontalSpacer $spacing={0.5} />
-            <Column>
-              <PrimaryButton>
-                <Row>
-                  <Text fontSize="0.8rem">Send</Text>
-                  <HorizontalSpacer $spacing={0.5} />
-                  <FontAwesomeIcon icon={faArrowUp} size="xs" />
-                </Row>
-              </PrimaryButton>
-            </Column>
-            <Column>
-              <PrimaryButton>
-                <Row>
-                  <Text fontSize="0.8rem">Receive</Text>
-                  <HorizontalSpacer $spacing={0.5} />
-                  <FontAwesomeIcon icon={faArrowDown} size="xs" />
-                </Row>
-              </PrimaryButton>
-            </Column>
-            <Column>
-              <OutlinedPrimaryButton onClick={handleMore}>
-                <Row>
-                  <Text fontSize="0.8rem">More</Text>
-                  <HorizontalSpacer $spacing={0.5} />
-                  <FontAwesomeIcon icon={faEllipsis} size="xs" />
-                </Row>
-              </OutlinedPrimaryButton>
-            </Column>
-            <HorizontalSpacer $spacing={0.5} />
-          </Row>
-        </Column>
-      }
-      actions={
-        <Column $fill>
-          <Profile src={LogoIcon} size={80} />
-          <VerticalSpacer />
-          <SubtleSubtitle>
-            {communityLoading || !community ? "..." : community.community.name}
-          </SubtleSubtitle>
-          <VerticalSpacer />
-          <Row $horizontal="center">
-            <CurrencyAmountLarge>42.00</CurrencyAmountLarge>
-            <HorizontalSpacer $spacing={0.5} />
-            <CurrencySymbolLarge>RGN</CurrencySymbolLarge>
-          </Row>
-          <VerticalSpacer $spacing={2} />
-          <Row $horizontal="space-between">
-            <HorizontalSpacer $spacing={0.5} />
-            <Column>
-              <IconButton icon={faArrowUp} size="2x" $shadow />
-              <VerticalSpacer $spacing={0.5} />
-              <TextBold>Send</TextBold>
-            </Column>
-            <Column>
-              <IconButton icon={faArrowDown} size="2x" $shadow />
-              <VerticalSpacer $spacing={0.5} />
-              <TextBold>Receive</TextBold>
-            </Column>
-            <Column>
-              <OutlinedIconButton
-                icon={faEllipsis}
-                size="2x"
-                $shadow
-                onClick={handleMore}
-              />
-              <VerticalSpacer $spacing={0.5} />
-              <TextBold>More</TextBold>
-            </Column>
-            <HorizontalSpacer $spacing={0.5} />
-          </Row>
-        </Column>
-      }
     >
+            {actions && !showSmall && <ActionBar>{actions}</ActionBar>}
+      {smallActions && showSmall && (
+        <ActionBarSmall>{smallActions}</ActionBarSmall>
+      )}
+
+
       <ActionsWrapper $show={more}>
         <Divider style={{ width: "80%" }} />
         <VerticalSpacer />
@@ -258,6 +279,6 @@ export default function Wallet() {
         $shadow
         onClick={handleQRCode}
       />
-    </WalletLayout>
+    </AccountLayout>
   );
 }

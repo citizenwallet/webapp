@@ -60,8 +60,8 @@ import { delay } from "@/utils/delay";
 import { faPlus } from "@fortawesome/free-solid-svg-icons/faPlus";
 import { faUsers } from "@fortawesome/free-solid-svg-icons/faUsers";
 import { ConfigType } from "@/types/config";
-import { MoreAction } from "@/components/MoreAction";
-
+import PluginComponent from "@/components/Plugin";
+import plugins from "@/plugins";
 import { useAccountState } from "@/state/account/state";
 import { locale } from "@/services/env";
 
@@ -215,9 +215,14 @@ const smallActions = (<Column $fill>
 
       <ActionsWrapper $show={more} className="mb-8">
         <Divider style={{ width: "80%" }} />
-        <MoreAction icon={faPlus} label="Top up" />
-        <MoreAction icon={faEllipsis} label="Custom Action" />
-        <MoreAction icon={faUsers} label="View Community Dashboard" />
+        { plugins.map((plugin) => (
+          <PluginComponent
+            key={plugin.MenuItem.label}
+            icon={plugin.MenuItem.icon}
+            label={plugin.MenuItem.label}
+            frameSrc={plugin.MenuItem.frameSrc}
+          />
+        ))} 
       </ActionsWrapper>
 
       <TransactionListWrapper>

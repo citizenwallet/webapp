@@ -6,14 +6,14 @@ export class ApiService {
   }
 
   async get(
-    fileName: string,
+    path: string,
     { timeout = 10000, revalidate = 3600, cache = false } = {
       timeout: 10000,
       revalidate: 3600,
       cache: false,
     }
   ): Promise<any> {
-    const url = `${this.baseUrl}/${fileName}`;
+    const url = `${this.baseUrl}${path}`;
     const controller = new AbortController();
     const abortTimeout = setTimeout(() => {
       controller.abort();

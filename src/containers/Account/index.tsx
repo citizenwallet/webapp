@@ -30,7 +30,7 @@ import {
   TransactionListWrapper,
   WhiteGradient,
   ActionBar,
-  ActionBarSmall
+  ActionBarSmall,
 } from "./styles";
 
 import {
@@ -43,7 +43,6 @@ import {
 
 import SendAction from "@/components/SendAction";
 import ReceiveAction from "@/components/ReceiveAction";
-
 
 import { formatBigIntAmount } from "@/utils/amount";
 
@@ -65,7 +64,7 @@ import { ConfigType } from "@/types/config";
 import { useAccountState } from "@/state/account/state";
 
 interface AccountProps {
-  config: ConfigType
+  config: ConfigType;
 }
 
 export default function Account(props: AccountProps) {
@@ -88,8 +87,15 @@ export default function Account(props: AccountProps) {
   useEffect(() => {
     logic.fetchBalance(address);
     logic.fetchTransactions(address);
-
   }, [communityLogic, logic, address]);
+
+  useEffect(() => {
+    logic.startListeningForTransactions(address);
+
+    return () => {
+      logic.stopListeningForTransactions();
+    };
+  }, [logic, address]);
 
   useEffect(() => {
     if (more && position > 100) {
@@ -118,13 +124,12 @@ export default function Account(props: AccountProps) {
   const community = useCommunitiesStore((state) => state.community);
   const loading = useAccountState((state) => state.loading);
   const txs = useAccountState((state) => state.transactions);
-  const balance = useAccountState((state) => formatBigIntAmount(state.balance, navigator.language, config.token.decimals));
+  const balance = useAccountState((state) =>
+    formatBigIntAmount(state.balance, "en", config.token.decimals)
+  );
 
   const showSmall = position > 100;
 
-
-
-  
 const actions = (<Column $fill>
   <RoundedImage src={config.community.logo || LogoIcon} size={80} />
   <VerticalSpacer />
@@ -199,11 +204,10 @@ const smallActions = (<Column $fill>
         </Row>
       }
     >
-            {actions && !showSmall && <ActionBar>{actions}</ActionBar>}
+      {actions && !showSmall && <ActionBar>{actions}</ActionBar>}
       {smallActions && showSmall && (
         <ActionBarSmall>{smallActions}</ActionBarSmall>
       )}
-
 
       <ActionsWrapper $show={more}>
         <Divider style={{ width: "80%" }} />
@@ -258,7 +262,7 @@ const smallActions = (<Column $fill>
         )}
         {txs.map((tx) => (
           <TransactionRow
-            key={tx.id}
+            key={tx.hash}
             tx={tx}
             onClick={handleTransactionClick}
           />

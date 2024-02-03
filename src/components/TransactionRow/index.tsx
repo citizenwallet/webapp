@@ -1,4 +1,3 @@
-import { Transaction } from "@/state/transactions/state";
 import {
   Column,
   Expanded,
@@ -9,21 +8,23 @@ import {
 import { TextSubtle, TextBold, CurrencyAmountSmall } from "../text";
 import RoundedImage from "../RoundedImage";
 import UserIcon from "@/assets/icons/user.svg";
+import { TransactionType } from "@/services/indexer";
+import { formatAddress } from "@/utils/address";
 
 interface TransactionRowProps {
-  tx: Transaction;
+  tx: TransactionType;
   onClick?: (txid: string) => void;
 }
 
 export default function TransactionRow({ tx, onClick }: TransactionRowProps) {
   const handleOnClick = () => {
     if (onClick) {
-      onClick(tx.id);
+      onClick(tx.hash);
     }
   };
 
   return (
-    <Column $fill key={tx.id} onClick={handleOnClick}>
+    <Column $fill key={tx.hash} onClick={handleOnClick}>
       <VerticalSpacer $spacing={0.5} />
       <Row>
         <HorizontalSpacer $spacing={0.5} />
@@ -31,14 +32,16 @@ export default function TransactionRow({ tx, onClick }: TransactionRowProps) {
         <HorizontalSpacer $spacing={0.5} />
         <Expanded>
           <Column $horizontal="start">
-            <TextBold>{tx.name}</TextBold>
+            <TextBold>{formatAddress(tx.from)}</TextBold>
             <VerticalSpacer $spacing={0.1} />
-            <TextSubtle fontSize="0.8rem">{tx.description}</TextSubtle>
+            <TextSubtle fontSize="0.8rem">
+              {tx.data?.description || "no description"}
+            </TextSubtle>
           </Column>
         </Expanded>
         <Column $horizontal="end">
-          <CurrencyAmountSmall $positive={tx.amount > 0}>
-            {tx.amount / 100} RGN
+          <CurrencyAmountSmall $positive={tx.value > 0}>
+            {tx.value / 100} RGN
           </CurrencyAmountSmall>
           <VerticalSpacer $spacing={0.1} />
           <TextSubtle>{tx.status}</TextSubtle>

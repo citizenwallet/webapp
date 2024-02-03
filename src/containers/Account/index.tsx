@@ -41,6 +41,7 @@ import {
   TextBold,
 } from "@/components/text";
 
+import SendAction from "@/components/SendAction";
 import ReceiveAction from "@/components/ReceiveAction";
 
 
@@ -140,9 +141,7 @@ const actions = (<Column $fill>
   <Row $horizontal="space-between">
     <HorizontalSpacer $spacing={0.5} />
     <Column>
-      <IconButton icon={faArrowUp} size="2x" $shadow />
-      <VerticalSpacer $spacing={0.5} />
-      <TextBold>Send</TextBold>
+      <SendAction variant="vertical" config={config} address={address} />
     </Column>
     <Column>
       <ReceiveAction variant="vertical" config={config} address={address} />
@@ -173,13 +172,7 @@ const smallActions = (<Column $fill>
   <Row $horizontal="space-between">
     <HorizontalSpacer $spacing={0.5} />
     <Column>
-      <PrimaryButton>
-        <Row>
-          <Text fontSize="0.8rem">Send</Text>
-          <HorizontalSpacer $spacing={0.5} />
-          <FontAwesomeIcon icon={faArrowUp} size="xs" />
-        </Row>
-      </PrimaryButton>
+      <SendAction variant="horizontal" config={config} address={address} />
     </Column>
     <Column>
       <ReceiveAction variant="horizontal" config={config} address={address} />

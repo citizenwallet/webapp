@@ -19,12 +19,16 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 
-export const MoreAction = ({
+const Plugin = ({
   icon,
   label,
+  frameSrc,
+  accountAddress
 }: {
   icon: IconDefinition
   label: string
+  frameSrc?: string
+  accountAddress: string
 }) => (
   <div className="py-3 w-full flex justify-center">
     <Drawer>
@@ -45,7 +49,16 @@ export const MoreAction = ({
           <DrawerTitle>{label}</DrawerTitle>
           <DrawerDescription>Choose an action to perform</DrawerDescription>
         </DrawerHeader>
+        { frameSrc && (
+          <iframe
+            src={`${frameSrc}?address=${accountAddress}`}
+            className="w-full h-96"
+            allowFullScreen
+          />
+        )}
       </DrawerContent>
     </Drawer>
   </div>
 )
+
+export default Plugin;

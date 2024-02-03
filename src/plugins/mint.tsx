@@ -1,6 +1,8 @@
+import { faCoins } from "@fortawesome/free-solid-svg-icons/faCoins"
+
 export const MenuItem = {
   label: "Mint",
-  icon: "faPlus"
+  icon: faCoins
 }
 
 export const Drawer = () => {

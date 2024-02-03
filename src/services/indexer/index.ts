@@ -38,7 +38,7 @@ export interface TransactionType {
   to: string;
   token_id: number;
   tx_hash: string;
-  value: number;
+  value: bigint;
 }
 
 export class IndexerService {

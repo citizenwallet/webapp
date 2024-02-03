@@ -8,6 +8,17 @@ interface PageDimensions {
   height: number;
 }
 
+export const useLocale = (): string => {
+  const [locale, setLocale] = useState("en");
+
+  useEffect(() => {
+    const locale = window.navigator.language;
+    setLocale(locale);
+  }, []);
+
+  return locale;
+}
+
 export const useScrollPosition = (): number => {
   const [scrollPosition, setScrollPosition] = useState(0);
 

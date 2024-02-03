@@ -17,7 +17,6 @@ export default function SendForm({ className, balance }: { className?: string, b
     console.log("Amount:", amount);
   }
 
-
   return (
     <form className={cn("grid items-start gap-4", className)} onSubmit={handleSubmit}>
       <div className="grid gap-2">
@@ -29,7 +28,7 @@ export default function SendForm({ className, balance }: { className?: string, b
         <Input id="amount" type="number" step="0.01" min="0" max={balance || 1000000} defaultValue={amount} onChange={(e) => setAmount(e.target.value)} />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="description">Amount</Label>
+        <Label htmlFor="description">Description</Label>
         <Input id="description" type="number" defaultValue={description} onChange={(e) => setDescription(e.target.value)} />
       </div>
       <Button type="submit">Send</Button>

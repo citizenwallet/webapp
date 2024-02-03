@@ -60,8 +60,10 @@ import { delay } from "@/utils/delay";
 import { faPlus } from "@fortawesome/free-solid-svg-icons/faPlus";
 import { faUsers } from "@fortawesome/free-solid-svg-icons/faUsers";
 import { ConfigType } from "@/types/config";
+import { MoreAction } from "@/components/MoreAction";
 
 import { useAccountState } from "@/state/account/state";
+import { locale } from "@/services/env";
 
 interface AccountProps {
   config: ConfigType;
@@ -83,7 +85,7 @@ export default function Account(props: AccountProps) {
   const communityLogic = useCommunitiesLogic(communityStore, "gt.celo");
 
   const logic = useAccountLogic(config);
-
+  
   useEffect(() => {
     logic.fetchBalance(address);
     logic.fetchTransactions(address);
@@ -140,7 +142,7 @@ const actions = (<Column $fill>
   <Row $horizontal="center">
     <CurrencyAmountLarge>{balance}</CurrencyAmountLarge>
     <HorizontalSpacer $spacing={0.5} />
-    <CurrencySymbolLarge>RGN</CurrencySymbolLarge>
+    <CurrencySymbolLarge>{config.token.symbol}</CurrencySymbolLarge>
   </Row>
   <VerticalSpacer $spacing={2} />
   <Row $horizontal="space-between">
@@ -204,45 +206,20 @@ const smallActions = (<Column $fill>
         </Row>
       }
     >
-      {actions && !showSmall && <ActionBar>{actions}</ActionBar>}
-      {smallActions && showSmall && (
-        <ActionBarSmall>{smallActions}</ActionBarSmall>
-      )}
+      <div className="mb-6">
+        {actions && !showSmall && <ActionBar>{actions}</ActionBar>}
+        {smallActions && showSmall && (
+          <ActionBarSmall>{smallActions}</ActionBarSmall>
+          )}
+      </div>
 
-      <ActionsWrapper $show={more}>
+      <ActionsWrapper $show={more} className="mb-8">
         <Divider style={{ width: "80%" }} />
-        <VerticalSpacer />
-        <Row>
-          <HorizontalSpacer $spacing={3} />
-          <OutlinedIconButton icon={faPlus} size="sm" />
-          <HorizontalSpacer />
-          <Expanded>
-            <TextBold>Top up</TextBold>
-          </Expanded>
-          <HorizontalSpacer $spacing={3} />
-        </Row>
-        <VerticalSpacer />
-        <Row>
-          <HorizontalSpacer $spacing={3} />
-          <OutlinedIconButton icon={faEllipsis} size="sm" />
-          <HorizontalSpacer />
-          <Expanded>
-            <TextBold>Custom Action</TextBold>
-          </Expanded>
-          <HorizontalSpacer $spacing={3} />
-        </Row>
-        <VerticalSpacer />
-        <Row>
-          <HorizontalSpacer $spacing={3} />
-          <OutlinedIconButton icon={faUsers} size="sm" />
-          <HorizontalSpacer />
-          <Expanded>
-            <TextBold>View Community Dashboard</TextBold>
-          </Expanded>
-          <HorizontalSpacer $spacing={3} />
-        </Row>
-        <VerticalSpacer />
+        <MoreAction icon={faPlus} label="Top up" />
+        <MoreAction icon={faEllipsis} label="Custom Action" />
+        <MoreAction icon={faUsers} label="View Community Dashboard" />
       </ActionsWrapper>
+
       <TransactionListWrapper>
         <TextBold>Transaction history</TextBold>
         <VerticalSpacer $spacing={0.5} />
@@ -264,6 +241,9 @@ const smallActions = (<Column $fill>
           <TransactionRow
             key={tx.hash}
             tx={tx}
+            locale={locale}
+            tokenSymbol={config.token.symbol}
+            tokenDecimals={config.token.decimals}
             onClick={handleTransactionClick}
           />
         ))}

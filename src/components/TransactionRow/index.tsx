@@ -10,13 +10,16 @@ import RoundedImage from "../RoundedImage";
 import UserIcon from "@/assets/icons/user.svg";
 import { TransactionType } from "@/services/indexer";
 import { formatAddress } from "@/utils/address";
-
+import { formatBigIntAmount } from "@/utils/amount";
 interface TransactionRowProps {
   tx: TransactionType;
+  locale: string;
+  tokenSymbol: string;
+  tokenDecimals: number;
   onClick?: (txid: string) => void;
 }
 
-export default function TransactionRow({ tx, onClick }: TransactionRowProps) {
+export default function TransactionRow({ locale, tokenSymbol, tokenDecimals, tx, onClick }: TransactionRowProps) {
   const handleOnClick = () => {
     if (onClick) {
       onClick(tx.hash);
@@ -41,7 +44,7 @@ export default function TransactionRow({ tx, onClick }: TransactionRowProps) {
         </Expanded>
         <Column $horizontal="end">
           <CurrencyAmountSmall $positive={tx.value > 0}>
-            {tx.value / 100} RGN
+            {formatBigIntAmount(tx.value, locale, tokenDecimals)} {tokenSymbol}
           </CurrencyAmountSmall>
           <VerticalSpacer $spacing={0.1} />
           <TextSubtle>{tx.status}</TextSubtle>

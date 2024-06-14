@@ -3,16 +3,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import WalletAction from "@/components/wallet/Action";
+import ActionBar from "@/components/wallet/ActionBar";
 import TxRow from "@/components/wallet/TxRow";
+import { useIsScrolled } from "@/hooks/scroll";
 import { Config } from "@citizenwallet/sdk";
 import { Box, Flex, Text } from "@radix-ui/themes";
-import {
-  ArrowUpIcon,
-  ArrowDownIcon,
-  EllipsisIcon,
-  QrCodeIcon,
-} from "lucide-react";
-import Image from "next/image";
+import { QrCodeIcon } from "lucide-react";
+import { useRef } from "react";
 
 interface WalletProps {
   config: Config;
@@ -20,6 +17,8 @@ interface WalletProps {
 
 export default function Wallet({ config }: WalletProps) {
   const { community, token } = config;
+
+  const isScrolled = useIsScrolled();
 
   const handleScan = () => {
     console.log("scan");
@@ -47,62 +46,7 @@ export default function Wallet({ config }: WalletProps) {
         </Button>
       </Flex>
 
-      <Flex
-        direction="column"
-        className="z-10 sticky top-0 left-0 w-full max-w-5xl items-center justify-between font-mono text-sm"
-      >
-        <Flex
-          justify="center"
-          align="center"
-          gap="2"
-          className="w-full bg-white pt-10"
-        >
-          <Avatar className="h-28 w-28">
-            <AvatarImage src={community.logo} alt="community logo" />
-            <AvatarFallback>{token.symbol}</AvatarFallback>
-          </Avatar>
-        </Flex>
-
-        <Flex
-          justify="center"
-          align="center"
-          gap="2"
-          className="w-full bg-white pt-4"
-        >
-          <Text size="6" weight="bold" className="text-muted-strong">
-            {community.name}
-          </Text>
-        </Flex>
-
-        <Flex
-          justify="center"
-          align="center"
-          gap="2"
-          className="w-full bg-white pt-4"
-        >
-          <Text size="9" weight="bold">
-            10.00
-          </Text>
-          <Text size="6" weight="bold">
-            {token.symbol}
-          </Text>
-        </Flex>
-
-        <Flex
-          justify="center"
-          gap="6"
-          className="w-full bg-white pt-10 pb-4 max-w-5xl items-center justify-between font-mono text-sm"
-        >
-          <WalletAction icon={<ArrowUpIcon size={40} />} label="Send" />
-          <WalletAction icon={<ArrowDownIcon size={40} />} label="Receive" />
-          <WalletAction
-            alt
-            icon={<EllipsisIcon size={40} className="text-primary" />}
-            label="More"
-          />
-        </Flex>
-        <Box className="bg-transparent-to-white h-10 w-full"></Box>
-      </Flex>
+      <ActionBar small={isScrolled} community={community} token={token} />
 
       <Flex direction="column" className="w-full max-w-md" gap="3">
         {Array.from({ length: 100 }).map((_, index) => (

@@ -1,45 +1,56 @@
 {
-  "community": {
-    "name": "HackaToken",
-    "description": "Read Charles Eisenstein and eat chips, what else!",
-    "url": "https://citizenwallet.xyz",
-    "alias": "hackatoken",
-    "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg"
-  },
-  "scan": {
-    "url": "https://alfajores.celoscan.io",
-    "name": "Celo Explorer"
-  },
-  "indexer": {
-    "url": "http://192.168.1.26:3000",
-    "ipfs_url": "http://192.168.1.26:3000",
-    "key": "x"
-  },
-  "ipfs": {
-    "url": "https://ipfs.internal.citizenwallet.xyz"
-  },
-  "node": {
-    "chainId": 44787,
-    "url": "https://alfajores-forno.celo-testnet.org",
-    "ws_url": "wss://alfajores-forno.celo-testnet.org/ws"
-  },
-  "erc4337": {
-    "rpc_url": "http://192.168.1.26:3000/rpc",
-    "paymaster_address": "0xc3142BCBA2285d0a48A38e7Ea9Cbf28a12B235bB",
-    "entrypoint_address": "0x04C6070bA72e0A49B8b16491b6c1371e3423912E",
-    "account_factory_address": "0x6789B72B035B3d63cC5145Fee9dB9520ea50D825",
-    "paymaster_rpc_url": "http://192.168.1.26:3000/rpc",
-    "paymaster_type": "cw"
-  },
-  "token": {
-    "standard": "erc20",
-    "address": "0x150068E4644669cC1A937dC60D728a51E7a42A03",
-    "name": "HackaToken",
-    "symbol": "HKT",
-    "decimals": 6
-  },
-  "profile": {
-    "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD"
-  },
-  "version": 1
+    "community": {
+        "name": "Gratitude Token",
+        "description": "Express your gratitude towards someone by sending them a token of gratitude.",
+        "url": "https://citizenwallet.xyz/gratitude",
+        "alias": "gratitude",
+        "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
+        "theme": {
+            "primary": "#4EC19D"
+        }
+    },
+    "scan": {
+        "url": "https://celoscan.io",
+        "name": "Celo Explorer"
+    },
+    "indexer": {
+        "url": "https://indexer-gratitude.internal.citizenwallet.xyz",
+        "ipfs_url": "https://indexer-gratitude.internal.citizenwallet.xyz",
+        "key": "x"
+    },
+    "ipfs": {
+        "url": "https://ipfs.internal.citizenwallet.xyz"
+    },
+    "node": {
+        "chain_id": 42220,
+        "url": "https://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d",
+        "ws_url": "wss://stylish-floral-morning.celo-mainnet.quiknode.pro/1de8e39f6e2189f62b565360b05569f33d40801d"
+    },
+    "erc4337": {
+        "rpc_url": "https://indexer-gratitude.internal.citizenwallet.xyz/rpc",
+        "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
+        "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
+        "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+        "paymaster_rpc_url": "https://indexer-gratitude.internal.citizenwallet.xyz/rpc",
+        "paymaster_type": "cw"
+    },
+    "token": {
+        "standard": "erc20",
+        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
+        "name": "Gratitude Token",
+        "symbol": "GT",
+        "decimals": 0
+    },
+    "profile": {
+        "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9"
+    },
+    "plugins": [
+        {
+            "name": "Top Up",
+            "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
+            "url": "https://topup.citizenwallet.xyz/gratitude",
+            "launch_mode": "webview"
+        }
+    ],
+    "version": 1
 }

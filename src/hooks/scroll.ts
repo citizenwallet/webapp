@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const SCROLL_THRESHOLD = 200;
+const SCROLL_THRESHOLD = 100;
 const SCROLL_BUMP = 100; // Bump to avoid flickering
 
 export const useIsScrolled = () => {

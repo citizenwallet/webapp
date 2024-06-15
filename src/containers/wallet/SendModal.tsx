@@ -128,7 +128,7 @@ const SendForm = ({ token, className }: SendFormProps) => {
 
   let modalContent = (
     <Box key="to" className="animate-fadeIn h-full w-full">
-      <Box className="relative w-full h-14">
+      <Box className="relative w-full h-14 mb-4">
         <Input
           type="search"
           id="search"
@@ -216,10 +216,6 @@ const SendForm = ({ token, className }: SendFormProps) => {
         !resolvedTo ? "h-5/6" : "",
         className
       )}
-      style={{
-        transition: "height 0.25s ease-in-out",
-        height: !resolvedTo ? divHeight * (5 / 6) : 260,
-      }}
     >
       {modalContent}
     </Flex>

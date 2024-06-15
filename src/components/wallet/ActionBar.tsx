@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ConfigCommunity, ConfigToken } from "@citizenwallet/sdk";
 import WalletAction from "./Action";
 import { ArrowDownIcon, ArrowUpIcon, EllipsisIcon } from "lucide-react";
+import SendModal from "@/containers/wallet/SendModal";
 
 interface ActionBarProps {
   small?: boolean;
@@ -62,7 +63,10 @@ export default function ActionBar({ small, community, token }: ActionBarProps) {
         gap="6"
         className="w-full bg-white pt-10 pb-4 max-w-5xl items-center justify-between font-mono text-sm"
       >
-        <WalletAction icon={<ArrowUpIcon size={40} />} label="Send" />
+        <SendModal token={token}>
+          <WalletAction icon={<ArrowUpIcon size={40} />} label="Send" />
+        </SendModal>
+
         <WalletAction icon={<ArrowDownIcon size={40} />} label="Receive" />
         <WalletAction
           alt

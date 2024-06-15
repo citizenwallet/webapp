@@ -2,14 +2,12 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import WalletAction from "@/components/wallet/Action";
 import ActionBar from "@/components/wallet/ActionBar";
 import TxRow from "@/components/wallet/TxRow";
 import { useIsScrolled } from "@/hooks/scroll";
 import { Config } from "@citizenwallet/sdk";
-import { Box, Flex, Text } from "@radix-ui/themes";
+import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
-import { useRef } from "react";
 
 interface WalletProps {
   config: Config;
@@ -54,7 +52,7 @@ export default function Wallet({ config }: WalletProps) {
         ))}
       </Flex>
 
-      <Box className="z-10 sticky bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
+      <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
     </main>
   );
 }

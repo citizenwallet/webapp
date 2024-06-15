@@ -9,8 +9,6 @@ export const useIsScrolled = () => {
   const scrollY = useRef(0);
 
   const handleScroll = useCallback(() => {
-    console.log("window.scrollY", window.scrollY);
-
     // If the scroll position hasn't changed, return early
     if (scrollY.current === window.scrollY) {
       return;

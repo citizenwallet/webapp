@@ -2,11 +2,12 @@ import { formatAddress } from "@/utils/address";
 import { Profile } from "@citizenwallet/sdk";
 import { create } from "zustand";
 
-interface ProfilesState {
+export interface ProfilesState {
   profiles: {
     [key: string]: Profile;
   };
   putProfile: (profile: Profile) => void;
+  clear: () => void;
 }
 
 export const getEmptyProfile = (account: string): Profile => {
@@ -53,4 +54,5 @@ export const useProfilesStore = create<ProfilesState>((set) => ({
         [profile.username]: profile,
       },
     })),
+  clear: () => set(initialState()),
 }));

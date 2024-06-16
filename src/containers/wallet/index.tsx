@@ -4,8 +4,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import ActionBar from "@/components/wallet/ActionBar";
 import TxRow from "@/components/wallet/TxRow";
+import { useHash } from "@/hooks/hash";
 import { useIsScrolled } from "@/hooks/scroll";
-import { Config } from "@citizenwallet/sdk";
+import { useAccount } from "@/state/account/actions";
+import { useProfiles } from "@/state/profiles/actions";
+import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
 
@@ -18,15 +21,42 @@ export default function Wallet({ config }: WalletProps) {
 
   const isScrolled = useIsScrolled();
 
+  const [state, actions] = useAccount(config);
+  const [profilesState, profilesActions] = useProfiles(config);
+
+  const hash = useHash();
+
+  useSafeEffect(() => {
+    actions.openAccount(
+      hash,
+      (account) => {
+        profilesActions.loadProfile(account);
+      },
+      (hash: string) => {
+        const hashPath = `${hash}?alias=${community.alias}`;
+        history.replaceState(null, "", `/#/wallet/${hashPath}`);
+        window.location.hash = `#/wallet/${hashPath}`;
+      }
+    );
+  }, [actions, hash, profilesActions, community]);
+
   const handleScan = () => {
     console.log("scan");
   };
 
+  const account = state((state) => state.account);
+  const profile = profilesState((state) => state.profiles[account]);
+
+  console.log("account", account);
+
   return (
     <main className="flex min-h-screen w-full flex-col align-center p-4 max-w-xl">
       <Avatar className="z-20 fixed right-0 top-0 m-4 border-2 border-primary">
-        <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-        <AvatarFallback>CN</AvatarFallback>
+        <AvatarImage
+          src={!profile ? "https://github.com/shadcn.png" : profile.image_small}
+          alt="profile image"
+        />
+        <AvatarFallback>{!profile ? "PRF" : profile.username}</AvatarFallback>
       </Avatar>
 
       <Flex

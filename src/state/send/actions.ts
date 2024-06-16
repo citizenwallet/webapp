@@ -29,10 +29,7 @@ class SendLogic {
   }
 }
 
-export const useSendLogic = (): [
-  UseBoundStore<StoreApi<SendState>>,
-  SendLogic
-] => {
+export const useSend = (): [UseBoundStore<StoreApi<SendState>>, SendLogic] => {
   const sendStore = useSendStore;
 
   const actions = useMemo(

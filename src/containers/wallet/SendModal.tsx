@@ -28,7 +28,7 @@ import ProfileRow from "@/components/profiles/ProfileRow";
 import { getEmptyProfile, useProfilesStore } from "@/state/profiles/state";
 import { ConfigToken, Profile } from "@citizenwallet/sdk";
 import { useState } from "react";
-import { useSendLogic } from "@/state/send/logic";
+import { useSend } from "@/state/send/actions";
 
 interface SendModalProps {
   token: ConfigToken;
@@ -39,7 +39,7 @@ export default function SendModal({ token, children }: SendModalProps) {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  const [sendStore, actions] = useSendLogic();
+  const [sendStore, actions] = useSend();
 
   const resolvedTo = sendStore((state) => state.resolvedTo);
 
@@ -109,7 +109,7 @@ const SendForm = ({ token, className }: SendFormProps) => {
 
   console.log("divHeight", divHeight);
 
-  const [sendStore, actions] = useSendLogic();
+  const [sendStore, actions] = useSend();
 
   const to = sendStore((state) => state.to);
   const resolvedTo = sendStore((state) => state.resolvedTo);

@@ -44,36 +44,78 @@ export default function ActionBar({ small, community, token }: ActionBarProps) {
         </Flex>
       )}
 
-      <Flex
-        justify="center"
-        align="center"
-        gap="2"
-        className="w-full bg-white pt-4"
-      >
-        <Text size="9" weight="bold">
-          10.00
-        </Text>
-        <Text size="6" weight="bold">
-          {token.symbol}
-        </Text>
-      </Flex>
+      {!small && (
+        <Flex
+          justify="center"
+          align="center"
+          gap="2"
+          className="w-full bg-white pt-4"
+        >
+          <Text size="9" weight="bold">
+            10.00
+          </Text>
+          <Text size="6" weight="bold">
+            {token.symbol}
+          </Text>
+        </Flex>
+      )}
 
-      <Flex
-        justify="center"
-        gap="6"
-        className="w-full bg-white pt-10 pb-4 max-w-5xl items-center justify-between font-mono text-sm"
-      >
-        <SendModal token={token}>
-          <WalletAction icon={<ArrowUpIcon size={40} />} label="Send" />
-        </SendModal>
+      {!small && (
+        <Flex
+          justify="center"
+          gap="8"
+          className="w-full bg-white pt-10 pb-4 max-w-5xl items-center justify-between font-mono text-sm"
+        >
+          <SendModal token={token}>
+            <WalletAction icon={<ArrowUpIcon size={40} />} label="Send" />
+          </SendModal>
 
-        <WalletAction icon={<ArrowDownIcon size={40} />} label="Receive" />
-        <WalletAction
-          alt
-          icon={<EllipsisIcon size={40} className="text-primary" />}
-          label="More"
-        />
-      </Flex>
+          <WalletAction icon={<ArrowDownIcon size={40} />} label="Receive" />
+        </Flex>
+      )}
+
+      {small && (
+        <Flex
+          justify="center"
+          align="center"
+          gap="2"
+          className="w-full bg-white pt-8"
+        >
+          <Avatar className="h-14 w-14">
+            <AvatarImage src={community.logo} alt="community logo" />
+            <AvatarFallback>{token.symbol}</AvatarFallback>
+          </Avatar>
+          <Text size="8" weight="bold">
+            10.00
+          </Text>
+          <Text size="6" weight="bold">
+            {token.symbol}
+          </Text>
+        </Flex>
+      )}
+
+      {small && (
+        <Flex
+          justify="center"
+          gap="4"
+          className="w-full bg-white pt-2 pb-4 max-w-5xl items-center justify-between font-mono text-sm"
+        >
+          <SendModal token={token}>
+            <WalletAction
+              compact
+              icon={<ArrowUpIcon size={30} />}
+              label="Send"
+            />
+          </SendModal>
+
+          <WalletAction
+            compact
+            icon={<ArrowDownIcon size={30} />}
+            label="Receive"
+          />
+        </Flex>
+      )}
+
       <Box className="bg-transparent-to-white h-10 w-full"></Box>
     </Flex>
   );

@@ -68,7 +68,7 @@ export default function SendModal({ token, children }: SendModalProps) {
               Make changes to your profile here. Click save when youre done.
             </DialogDescription>
           </DialogHeader>
-          <SendForm token={token} />
+          <SendForm token={token} className="h-full" />
         </DialogContent>
       </Dialog>
     );
@@ -81,7 +81,7 @@ export default function SendModal({ token, children }: SendModalProps) {
         <DrawerHeader className="text-left">
           <DrawerTitle>Send</DrawerTitle>
         </DrawerHeader>
-        <SendForm token={token} className="px-4" />
+        <SendForm token={token} className="h-full px-4" />
         <DrawerFooter className="pt-2">
           {!resolvedTo ? (
             <DrawerClose asChild>
@@ -104,8 +104,7 @@ interface SendFormProps {
 }
 
 const SendForm = ({ token, className }: SendFormProps) => {
-  const divHeight =
-    (typeof window !== "undefined" ? window.innerHeight : 200) * (5 / 6);
+  const divHeight = typeof window !== "undefined" ? window.innerHeight : 200;
 
   console.log("divHeight", divHeight);
 
@@ -127,14 +126,14 @@ const SendForm = ({ token, className }: SendFormProps) => {
   };
 
   let modalContent = (
-    <Box key="to" className="animate-fadeIn h-full w-full">
+    <Box key="to" className="animate-fadeIn w-full">
       <Box className="relative w-full h-14 mb-4">
         <Input
           type="search"
           id="search"
           autoFocus
           placeholder="Search user of paste address"
-          className="border-primary border-2 rounded-full pl-5 pr-5 w-full h-14 text-base"
+          className="rounded-full pl-5 pr-5 w-full h-14 text-base focus-visible:ring-offset-0 focus-visible:ring-2 focus-visible:ring-primary"
           value={to}
           onChange={handleToChange}
         />
@@ -175,7 +174,7 @@ const SendForm = ({ token, className }: SendFormProps) => {
     const profile = profiles[resolvedTo] ?? getEmptyProfile(resolvedTo);
 
     modalContent = (
-      <Box key="amount" className="animate-fadeIn h-full w-full">
+      <Box key="amount" className="animate-fadeIn w-full">
         <Flex justify="center" align="center" className="w-full">
           <ProfileRow fullWidth={false} profile={profile} />
         </Flex>
@@ -187,7 +186,7 @@ const SendForm = ({ token, className }: SendFormProps) => {
             id="amount"
             autoFocus
             placeholder="0.00"
-            className="text-primary border-primary border-0 rounded-none border-b-2 ml-2 mr-2 pl-5 pr-5 w-full h-14 text-4xl text-center"
+            className="text-primary border-primary border-0 rounded-none border-b-2 ml-2 mr-2 pl-5 pr-5 w-full h-14 text-4xl text-center focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:ring-transparent"
             value={to}
             onChange={handleToChange}
           />
@@ -198,7 +197,11 @@ const SendForm = ({ token, className }: SendFormProps) => {
         <Flex justify="center" align="center" className="w-full">
           <Text>Current Balance: 0.00 {token.symbol}</Text>
         </Flex>
-        <Flex justify="center" align="center" className="w-full mt-10">
+        <Flex
+          justify="center"
+          align="start"
+          className="w-full pl-10 pr-10 mt-10"
+        >
           <Button className="w-full">
             Send
             <ArrowRightIcon size={24} className="ml-4" />
@@ -211,11 +214,7 @@ const SendForm = ({ token, className }: SendFormProps) => {
   return (
     <Flex
       direction="column"
-      className={cn(
-        "w-full items-start gap-4 overflow-hidden",
-        !resolvedTo ? "h-5/6" : "",
-        className
-      )}
+      className={cn("w-full items-start gap-4 overflow-hidden", className)}
     >
       {modalContent}
     </Flex>

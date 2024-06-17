@@ -7,6 +7,7 @@ import TxRow from "@/components/wallet/TxRow";
 import { useHash } from "@/hooks/hash";
 import { useIsScrolled } from "@/hooks/scroll";
 import { useAccount } from "@/state/account/actions";
+import { selectOrderedTransfers } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
 import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { Box, Flex } from "@radix-ui/themes";
@@ -27,25 +28,40 @@ export default function Wallet({ config }: WalletProps) {
   const hash = useHash();
 
   useSafeEffect(() => {
-    actions.openAccount(
-      hash,
-      (account) => {
-        profilesActions.loadProfile(account);
-      },
-      (hash: string) => {
-        const hashPath = `${hash}?alias=${community.alias}`;
-        history.replaceState(null, "", `/#/wallet/${hashPath}`);
-        window.location.hash = `#/wallet/${hashPath}`;
-      }
-    );
+    actions.openAccount(hash, (hash: string) => {
+      const hashPath = `${hash}?alias=${community.alias}`;
+      history.replaceState(null, "", `/#/wallet/${hashPath}`);
+      window.location.hash = `#/wallet/${hashPath}`;
+    });
   }, [actions, hash, profilesActions, community]);
+
+  const account = state((state) => state.account);
+
+  useSafeEffect(() => {
+    let unsubscribe: () => void | undefined;
+
+    if (account) {
+      profilesActions.loadProfile(account);
+      actions.fetchBalance();
+      actions.fetchInitialTransfers(account);
+      unsubscribe = actions.listen(account);
+
+      // actions.send("0xAB07F26A25c5269b05ca57eBB2be7720f1C1fE4E", "1");
+    }
+
+    return () => {
+      unsubscribe?.();
+    };
+  }, [account]);
 
   const handleScan = () => {
     console.log("scan");
   };
 
-  const account = state((state) => state.account);
+  const balance = state((state) => state.balance);
+  const transfers = state(selectOrderedTransfers);
   const profile = profilesState((state) => state.profiles[account]);
+  const profiles = profilesState((state) => state.profiles);
 
   console.log("account", account);
 
@@ -74,11 +90,16 @@ export default function Wallet({ config }: WalletProps) {
         </Button>
       </Flex>
 
-      <ActionBar small={isScrolled} community={community} token={token} />
+      <ActionBar
+        balance={balance}
+        small={isScrolled}
+        community={community}
+        token={token}
+      />
 
       <Flex direction="column" className="w-full max-w-md" gap="3">
-        {Array.from({ length: 100 }).map((_, index) => (
-          <TxRow key={index} />
+        {transfers.map((tx) => (
+          <TxRow key={tx.hash} account={account} tx={tx} profiles={profiles} />
         ))}
       </Flex>
 

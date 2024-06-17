@@ -1,21 +1,45 @@
+import { Transfer } from "@citizenwallet/sdk";
 import { create } from "zustand";
 
 export interface AccountState {
   account: string;
   owner: boolean;
+  balance: string;
+  transfers: Transfer[];
   setAccount: (account: string) => void;
   setOwner: (owner: boolean) => void;
+  setBalance: (balance: string) => void;
+  putTransfers: (transfers: Transfer[]) => void;
   clear: () => void;
 }
 
 const initialState = () => ({
   account: "",
   owner: false,
+  balance: "0.00",
+  transfers: [],
 });
 
 export const useAccountStore = create<AccountState>((set) => ({
   ...initialState(),
   setAccount: (account) => set((state) => ({ account })),
   setOwner: (owner) => set((state) => ({ owner })),
+  setBalance: (balance) => set((state) => ({ balance })),
+  putTransfers: (transfers) =>
+    set((state) => {
+      const existingTransfers = [...state.transfers];
+
+      transfers.forEach((transfer) => {
+        const existingTransfer = existingTransfers.find(
+          (t) => t.hash === transfer.hash
+        );
+
+        if (!existingTransfer) {
+          existingTransfers.unshift(transfer);
+        }
+      });
+
+      return { transfers: existingTransfers };
+    }),
   clear: () => set(initialState()),
 }));

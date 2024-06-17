@@ -6,12 +6,18 @@ import { ArrowDownIcon, ArrowUpIcon, EllipsisIcon } from "lucide-react";
 import SendModal from "@/containers/wallet/SendModal";
 
 interface ActionBarProps {
+  balance: string;
   small?: boolean;
   community: ConfigCommunity;
   token: ConfigToken;
 }
 
-export default function ActionBar({ small, community, token }: ActionBarProps) {
+export default function ActionBar({
+  balance,
+  small,
+  community,
+  token,
+}: ActionBarProps) {
   return (
     <Flex
       direction="column"
@@ -52,7 +58,7 @@ export default function ActionBar({ small, community, token }: ActionBarProps) {
           className="w-full bg-white pt-4"
         >
           <Text size="9" weight="bold">
-            10.00
+            {balance}
           </Text>
           <Text size="6" weight="bold">
             {token.symbol}
@@ -86,7 +92,7 @@ export default function ActionBar({ small, community, token }: ActionBarProps) {
             <AvatarFallback>{token.symbol}</AvatarFallback>
           </Avatar>
           <Text size="8" weight="bold">
-            10.00
+            {balance}
           </Text>
           <Text size="6" weight="bold">
             {token.symbol}

@@ -123,4 +123,26 @@ export class CWAccount {
   async getBalance() {
     return this.erc20.balanceOf(this.account);
   }
+
+  async send(to: string, amount: string, description?: string) {
+    const hash = await this.bundler.sendERC20Token(
+      this.signer,
+      this.config.token.address,
+      this.account,
+      to,
+      amount,
+      description
+    );
+
+    return hash;
+  }
+
+  async waitForTransactionSuccess(txHash: string) {
+    const receipt = await this.provider.waitForTransaction(txHash);
+    if (receipt && receipt.status === 1) {
+      return true;
+    }
+
+    return false;
+  }
 }

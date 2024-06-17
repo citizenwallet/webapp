@@ -22,11 +22,9 @@ export const parsePrivateKeyFromHash = async (
       throw new Error("Invalid wallet format");
     }
 
-    console.log("walletPassword", walletPassword);
-
     const wallet = await Wallet.fromEncryptedJson(
       encryptedPrivateKey,
-      Buffer.from(walletPassword, "base64")
+      walletPassword
     );
 
     return [account, wallet];

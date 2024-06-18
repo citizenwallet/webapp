@@ -4,6 +4,7 @@ import { ConfigCommunity, ConfigToken } from "@citizenwallet/sdk";
 import WalletAction from "./Action";
 import { ArrowDownIcon, ArrowUpIcon, EllipsisIcon } from "lucide-react";
 import SendModal from "@/containers/wallet/SendModal";
+import ReceiveModal from "@/containers/wallet/ReceiveModal";
 
 interface ActionBarProps {
   balance: string;
@@ -76,7 +77,9 @@ export default function ActionBar({
             <WalletAction icon={<ArrowUpIcon size={40} />} label="Send" />
           </SendModal>
 
-          <WalletAction icon={<ArrowDownIcon size={40} />} label="Receive" />
+          <ReceiveModal token={token}>
+            <WalletAction icon={<ArrowDownIcon size={40} />} label="Receive" />
+          </ReceiveModal>
         </Flex>
       )}
 
@@ -114,11 +117,13 @@ export default function ActionBar({
             />
           </SendModal>
 
-          <WalletAction
-            compact
-            icon={<ArrowDownIcon size={30} />}
-            label="Receive"
-          />
+          <ReceiveModal token={token}>
+            <WalletAction
+              compact
+              icon={<ArrowDownIcon size={30} />}
+              label="Receive"
+            />
+          </ReceiveModal>
         </Flex>
       )}
 

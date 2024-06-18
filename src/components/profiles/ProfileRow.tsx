@@ -31,7 +31,11 @@ export default function ProfileRow({
       {...props}
     >
       <Avatar className="h-12 w-12">
-        <AvatarImage src={profile.image_medium} alt="avatar" />
+        <AvatarImage
+          src={profile.image_medium}
+          alt="avatar"
+          className="object-cover"
+        />
         <AvatarFallback>{profile.username}</AvatarFallback>
       </Avatar>
       <Flex direction="column" align="start" gap="4" className="pl-4">

@@ -7,7 +7,7 @@ import {
   useSafeEffect,
 } from "@citizenwallet/sdk";
 import { AGO_THRESHOLD, ago } from "@/utils/ago";
-import { formatAddress } from "@/utils/address";
+import { formatAddress } from "@/utils/formatting";
 import { ProfilesActions } from "@/state/profiles/actions";
 
 interface TxRowProps {

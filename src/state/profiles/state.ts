@@ -1,4 +1,4 @@
-import { formatAddress } from "@/utils/address";
+import { formatAddress } from "@/utils/formatting";
 import { Profile } from "@citizenwallet/sdk";
 import { create } from "zustand";
 

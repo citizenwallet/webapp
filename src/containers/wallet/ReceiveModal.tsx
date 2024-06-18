@@ -34,6 +34,9 @@ import { useSend } from "@/state/send/actions";
 import QRCode from "@/components/QRCode";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccountStore } from "@/state/account/state";
+import { formatAddress, formatUrl } from "@/utils/formatting";
+import { Badge } from "@/components/ui/badge";
+import CopyBadge from "@/components/CopyBadge";
 
 interface ReceiveModalProps {
   token: ConfigToken;
@@ -127,97 +130,16 @@ const ReceiveForm = ({ token, className }: ReceiveFormProps) => {
     // updateTo(to);
   };
 
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // const description = e.target.value;
+    // updateDescription(description);
+  };
+
   const handleProfileSelect = (profile: Profile) => {
     // updateTo(profile.account);
     console.log(profile);
     actions.updateResolvedTo(profile.account);
   };
-
-  let modalContent = (
-    <Box key="to" className="animate-fadeIn w-full">
-      <Box className="relative w-full h-14 my-4">
-        <Input
-          type="search"
-          id="search"
-          autoFocus
-          placeholder="Search user of paste address"
-          className="rounded-full pl-5 pr-5 w-full h-14 text-base focus-visible:ring-offset-0 focus-visible:ring-2 focus-visible:ring-primary"
-          value={to}
-          onChange={handleToChange}
-        />
-        <SearchIcon className="text-primary absolute top-4 right-4" />
-      </Box>
-
-      <Flex className="w-full h-10">
-        <Button variant="ghost" className="flex justify-start w-full">
-          <QrCodeIcon size={24} className="text-primary mr-4" />
-          <Text>Scan QR Code</Text>
-        </Button>
-      </Flex>
-      {/* <Flex
-        direction="column"
-        className="w-full gap-4"
-        style={{ height: divHeight - 250 }}
-      >
-        <ScrollArea className="w-full">
-          <Box className="z-10 absolute top-0 left-0 bg-transparent-to-white h-10 w-full"></Box>
-          <Box className="h-4"></Box>
-          <Box>
-            {Object.values(profiles).map((profile) => (
-              <ProfileRow
-                key={profile.account}
-                profile={profile}
-                onSelect={handleProfileSelect}
-              />
-            ))}
-          </Box>
-          <Box className="h-4"></Box>
-          <Box className="z-10 absolute bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
-        </ScrollArea>
-      </Flex> */}
-    </Box>
-  );
-
-  if (resolvedTo) {
-    const profile = profiles[resolvedTo] ?? getEmptyProfile(resolvedTo);
-
-    modalContent = (
-      <Box key="amount" className="animate-fadeIn w-full">
-        <Flex justify="center" align="center" className="w-full">
-          <ProfileRow fullWidth={false} profile={profile} />
-        </Flex>
-
-        <Flex align="center" className="relative w-full h-14 pl-10 pr-10">
-          <Text>Send</Text>
-          <Input
-            type="text"
-            id="amount"
-            autoFocus
-            placeholder="0.00"
-            className="text-primary border-primary border-0 rounded-none border-b-2 ml-2 mr-2 pl-5 pr-5 w-full h-14 text-4xl text-center focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:ring-transparent"
-            value={to}
-            onChange={handleToChange}
-          />
-          <Text size="6" weight="bold" className="font-bold">
-            {token.symbol}
-          </Text>
-        </Flex>
-        <Flex justify="center" align="center" className="w-full">
-          <Text>Current Balance: 0.00 {token.symbol}</Text>
-        </Flex>
-        {/* <Flex
-          justify="center"
-          align="start"
-          className="w-full pl-10 pr-10 mt-10"
-        >
-          <Button className="w-full">
-            Send
-            <ArrowRightIcon size={24} className="ml-4" />
-          </Button>
-        </Flex> */}
-      </Box>
-    );
-  }
 
   return (
     <Flex
@@ -226,25 +148,81 @@ const ReceiveForm = ({ token, className }: ReceiveFormProps) => {
       className={cn("w-full items-start gap-4 overflow-hidden", className)}
     >
       <Flex justify="center" align="center" className="w-full">
-        <Box className="p-4 border-2 rounded-2xl border-primary">
-          <QRCode size={width} qrCode={account} />
-        </Box>
-      </Flex>
-
-      <Flex justify="center" align="center" className="w-full">
         <Tabs defaultValue="cw" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="cw">Citizen Wallet</TabsTrigger>
             <TabsTrigger value="external">External</TabsTrigger>
           </TabsList>
-          <TabsContent value="cw">
-            Make changes to your account here.
+          <TabsContent value="cw" className="pt-4">
+            <Flex direction="column">
+              <Flex justify="center" align="center" className="w-full">
+                <Box className="p-4 border-2 rounded-2xl border-primary">
+                  <QRCode size={width} qrCode={"hello"} />
+                </Box>
+              </Flex>
+              <Flex justify="center" className="w-full pt-4">
+                <CopyBadge
+                  value={"https://app.citizenwallet.xyz/qr?account=hello"}
+                  label={formatUrl(
+                    "https://app.citizenwallet.xyz/qr?account=hello&receiveParams=sdjjsd;lfjsdhfklsdjhffsdlfjsd"
+                  )}
+                  onClick={(v) => console.log(v)}
+                />
+              </Flex>
+              <Flex
+                align="center"
+                className="relative w-full h-14 pl-10 pr-10 mt-8"
+              >
+                <Text>Request</Text>
+                <Input
+                  type="text"
+                  id="amount"
+                  autoFocus
+                  placeholder="0.00"
+                  className="text-primary border-primary border-0 rounded-none border-b-2 ml-2 mr-2 pl-5 pr-5 w-full h-14 text-4xl text-center focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:ring-transparent"
+                  value={to}
+                  onChange={handleToChange}
+                />
+                <Text size="6" weight="bold" className="font-bold">
+                  {token.symbol}
+                </Text>
+              </Flex>
+              <Flex
+                direction="column"
+                align="start"
+                className="relative w-full pl-10 pr-10 my-8 gap-4"
+              >
+                <Text>Description</Text>
+                <Input
+                  type="text"
+                  id="description"
+                  autoFocus
+                  placeholder="Enter a description"
+                  className="pl-5 pr-5 w-full h-14"
+                  value={to}
+                  onChange={handleDescriptionChange}
+                />
+              </Flex>
+            </Flex>
           </TabsContent>
-          <TabsContent value="external">Change your password here.</TabsContent>
+          <TabsContent value="external" className="pt-4">
+            <Flex direction="column">
+              <Flex justify="center" align="center" className="w-full">
+                <Box className="p-4 border-2 rounded-2xl border-primary">
+                  <QRCode size={width} qrCode={account} />
+                </Box>
+              </Flex>
+              <Flex justify="center" className="w-full py-4">
+                <CopyBadge
+                  value={account}
+                  label={formatAddress(account)}
+                  onClick={(v) => console.log(v)}
+                />
+              </Flex>
+            </Flex>
+          </TabsContent>
         </Tabs>
       </Flex>
-
-      {modalContent}
     </Flex>
   );
 };

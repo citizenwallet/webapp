@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -63,12 +64,20 @@ export default function SendModal({ token, children }: SendModalProps) {
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit profile</DialogTitle>
-            <DialogDescription>
-              Make changes to your profile here. Click save when youre done.
-            </DialogDescription>
+            <DialogTitle>Send</DialogTitle>
           </DialogHeader>
-          <SendForm token={token} className="h-full" />
+          <SendForm isInModal token={token} className="h-full" />
+          <DialogFooter className="pt-2">
+            {!resolvedTo ? (
+              <DrawerClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DrawerClose>
+            ) : (
+              <Button onClick={handleCancelToSelection} variant="outline">
+                Back
+              </Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     );
@@ -99,12 +108,18 @@ export default function SendModal({ token, children }: SendModalProps) {
 }
 
 interface SendFormProps {
+  isInModal?: boolean;
   token: ConfigToken;
   className?: string;
 }
 
-const SendForm = ({ token, className }: SendFormProps) => {
-  const divHeight = typeof window !== "undefined" ? window.innerHeight : 200;
+const SendForm = ({ isInModal = false, token, className }: SendFormProps) => {
+  const divHeight =
+    typeof window !== "undefined"
+      ? isInModal
+        ? window.innerHeight * 0.6
+        : window.innerHeight
+      : 200;
 
   console.log("divHeight", divHeight);
 
@@ -127,7 +142,7 @@ const SendForm = ({ token, className }: SendFormProps) => {
 
   let modalContent = (
     <Box key="to" className="animate-fadeIn w-full">
-      <Box className="relative w-full h-14 mb-4">
+      <Box className="relative w-full h-14 my-4">
         <Input
           type="search"
           id="search"

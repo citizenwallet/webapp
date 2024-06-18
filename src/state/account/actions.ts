@@ -5,6 +5,7 @@ import { Config, IndexerService } from "@citizenwallet/sdk";
 import { CWAccount } from "@/services/account";
 import { generateWalletHash } from "@/services/account/urlAccount";
 import { formatUnits } from "ethers";
+import { IndexerResponsePaginationMetadata } from "@citizenwallet/sdk/dist/src/services/indexer";
 
 class SendLogic {
   state: AccountState;
@@ -98,6 +99,10 @@ class SendLogic {
 
   listen(account: string) {
     try {
+      if (this.listenerInterval) {
+        clearInterval(this.listenerInterval);
+      }
+
       this.listenerInterval = setInterval(async () => {
         const params = {
           fromDate: this.listenMaxDate.toISOString(),
@@ -150,6 +155,71 @@ class SendLogic {
 
       this.state.putTransfers(transfers);
     } catch (error) {}
+  }
+
+  private fetchMaxDate = new Date();
+  private fetchLimit = 10;
+  private transfersPagination?: IndexerResponsePaginationMetadata;
+  private previousFetchLength = 0;
+  private fetchedOffsets: number[] = [];
+
+  /**
+   * Retrieves transfers for a given address.
+   *
+   * @param address - The address for which to retrieve transfers.
+   * @param reset - Indicates whether to reset the state before fetching transfers.
+   * @returns A promise that resolves to a boolean indicating whether the transfers were successfully retrieved.
+   */
+  async getTransfers(account: string, reset = false): Promise<boolean> {
+    try {
+      if (reset) {
+        this.fetchMaxDate = new Date();
+        this.transfersPagination = undefined;
+        this.previousFetchLength = 0;
+        this.fetchedOffsets = [];
+      }
+
+      if (
+        this.transfersPagination &&
+        this.previousFetchLength < this.fetchLimit
+      ) {
+        // nothing more to fetch
+        return false;
+      }
+
+      const nextOffset = this.transfersPagination
+        ? this.transfersPagination.offset + this.fetchLimit
+        : 0;
+      if (this.fetchedOffsets.includes(nextOffset)) {
+        return false;
+      }
+      this.fetchedOffsets.push(nextOffset);
+
+      const params = {
+        maxDate: this.fetchMaxDate.toISOString(),
+        limit: this.fetchLimit,
+        offset: nextOffset,
+      };
+
+      const transfers = await this.indexer.getTransfers(
+        this.config.token.address,
+        account,
+        params
+      );
+
+      this.transfersPagination = transfers.meta;
+      this.previousFetchLength = transfers.array.length;
+
+      if (reset) {
+        this.state.replaceTransfers(transfers.array);
+        return true;
+      }
+
+      this.state.appendTransfers(transfers.array);
+      return true;
+    } catch (error) {}
+
+    return false;
   }
 
   async send(to: string, amount: string) {

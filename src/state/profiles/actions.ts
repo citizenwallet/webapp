@@ -1,15 +1,11 @@
 import { useMemo } from "react";
 import { ProfilesState, useProfilesStore } from "./state";
 import { StoreApi, UseBoundStore } from "zustand";
-import {
-  Config,
-  ProfileContractService,
-  ProfileService,
-} from "@citizenwallet/sdk";
-import { CWAccount } from "@/services/account";
-import { JsonRpcProvider } from "ethers";
+import { Config, ProfileService } from "@citizenwallet/sdk";
 
-class ProfilesLogic {
+const RELOAD_INTERVAL = 30000;
+
+export class ProfilesActions {
   state: ProfilesState;
   config: Config;
 
@@ -21,15 +17,26 @@ class ProfilesLogic {
     this.profiles = new ProfileService(config);
   }
 
+  private lastLoadedProfile: { [key: string]: number } = {};
   async loadProfile(account: string) {
     try {
+      if (this.lastLoadedProfile[account]) {
+        const now = new Date().getTime();
+        if (now - this.lastLoadedProfile[account] < RELOAD_INTERVAL) {
+          return;
+        }
+      }
+      this.lastLoadedProfile[account] = new Date().getTime();
+
       const profile = await this.profiles.getProfile(account);
       if (!profile) {
         throw new Error("Profile not found");
       }
 
       this.state.putProfile(profile);
-    } catch (_) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   clear() {
@@ -39,11 +46,11 @@ class ProfilesLogic {
 
 export const useProfiles = (
   config: Config
-): [UseBoundStore<StoreApi<ProfilesState>>, ProfilesLogic] => {
+): [UseBoundStore<StoreApi<ProfilesState>>, ProfilesActions] => {
   const profilesStore = useProfilesStore;
 
   const actions = useMemo(
-    () => new ProfilesLogic(profilesStore.getState(), config),
+    () => new ProfilesActions(profilesStore.getState(), config),
     [profilesStore, config]
   );
 

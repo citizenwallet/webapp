@@ -9,6 +9,8 @@ export interface AccountState {
   setAccount: (account: string) => void;
   setOwner: (owner: boolean) => void;
   setBalance: (balance: string) => void;
+  replaceTransfers: (transfers: Transfer[]) => void;
+  appendTransfers: (transfers: Transfer[]) => void;
   putTransfers: (transfers: Transfer[]) => void;
   clear: () => void;
 }
@@ -25,7 +27,8 @@ export const useAccountStore = create<AccountState>((set) => ({
   setAccount: (account) => set((state) => ({ account })),
   setOwner: (owner) => set((state) => ({ owner })),
   setBalance: (balance) => set((state) => ({ balance })),
-  putTransfers: (transfers) =>
+  replaceTransfers: (transfers) => set((state) => ({ transfers })),
+  appendTransfers: (transfers) =>
     set((state) => {
       const existingTransfers = [...state.transfers];
 
@@ -36,6 +39,24 @@ export const useAccountStore = create<AccountState>((set) => ({
 
         if (!existingTransfer) {
           existingTransfers.unshift(transfer);
+        }
+      });
+
+      return { transfers: existingTransfers };
+    }),
+  putTransfers: (transfers) =>
+    set((state) => {
+      const existingTransfers = [...state.transfers];
+
+      transfers.forEach((transfer) => {
+        const index = existingTransfers.findIndex(
+          (t) => t.hash === transfer.hash
+        );
+
+        if (index === -1) {
+          existingTransfers.push(transfer);
+        } else {
+          existingTransfers[index] = transfer;
         }
       });
 

@@ -28,7 +28,7 @@ export default function ActionBar({
           justify="center"
           align="center"
           gap="2"
-          className="w-full bg-white pt-10"
+          className="w-full bg-white pt-4"
         >
           <Avatar className="h-28 w-28">
             <AvatarImage src={community.logo} alt="community logo" />
@@ -70,7 +70,7 @@ export default function ActionBar({
         <Flex
           justify="center"
           gap="8"
-          className="w-full bg-white pt-10 pb-4 max-w-5xl items-center justify-between font-mono text-sm"
+          className="w-full bg-white pt-4 max-w-5xl items-center justify-between font-mono text-sm"
         >
           <SendModal token={token}>
             <WalletAction icon={<ArrowUpIcon size={40} />} label="Send" />

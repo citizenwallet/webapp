@@ -21,7 +21,7 @@ export default function WalletAction({
       <Button
         variant={alt ? "secondary" : "default"}
         onClick={onClick}
-        className="h-20 w-40 rounded-full gap-2"
+        className="h-18 w-40 rounded-full gap-2"
       >
         <Text size="4" weight="bold">
           {label}

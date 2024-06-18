@@ -1,20 +1,31 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Profile, Transfer } from "@citizenwallet/sdk";
+import {
+  Profile,
+  Transfer,
+  TransferStatus,
+  useSafeEffect,
+} from "@citizenwallet/sdk";
 import { AGO_THRESHOLD, ago } from "@/utils/ago";
 import { formatAddress } from "@/utils/address";
+import { ProfilesActions } from "@/state/profiles/actions";
 
 interface TxRowProps {
   account: string;
   tx: Transfer;
+  actions: ProfilesActions;
   profiles: {
     [key: string]: Profile;
   };
 }
 
-export default function TxRow({ account, tx, profiles }: TxRowProps) {
+export default function TxRow({ account, tx, actions, profiles }: TxRowProps) {
   const self = tx.from === account;
   const other = self ? tx.to : tx.from;
+
+  useSafeEffect(() => {
+    actions.loadProfile(other);
+  }, [other, actions]);
 
   const profile: Profile | undefined = profiles[other];
 
@@ -22,6 +33,8 @@ export default function TxRow({ account, tx, profiles }: TxRowProps) {
   const createdAt = new Date(tx.created_at);
   const formattedDate =
     createdAt.getTime() > weekAgo ? ago(createdAt) : createdAt.toDateString();
+
+  const status = tx.status;
 
   return (
     <Flex
@@ -32,8 +45,9 @@ export default function TxRow({ account, tx, profiles }: TxRowProps) {
     >
       <Avatar className="h-16 w-16 border-2 border-primary">
         <AvatarImage
-          src={profile?.image_medium ?? "https://github.com/shadcn.png"}
+          src={profile?.image_medium ?? "/anonymous-user.svg"}
           alt="user profile photo"
+          className="object-cover"
         />
         <AvatarFallback>{profile?.username ?? "CN"}</AvatarFallback>
       </Avatar>
@@ -54,7 +68,10 @@ export default function TxRow({ account, tx, profiles }: TxRowProps) {
         <Text size="4" weight="bold" className="text-primary">
           {self ? "-" : "+"} {tx.value}
         </Text>
-        <Text size="2">{formattedDate}</Text>
+        {status === "success" && <Text size="2">{formattedDate}</Text>}
+        {status !== "success" && (
+          <Text size="2">{status === "fail" ? "failed" : "pending"}</Text>
+        )}
       </Flex>
     </Flex>
   );

@@ -22,27 +22,8 @@ export const getEmptyProfile = (account: string): Profile => {
   };
 };
 
-const generateDummyProfiles = () => {
-  const dummyProfiles: { [key: string]: Profile } = {};
-
-  for (let i = 0; i < 10; i++) {
-    const username = `user${i}`;
-    dummyProfiles[username] = {
-      account: `0x123123456456${i}`,
-      description: `This is a description for ${username}`,
-      image: `https://github.com/shadcn.png`,
-      image_medium: `https://github.com/shadcn.png`,
-      image_small: `https://github.com/shadcn.png`,
-      name: `Name ${i}`,
-      username: username,
-    };
-  }
-
-  return dummyProfiles;
-};
-
 const initialState = () => ({
-  profiles: generateDummyProfiles(),
+  profiles: {},
 });
 
 export const useProfilesStore = create<ProfilesState>((set) => ({
@@ -51,7 +32,7 @@ export const useProfilesStore = create<ProfilesState>((set) => ({
     set((state) => ({
       profiles: {
         ...state.profiles,
-        [profile.username]: profile,
+        [profile.account]: profile,
       },
     })),
   clear: () => set(initialState()),

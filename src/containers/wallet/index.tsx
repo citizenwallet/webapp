@@ -6,12 +6,18 @@ import ActionBar from "@/components/wallet/ActionBar";
 import TxRow from "@/components/wallet/TxRow";
 import { useHash } from "@/hooks/hash";
 import { useIsScrolled } from "@/hooks/scroll";
+import { useScrollableWindowFetcher } from "@/hooks/useScrollableWindow";
 import { useAccount } from "@/state/account/actions";
 import { selectOrderedTransfers } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
-import { Config, useSafeEffect } from "@citizenwallet/sdk";
+import {
+  Config,
+  useSafeEffect,
+  useScrollableElementFetcher,
+} from "@citizenwallet/sdk";
 import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
+import { useCallback } from "react";
 
 interface WalletProps {
   config: Config;
@@ -38,12 +44,16 @@ export default function Wallet({ config }: WalletProps) {
   const account = state((state) => state.account);
 
   useSafeEffect(() => {
+    console.log("rendering...", account);
+  }, [actions, account]);
+
+  useSafeEffect(() => {
     let unsubscribe: () => void | undefined;
 
     if (account) {
       profilesActions.loadProfile(account);
       actions.fetchBalance();
-      actions.fetchInitialTransfers(account);
+      // actions.getTransfers(account);
       unsubscribe = actions.listen(account);
 
       // actions.send("0xAB07F26A25c5269b05ca57eBB2be7720f1C1fE4E", "1");
@@ -54,6 +64,13 @@ export default function Wallet({ config }: WalletProps) {
     };
   }, [account]);
 
+  const fetchMoreTransfers = useCallback(async () => {
+    if (!account) return false;
+    return actions.getTransfers(account);
+  }, [actions, account]);
+
+  const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
+
   const handleScan = () => {
     console.log("scan");
   };
@@ -61,15 +78,19 @@ export default function Wallet({ config }: WalletProps) {
   const balance = state((state) => state.balance);
   const transfers = state(selectOrderedTransfers);
   const profile = profilesState((state) => state.profiles[account]);
-  const profiles = profilesState((state) => state.profiles);
-
-  console.log("account", account);
+  const profiles = profilesState((state) => {
+    console.log("profiles", state.profiles);
+    return state.profiles;
+  });
 
   return (
-    <main className="flex min-h-screen w-full flex-col align-center p-4 max-w-xl">
+    <main
+      ref={scrollableRef}
+      className="flex min-h-screen w-full flex-col align-center p-4 max-w-xl"
+    >
       <Avatar className="z-20 fixed right-0 top-0 m-4 border-2 border-primary">
         <AvatarImage
-          src={!profile ? "https://github.com/shadcn.png" : profile.image_small}
+          src={!profile ? "/anonymous-user.svg" : profile.image_small}
           alt="profile image"
         />
         <AvatarFallback>{!profile ? "PRF" : profile.username}</AvatarFallback>
@@ -99,7 +120,13 @@ export default function Wallet({ config }: WalletProps) {
 
       <Flex direction="column" className="w-full max-w-md" gap="3">
         {transfers.map((tx) => (
-          <TxRow key={tx.hash} account={account} tx={tx} profiles={profiles} />
+          <TxRow
+            key={tx.hash}
+            account={account}
+            tx={tx}
+            actions={profilesActions}
+            profiles={profiles}
+          />
         ))}
       </Flex>
 

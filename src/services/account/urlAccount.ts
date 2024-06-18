@@ -13,8 +13,6 @@ export const parsePrivateKeyFromHash = async (
       throw new Error("Invalid wallet format");
     }
 
-    console.log("decoding", encoded.replace("v3-", ""));
-
     const decoded = atob(encoded.replace("v3-", ""));
 
     const [account, encryptedPrivateKey] = decoded.split("|");

@@ -78,10 +78,7 @@ export default function Wallet({ config }: WalletProps) {
   const balance = state((state) => state.balance);
   const transfers = state(selectOrderedTransfers);
   const profile = profilesState((state) => state.profiles[account]);
-  const profiles = profilesState((state) => {
-    console.log("profiles", state.profiles);
-    return state.profiles;
-  });
+  const profiles = profilesState((state) => state.profiles);
 
   return (
     <main

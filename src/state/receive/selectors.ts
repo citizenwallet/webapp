@@ -1,9 +1,9 @@
-import { generateReceiveDeepLink } from "@/utils/deeplink";
+import { generateReceiveLink } from "@/utils/deeplink";
 import { ReceiveState } from "./state";
 
 export const generateSelectReceiveDeepLink =
   (account: string, alias: string) => (state: ReceiveState) => {
-    return generateReceiveDeepLink(
+    return generateReceiveLink(
       state.baseUrl,
       account,
       alias,

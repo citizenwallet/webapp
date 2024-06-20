@@ -1,11 +1,57 @@
 import { useMemo } from "react";
 import { SendState, useSendStore } from "./state";
 import { StoreApi, UseBoundStore } from "zustand";
+import {
+  QRFormat,
+  parseAliasFromReceiveLink,
+  parseMessageFromReceiveLink,
+  parseQRCode,
+  parseQRFormat,
+} from "@/utils/deeplink";
 
 class SendLogic {
   state: SendState;
   constructor(state: SendState) {
     this.state = state;
+  }
+
+  parseQRCode(data: string) {
+    try {
+      const format = parseQRFormat(data);
+      if (format === QRFormat.voucher || format === QRFormat.unsupported) {
+        throw new Error("Unsupported QR code format");
+      }
+
+      const alias = parseAliasFromReceiveLink(data);
+      if (!alias) {
+        throw new Error("QR code from another community");
+      }
+
+      const [to, amount] = parseQRCode(data);
+      if (!to) {
+        throw new Error("Invalid QR code");
+      }
+      this.updateTo(to);
+      this.updateResolvedTo(to);
+
+      if (amount) {
+        this.updateAmount(amount);
+      }
+
+      if (format === QRFormat.receiveUrl) {
+        const message = parseMessageFromReceiveLink(data);
+
+        if (message) {
+          this.updateDescription(message);
+        }
+      }
+
+      return to;
+    } catch (error) {
+      console.error("Error parsing QR code", error);
+    }
+
+    return null;
   }
 
   updateTo(to: string) {
@@ -18,6 +64,10 @@ class SendLogic {
 
   updateResolvedTo(resolvedTo: string) {
     this.state.updateResolvedTo(resolvedTo);
+  }
+
+  updateDescription(description: string) {
+    this.state.updateDescription(description);
   }
 
   cancelToSelection() {

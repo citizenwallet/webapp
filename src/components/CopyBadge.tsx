@@ -47,7 +47,7 @@ export default function CopyBadge({ label, value, onClick }: CopyBadgeProps) {
     >
       {badgeLabel} {!clicked && <CopyIcon size="18" />}
       {clicked && (
-        <CheckIcon size="18" className="animate-fadeIn text-success" />
+        <CheckIcon size="18" className="animate-fade-in text-success" />
       )}
     </Badge>
   );

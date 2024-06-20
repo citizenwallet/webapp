@@ -6,12 +6,17 @@ export interface AccountState {
   owner: boolean;
   balance: string;
   transfers: Transfer[];
+  sending: boolean;
+  sendError: string | null;
   setAccount: (account: string) => void;
   setOwner: (owner: boolean) => void;
   setBalance: (balance: string) => void;
   replaceTransfers: (transfers: Transfer[]) => void;
   appendTransfers: (transfers: Transfer[]) => void;
   putTransfers: (transfers: Transfer[]) => void;
+  sendRequest: () => void;
+  sendSuccess: () => void;
+  sendFailure: (error: string) => void;
   clear: () => void;
 }
 
@@ -20,6 +25,8 @@ const initialState = () => ({
   owner: false,
   balance: "0.00",
   transfers: [],
+  sending: false,
+  sendError: null,
 });
 
 export const useAccountStore = create<AccountState>((set) => ({
@@ -62,5 +69,9 @@ export const useAccountStore = create<AccountState>((set) => ({
 
       return { transfers: existingTransfers };
     }),
+  sendRequest: () => set((state) => ({ sending: true })),
+  sendSuccess: () => set((state) => ({ sending: false })),
+  sendFailure: (error) =>
+    set((state) => ({ sending: false, sendError: error })),
   clear: () => set(initialState()),
 }));

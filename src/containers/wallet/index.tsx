@@ -10,11 +10,7 @@ import { useScrollableWindowFetcher } from "@/hooks/useScrollableWindow";
 import { useAccount } from "@/state/account/actions";
 import { selectOrderedTransfers } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
-import {
-  Config,
-  useSafeEffect,
-  useScrollableElementFetcher,
-} from "@citizenwallet/sdk";
+import { Config, useSafeEffect } from "@citizenwallet/sdk";
 import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
 import { useCallback } from "react";
@@ -24,7 +20,7 @@ interface WalletProps {
 }
 
 export default function Wallet({ config }: WalletProps) {
-  const { community, token } = config;
+  const { community } = config;
 
   // const isScrolled = useIsScrolled();
   const isScrolled = false;
@@ -112,8 +108,8 @@ export default function Wallet({ config }: WalletProps) {
       <ActionBar
         balance={balance}
         small={isScrolled}
-        community={community}
-        token={token}
+        config={config}
+        accountActions={actions}
       />
 
       <Flex direction="column" className="w-full max-w-md" gap="3">

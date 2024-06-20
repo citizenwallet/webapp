@@ -27,16 +27,28 @@ import { useSendStore } from "@/state/send/state";
 import { Box, Flex, ScrollArea, Text } from "@radix-ui/themes";
 import ProfileRow from "@/components/profiles/ProfileRow";
 import { getEmptyProfile, useProfilesStore } from "@/state/profiles/state";
-import { ConfigToken, Profile } from "@citizenwallet/sdk";
+import { Config, Profile } from "@citizenwallet/sdk";
 import { useState } from "react";
 import { useSend } from "@/state/send/actions";
+import { DialogClose } from "@radix-ui/react-dialog";
+import QRScannerModal from "./QRScannerModal";
+import { formatCurrency } from "@/utils/formatting";
+import { useProfiles } from "@/state/profiles/actions";
+import { AccountLogic, useAccount } from "@/state/account/actions";
+import { useAccountStore } from "@/state/account/state";
+import { selectFilteredProfiles } from "@/state/profiles/selectors";
 
 interface SendModalProps {
-  token: ConfigToken;
+  accountActions: AccountLogic;
+  config: Config;
   children: React.ReactNode;
 }
 
-export default function SendModal({ token, children }: SendModalProps) {
+export default function SendModal({
+  accountActions,
+  config,
+  children,
+}: SendModalProps) {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -54,6 +66,10 @@ export default function SendModal({ token, children }: SendModalProps) {
     }
   };
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   const handleCancelToSelection = () => {
     actions.cancelToSelection();
   };
@@ -66,12 +82,18 @@ export default function SendModal({ token, children }: SendModalProps) {
           <DialogHeader>
             <DialogTitle>Send</DialogTitle>
           </DialogHeader>
-          <SendForm isInModal token={token} className="h-full" />
+          <SendForm
+            className="h-full"
+            isInModal
+            config={config}
+            accountActions={accountActions}
+            onClose={handleClose}
+          />
           <DialogFooter className="pt-2">
             {!resolvedTo ? (
-              <DrawerClose asChild>
+              <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
-              </DrawerClose>
+              </DialogClose>
             ) : (
               <Button onClick={handleCancelToSelection} variant="outline">
                 Back
@@ -90,7 +112,12 @@ export default function SendModal({ token, children }: SendModalProps) {
         <DrawerHeader className="text-left">
           <DrawerTitle>Send</DrawerTitle>
         </DrawerHeader>
-        <SendForm token={token} className="h-full px-4" />
+        <SendForm
+          className="h-full px-4"
+          config={config}
+          accountActions={accountActions}
+          onClose={handleClose}
+        />
         <DrawerFooter className="pt-2">
           {!resolvedTo ? (
             <DrawerClose asChild>
@@ -109,11 +136,19 @@ export default function SendModal({ token, children }: SendModalProps) {
 
 interface SendFormProps {
   isInModal?: boolean;
-  token: ConfigToken;
+  config: Config;
+  accountActions: AccountLogic;
   className?: string;
+  onClose: () => void;
 }
 
-const SendForm = ({ isInModal = false, token, className }: SendFormProps) => {
+const SendForm = ({
+  isInModal = false,
+  config,
+  accountActions,
+  className,
+  onClose,
+}: SendFormProps) => {
   const divHeight =
     typeof window !== "undefined"
       ? isInModal
@@ -121,27 +156,57 @@ const SendForm = ({ isInModal = false, token, className }: SendFormProps) => {
         : window.innerHeight
       : 200;
 
-  console.log("divHeight", divHeight);
+  const { token } = config;
 
   const [sendStore, actions] = useSend();
+  const [profilesStore, profilesActions] = useProfiles(config);
+
+  const balance = useAccountStore((state) => state.balance);
 
   const to = sendStore((state) => state.to);
+  const amount = sendStore((state) => state.amount);
+  const description = sendStore((state) => state.description);
   const resolvedTo = sendStore((state) => state.resolvedTo);
-  const profiles = useProfilesStore((state) => state.profiles);
+  const profiles = profilesStore((state) => state.profiles);
+  const profileList = profilesStore(selectFilteredProfiles(to));
 
   const handleToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // const to = e.target.value;
-    // updateTo(to);
+    const to = e.target.value;
+    actions.updateTo(to);
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const amount = e.target.value;
+    actions.updateAmount(formatCurrency(amount, token.decimals > 0));
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const description = e.target.value;
+    actions.updateDescription(description);
   };
 
   const handleProfileSelect = (profile: Profile) => {
-    // updateTo(profile.account);
-    console.log(profile);
     actions.updateResolvedTo(profile.account);
   };
 
+  const handleScan = (data: string) => {
+    if (data) {
+      const to = actions.parseQRCode(data);
+      if (to) {
+        profilesActions.loadProfile(to);
+      }
+    }
+  };
+
+  const handleSend = () => {
+    if (!resolvedTo) return;
+    accountActions.send(resolvedTo, amount, description);
+
+    onClose();
+  };
+
   let modalContent = (
-    <Box key="to" className="animate-fadeIn w-full">
+    <Box key="to" className="animate-fade-in w-full">
       <Box className="relative w-full h-14 my-4">
         <Input
           type="search"
@@ -152,14 +217,16 @@ const SendForm = ({ isInModal = false, token, className }: SendFormProps) => {
           value={to}
           onChange={handleToChange}
         />
-        <SearchIcon className="text-primary absolute top-4 right-4" />
+        {!to && <SearchIcon className="text-primary absolute top-4 right-4" />}
       </Box>
 
       <Flex className="w-full h-10">
-        <Button variant="ghost" className="flex justify-start w-full">
-          <QrCodeIcon size={24} className="text-primary mr-4" />
-          <Text>Scan QR Code</Text>
-        </Button>
+        <QRScannerModal onScan={handleScan}>
+          <Button variant="ghost" className="flex justify-start w-full">
+            <QrCodeIcon size={24} className="text-primary mr-4" />
+            <Text>Scan QR Code</Text>
+          </Button>
+        </QRScannerModal>
       </Flex>
       <Flex
         direction="column"
@@ -170,7 +237,7 @@ const SendForm = ({ isInModal = false, token, className }: SendFormProps) => {
           <Box className="z-10 absolute top-0 left-0 bg-transparent-to-white h-10 w-full"></Box>
           <Box className="h-4"></Box>
           <Box>
-            {Object.values(profiles).map((profile) => (
+            {profileList.map((profile) => (
               <ProfileRow
                 key={profile.account}
                 profile={profile}
@@ -189,7 +256,7 @@ const SendForm = ({ isInModal = false, token, className }: SendFormProps) => {
     const profile = profiles[resolvedTo] ?? getEmptyProfile(resolvedTo);
 
     modalContent = (
-      <Box key="amount" className="animate-fadeIn w-full">
+      <Box key="amount" className="animate-fade-in w-full">
         <Flex justify="center" align="center" className="w-full">
           <ProfileRow fullWidth={false} profile={profile} />
         </Flex>
@@ -202,22 +269,39 @@ const SendForm = ({ isInModal = false, token, className }: SendFormProps) => {
             autoFocus
             placeholder="0.00"
             className="text-primary border-primary border-0 rounded-none border-b-2 ml-2 mr-2 pl-5 pr-5 w-full h-14 text-4xl text-center focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:ring-transparent"
-            value={to}
-            onChange={handleToChange}
+            value={amount}
+            onChange={handleAmountChange}
           />
           <Text size="6" weight="bold" className="font-bold">
             {token.symbol}
           </Text>
         </Flex>
         <Flex justify="center" align="center" className="w-full">
-          <Text>Current Balance: 0.00 {token.symbol}</Text>
+          <Text>
+            Current Balance: {balance} {token.symbol}
+          </Text>
+        </Flex>
+        <Flex
+          direction="column"
+          align="start"
+          className="relative w-full pl-10 pr-10 my-8 gap-4"
+        >
+          <Text>Description</Text>
+          <Input
+            type="text"
+            id="description"
+            placeholder="Enter a description"
+            className="pl-5 pr-5 w-full h-14 text-base"
+            value={description}
+            onChange={handleDescriptionChange}
+          />
         </Flex>
         <Flex
           justify="center"
           align="start"
           className="w-full pl-10 pr-10 mt-10"
         >
-          <Button className="w-full">
+          <Button onClick={handleSend} className="w-full">
             Send
             <ArrowRightIcon size={24} className="ml-4" />
           </Button>

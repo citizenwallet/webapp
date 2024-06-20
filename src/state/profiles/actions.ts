@@ -39,6 +39,21 @@ export class ProfilesActions {
     }
   }
 
+  async loadProfileFromUsername(username: string) {
+    try {
+      const profile = await this.profiles.getProfileFromUsername(
+        username.replace("@", "")
+      );
+      if (!profile) {
+        throw new Error("Profile not found");
+      }
+
+      this.state.putProfile(profile);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   clear() {
     this.state.clear();
   }

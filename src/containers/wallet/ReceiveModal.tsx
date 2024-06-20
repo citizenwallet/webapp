@@ -36,6 +36,7 @@ import CopyBadge from "@/components/CopyBadge";
 import { useReceive } from "@/state/receive/actions";
 import { useReceiveStore } from "@/state/receive/state";
 import { generateSelectReceiveDeepLink } from "@/state/receive/selectors";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 interface ReceiveModalProps {
   token: ConfigToken;
@@ -79,9 +80,9 @@ export default function ReceiveModal({
           </DialogHeader>
           <ReceiveForm token={token} community={community} className="h-full" />
           <DialogFooter className="pt-2">
-            <DrawerClose asChild>
+            <DialogClose asChild>
               <Button variant="outline">Close</Button>
-            </DrawerClose>
+            </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>

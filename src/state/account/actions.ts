@@ -7,7 +7,7 @@ import { generateWalletHash } from "@/services/account/urlAccount";
 import { formatUnits } from "ethers";
 import { IndexerResponsePaginationMetadata } from "@citizenwallet/sdk/dist/src/services/indexer";
 
-class SendLogic {
+export class AccountLogic {
   state: AccountState;
   config: Config;
 
@@ -222,17 +222,19 @@ class SendLogic {
     return false;
   }
 
-  async send(to: string, amount: string) {
+  async send(to: string, amount: string, description?: string) {
     try {
       if (!this.account) {
         throw new Error("Account not set");
       }
 
-      const tx = await this.account.send(to, amount);
+      const tx = await this.account.send(to, amount, description);
 
       //   this.fetchBalance();
       //   this.state.putTransfers([tx]);
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   clear() {
@@ -242,11 +244,11 @@ class SendLogic {
 
 export const useAccount = (
   config: Config
-): [UseBoundStore<StoreApi<AccountState>>, SendLogic] => {
+): [UseBoundStore<StoreApi<AccountState>>, AccountLogic] => {
   const sendStore = useAccountStore;
 
   const actions = useMemo(
-    () => new SendLogic(sendStore.getState(), config),
+    () => new AccountLogic(sendStore.getState(), config),
     [sendStore, config]
   );
 

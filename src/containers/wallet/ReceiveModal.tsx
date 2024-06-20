@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import qr from "qr.js";
 import { useMediaQuery } from "@/hooks/mediaQuery";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,35 +14,40 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ArrowRightIcon, QrCodeIcon, SearchIcon } from "lucide-react";
-import { useSendStore } from "@/state/send/state";
-import { Box, Flex, ScrollArea, Text } from "@radix-ui/themes";
-import ProfileRow from "@/components/profiles/ProfileRow";
-import { getEmptyProfile, useProfilesStore } from "@/state/profiles/state";
-import { ConfigToken, Profile, useSafeEffect } from "@citizenwallet/sdk";
+import { Box, Flex, Text } from "@radix-ui/themes";
+import {
+  ConfigCommunity,
+  ConfigToken,
+  useSafeEffect,
+} from "@citizenwallet/sdk";
 import { useRef, useState } from "react";
 import { useSend } from "@/state/send/actions";
 import QRCode from "@/components/QRCode";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccountStore } from "@/state/account/state";
-import { formatAddress, formatUrl } from "@/utils/formatting";
-import { Badge } from "@/components/ui/badge";
+import { formatAddress, formatCurrency, formatUrl } from "@/utils/formatting";
 import CopyBadge from "@/components/CopyBadge";
+import { useReceive } from "@/state/receive/actions";
+import { useReceiveStore } from "@/state/receive/state";
+import { generateSelectReceiveDeepLink } from "@/state/receive/selectors";
 
 interface ReceiveModalProps {
   token: ConfigToken;
+  community: ConfigCommunity;
   children: React.ReactNode;
 }
 
-export default function ReceiveModal({ token, children }: ReceiveModalProps) {
+export default function ReceiveModal({
+  token,
+  community,
+  children,
+}: ReceiveModalProps) {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -73,7 +77,7 @@ export default function ReceiveModal({ token, children }: ReceiveModalProps) {
           <DialogHeader>
             <DialogTitle>Receive</DialogTitle>
           </DialogHeader>
-          <ReceiveForm token={token} className="h-full" />
+          <ReceiveForm token={token} community={community} className="h-full" />
           <DialogFooter className="pt-2">
             <DrawerClose asChild>
               <Button variant="outline">Close</Button>
@@ -91,7 +95,11 @@ export default function ReceiveModal({ token, children }: ReceiveModalProps) {
         <DrawerHeader className="text-left">
           <DrawerTitle>Receive</DrawerTitle>
         </DrawerHeader>
-        <ReceiveForm token={token} className="h-full px-4" />
+        <ReceiveForm
+          token={token}
+          community={community}
+          className="h-full px-4"
+        />
         <DrawerFooter className="pt-2">
           <DrawerClose asChild>
             <Button variant="outline">Close</Button>
@@ -104,11 +112,12 @@ export default function ReceiveModal({ token, children }: ReceiveModalProps) {
 
 interface ReceiveFormProps {
   isInModal?: boolean;
+  community: ConfigCommunity;
   token: ConfigToken;
   className?: string;
 }
 
-const ReceiveForm = ({ token, className }: ReceiveFormProps) => {
+const ReceiveForm = ({ token, community, className }: ReceiveFormProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(
     (ref.current ? ref.current.clientWidth : 200) * 0.8
@@ -118,27 +127,28 @@ const ReceiveForm = ({ token, className }: ReceiveFormProps) => {
     setWidth((ref.current ? ref.current.clientWidth : 200) * 0.8);
   }, []);
 
-  const [sendStore, actions] = useSend();
-
   const account = useAccountStore((state) => state.account);
-  const to = sendStore((state) => state.to);
-  const resolvedTo = sendStore((state) => state.resolvedTo);
-  const profiles = useProfilesStore((state) => state.profiles);
 
-  const handleToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // const to = e.target.value;
-    // updateTo(to);
+  const [receiveStore, actions] = useReceive();
+
+  useSafeEffect(() => {
+    actions.clear();
+  }, [actions]);
+
+  const link = useReceiveStore(
+    generateSelectReceiveDeepLink(account, community.alias)
+  );
+  const amount = receiveStore((state) => state.amount);
+  const description = receiveStore((state) => state.description);
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const amount = e.target.value;
+    actions.updateAmount(formatCurrency(amount, token.decimals > 0));
   };
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // const description = e.target.value;
-    // updateDescription(description);
-  };
-
-  const handleProfileSelect = (profile: Profile) => {
-    // updateTo(profile.account);
-    console.log(profile);
-    actions.updateResolvedTo(profile.account);
+    const description = e.target.value;
+    actions.updateDescription(description);
   };
 
   return (
@@ -157,15 +167,13 @@ const ReceiveForm = ({ token, className }: ReceiveFormProps) => {
             <Flex direction="column">
               <Flex justify="center" align="center" className="w-full">
                 <Box className="p-4 border-2 rounded-2xl border-primary">
-                  <QRCode size={width} qrCode={"hello"} />
+                  <QRCode size={width} qrCode={link} />
                 </Box>
               </Flex>
               <Flex justify="center" className="w-full pt-4">
                 <CopyBadge
-                  value={"https://app.citizenwallet.xyz/qr?account=hello"}
-                  label={formatUrl(
-                    "https://app.citizenwallet.xyz/qr?account=hello&receiveParams=sdjjsd;lfjsdhfklsdjhffsdlfjsd"
-                  )}
+                  value={link}
+                  label={formatUrl(link)}
                   onClick={(v) => console.log(v)}
                 />
               </Flex>
@@ -178,10 +186,10 @@ const ReceiveForm = ({ token, className }: ReceiveFormProps) => {
                   type="text"
                   id="amount"
                   autoFocus
-                  placeholder="0.00"
+                  placeholder={token.decimals > 0 ? "0.00" : "0"}
                   className="text-primary border-primary border-0 rounded-none border-b-2 ml-2 mr-2 pl-5 pr-5 w-full h-14 text-4xl text-center focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:ring-transparent"
-                  value={to}
-                  onChange={handleToChange}
+                  value={amount}
+                  onChange={handleAmountChange}
                 />
                 <Text size="6" weight="bold" className="font-bold">
                   {token.symbol}
@@ -198,8 +206,8 @@ const ReceiveForm = ({ token, className }: ReceiveFormProps) => {
                   id="description"
                   autoFocus
                   placeholder="Enter a description"
-                  className="pl-5 pr-5 w-full h-14"
-                  value={to}
+                  className="pl-5 pr-5 w-full h-14 text-base"
+                  value={description}
                   onChange={handleDescriptionChange}
                 />
               </Flex>

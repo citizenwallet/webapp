@@ -26,7 +26,8 @@ interface WalletProps {
 export default function Wallet({ config }: WalletProps) {
   const { community, token } = config;
 
-  const isScrolled = useIsScrolled();
+  // const isScrolled = useIsScrolled();
+  const isScrolled = false;
 
   const [state, actions] = useAccount(config);
   const [profilesState, profilesActions] = useProfiles(config);

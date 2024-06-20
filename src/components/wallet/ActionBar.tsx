@@ -77,7 +77,7 @@ export default function ActionBar({
             <WalletAction icon={<ArrowUpIcon size={40} />} label="Send" />
           </SendModal>
 
-          <ReceiveModal token={token}>
+          <ReceiveModal token={token} community={community}>
             <WalletAction icon={<ArrowDownIcon size={40} />} label="Receive" />
           </ReceiveModal>
         </Flex>
@@ -117,7 +117,7 @@ export default function ActionBar({
             />
           </SendModal>
 
-          <ReceiveModal token={token}>
+          <ReceiveModal token={token} community={community}>
             <WalletAction
               compact
               icon={<ArrowDownIcon size={30} />}

@@ -8,10 +8,6 @@ class SendLogic {
     this.state = state;
   }
 
-  updateLink(link: string) {
-    this.state.updateLink(link);
-  }
-
   updateAmount(amount: string) {
     this.state.updateAmount(amount);
   }

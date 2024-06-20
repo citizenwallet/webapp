@@ -3,9 +3,12 @@ import { Profile } from "@citizenwallet/sdk";
 import { create } from "zustand";
 
 export interface ProfilesState {
+  loading: boolean;
   profiles: {
     [key: string]: Profile;
   };
+  startLoading: () => void;
+  stopLoading: () => void;
   putProfile: (profile: Profile) => void;
   clear: () => void;
 }
@@ -24,10 +27,13 @@ export const getEmptyProfile = (account: string): Profile => {
 
 const initialState = () => ({
   profiles: {},
+  loading: false,
 });
 
 export const useProfilesStore = create<ProfilesState>((set) => ({
   ...initialState(),
+  startLoading: () => set({ loading: true }),
+  stopLoading: () => set({ loading: false }),
   putProfile: (profile) =>
     set((state) => ({
       profiles: {

@@ -1,7 +1,16 @@
 import { useMemo } from "react";
+import debounce from "debounce";
 import { ProfilesState, useProfilesStore } from "./state";
 import { StoreApi, UseBoundStore } from "zustand";
 import { Config, ProfileService } from "@citizenwallet/sdk";
+import {
+  decodeBytes32String,
+  encodeBytes32String,
+  hexlify,
+  toUtf8Bytes,
+  zeroPadBytes,
+  zeroPadValue,
+} from "ethers";
 
 const RELOAD_INTERVAL = 30000;
 
@@ -20,6 +29,8 @@ export class ProfilesActions {
   private lastLoadedProfile: { [key: string]: number } = {};
   async loadProfile(account: string) {
     try {
+      this.state.startLoading();
+
       if (this.lastLoadedProfile[account]) {
         const now = new Date().getTime();
         if (now - this.lastLoadedProfile[account] < RELOAD_INTERVAL) {
@@ -37,13 +48,15 @@ export class ProfilesActions {
     } catch (e) {
       console.error(e);
     }
+
+    this.state.stopLoading();
   }
 
   async loadProfileFromUsername(username: string) {
     try {
-      const profile = await this.profiles.getProfileFromUsername(
-        username.replace("@", "")
-      );
+      this.state.startLoading();
+
+      const profile = await this.profiles.getProfileFromUsername(username);
       if (!profile) {
         throw new Error("Profile not found");
       }
@@ -52,7 +65,14 @@ export class ProfilesActions {
     } catch (e) {
       console.error(e);
     }
+
+    this.state.stopLoading();
   }
+
+  debouncedLoadProfileFromUsername = debounce(
+    this.loadProfileFromUsername,
+    500
+  );
 
   clear() {
     this.state.clear();

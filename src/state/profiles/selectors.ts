@@ -1,12 +1,12 @@
 import { ProfilesState } from "./state";
 
 export const selectFilteredProfiles =
-  (input: string) => (state: ProfilesState) => {
-    if (!input) {
+  (query: string) => (state: ProfilesState) => {
+    if (!query) {
       return Object.values(state.profiles);
     }
 
-    const lowerCaseInput = input.toLowerCase().trim();
+    const lowerCaseInput = query.toLowerCase().trim();
 
     return Object.values(state.profiles).filter(
       (profile) =>

@@ -170,9 +170,14 @@ const SendForm = ({
   const profiles = profilesStore((state) => state.profiles);
   const profileList = profilesStore(selectFilteredProfiles(to));
 
+  const handleSearchProfile = (query: string) => {
+    profilesActions.debouncedLoadProfileFromUsername(query);
+  };
+
   const handleToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const to = e.target.value;
     actions.updateTo(to);
+    handleSearchProfile(to);
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {

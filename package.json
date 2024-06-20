@@ -11,7 +11,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@citizenwallet/sdk": "^1.2.29",
+    "@citizenwallet/sdk": "^1.2.30",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-label": "^2.0.2",
@@ -21,6 +21,7 @@
     "@radix-ui/themes": "^3.0.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "debounce": "^2.1.0",
     "ethers": "^6.13.0",
     "fflate": "^0.8.2",
     "javascript-time-ago": "^2.5.10",

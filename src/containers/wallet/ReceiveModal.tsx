@@ -37,6 +37,7 @@ import { useReceive } from "@/state/receive/actions";
 import { useReceiveStore } from "@/state/receive/state";
 import { generateSelectReceiveDeepLink } from "@/state/receive/selectors";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ReceiveModalProps {
   token: ConfigToken;
@@ -50,7 +51,7 @@ export default function ReceiveModal({
   children,
 }: ReceiveModalProps) {
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = useMediaQuery("(min-size: 768px)");
 
   const [sendStore, actions] = useSend();
 
@@ -120,12 +121,12 @@ interface ReceiveFormProps {
 
 const ReceiveForm = ({ token, community, className }: ReceiveFormProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(
+  const [size, setSize] = useState(
     (ref.current ? ref.current.clientWidth : 200) * 0.8
   );
 
   useSafeEffect(() => {
-    setWidth((ref.current ? ref.current.clientWidth : 200) * 0.8);
+    setSize((ref.current ? ref.current.clientWidth : 200) * 0.8);
   }, []);
 
   const account = useAccountStore((state) => state.account);
@@ -156,82 +157,83 @@ const ReceiveForm = ({ token, community, className }: ReceiveFormProps) => {
     <Flex
       ref={ref}
       direction="column"
-      className={cn("w-full items-start gap-4 overflow-hidden", className)}
+      justify="center"
+      align="center"
+      className={cn("w-full items-start gap-4", className)}
     >
-      <Flex justify="center" align="center" className="w-full">
-        <Tabs defaultValue="cw" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="cw">Citizen Wallet</TabsTrigger>
-            <TabsTrigger value="external">External</TabsTrigger>
-          </TabsList>
-          <TabsContent value="cw" className="pt-4">
-            <Flex direction="column">
-              <Flex justify="center" align="center" className="w-full">
-                <Box className="p-4 border-2 rounded-2xl border-primary">
-                  <QRCode size={width} qrCode={link} />
-                </Box>
-              </Flex>
-              <Flex justify="center" className="w-full pt-4">
-                <CopyBadge
-                  value={link}
-                  label={formatUrl(link)}
-                  onClick={(v) => console.log(v)}
-                />
-              </Flex>
-              <Flex
-                align="center"
-                className="relative w-full h-14 pl-10 pr-10 mt-8"
-              >
-                <Text>Request</Text>
-                <Input
-                  type="text"
-                  id="amount"
-                  autoFocus
-                  placeholder={token.decimals > 0 ? "0.00" : "0"}
-                  className="text-primary border-primary border-0 rounded-none border-b-2 ml-2 mr-2 pl-5 pr-5 w-full h-14 text-4xl text-center focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:ring-transparent"
-                  value={amount}
-                  onChange={handleAmountChange}
-                />
-                <Text size="6" weight="bold" className="font-bold">
-                  {token.symbol}
-                </Text>
-              </Flex>
-              <Flex
-                direction="column"
-                align="start"
-                className="relative w-full pl-10 pr-10 my-8 gap-4"
-              >
-                <Text>Description</Text>
-                <Input
-                  type="text"
-                  id="description"
-                  autoFocus
-                  placeholder="Enter a description"
-                  className="pl-5 pr-5 w-full h-14 text-base"
-                  value={description}
-                  onChange={handleDescriptionChange}
-                />
-              </Flex>
+      <Tabs defaultValue="cw" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="cw">Citizen Wallet</TabsTrigger>
+          <TabsTrigger value="external">External</TabsTrigger>
+        </TabsList>
+        <TabsContent value="cw" className="pt-4">
+          <ScrollArea
+            className="overflow-scroll pb-60"
+            style={{ maxHeight: size + 200 }}
+          >
+            <Flex justify="center" align="center" className="w-full">
+              <Box className="p-4 border-2 rounded-2xl border-primary">
+                <QRCode size={size} qrCode={link} />
+              </Box>
             </Flex>
-          </TabsContent>
-          <TabsContent value="external" className="pt-4">
-            <Flex direction="column">
-              <Flex justify="center" align="center" className="w-full">
-                <Box className="p-4 border-2 rounded-2xl border-primary">
-                  <QRCode size={width} qrCode={account} />
-                </Box>
-              </Flex>
-              <Flex justify="center" className="w-full py-4">
-                <CopyBadge
-                  value={account}
-                  label={formatAddress(account)}
-                  onClick={(v) => console.log(v)}
-                />
-              </Flex>
+            <Flex justify="center" className="w-full pt-4">
+              <CopyBadge
+                value={link}
+                label={formatUrl(link)}
+                onClick={(v) => console.log(v)}
+              />
             </Flex>
-          </TabsContent>
-        </Tabs>
-      </Flex>
+            <Flex
+              align="center"
+              className="relative w-full h-14 pl-10 pr-10 mt-8"
+            >
+              <Text>Request</Text>
+              <Input
+                type="text"
+                id="amount"
+                placeholder={token.decimals > 0 ? "0.00" : "0"}
+                className="text-primary border-primary border-0 rounded-none border-b-2 ml-2 mr-2 pl-5 pr-5 w-full h-14 text-4xl text-center focus-visible:ring-offset-0 focus-visible:ring-0 focus-visible:ring-transparent"
+                value={amount}
+                onChange={handleAmountChange}
+              />
+              <Text size="6" weight="bold" className="font-bold">
+                {token.symbol}
+              </Text>
+            </Flex>
+            <Flex
+              direction="column"
+              align="start"
+              className="relative w-full pl-10 pr-10 my-8 gap-4"
+            >
+              <Text>Description</Text>
+              <Input
+                type="text"
+                id="description"
+                placeholder="Enter a description"
+                className="pl-5 pr-5 w-full h-14 text-base"
+                value={description}
+                onChange={handleDescriptionChange}
+              />
+            </Flex>
+          </ScrollArea>
+        </TabsContent>
+        <TabsContent value="external" className="pt-4">
+          <Flex direction="column">
+            <Flex justify="center" align="center" className="w-full">
+              <Box className="p-4 border-2 rounded-2xl border-primary">
+                <QRCode size={size} qrCode={account} />
+              </Box>
+            </Flex>
+            <Flex justify="center" className="w-full py-4">
+              <CopyBadge
+                value={account}
+                label={formatAddress(account)}
+                onClick={(v) => console.log(v)}
+              />
+            </Flex>
+          </Flex>
+        </TabsContent>
+      </Tabs>
     </Flex>
   );
 };

@@ -51,11 +51,9 @@ export default function ReceiveModal({
   children,
 }: ReceiveModalProps) {
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery("(min-size: 768px)");
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  const [sendStore, actions] = useSend();
-
-  const resolvedTo = sendStore((state) => state.resolvedTo);
+  const [_, actions] = useSend();
 
   const handleOpenChange = (open: boolean) => {
     setOpen(open);
@@ -67,15 +65,11 @@ export default function ReceiveModal({
     }
   };
 
-  const handleCancelToSelection = () => {
-    actions.cancelToSelection();
-  };
-
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="h-4/6 sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Receive</DialogTitle>
           </DialogHeader>

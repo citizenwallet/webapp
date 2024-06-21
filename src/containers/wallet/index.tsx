@@ -58,10 +58,7 @@ export default function Wallet({ config }: WalletProps) {
     if (account) {
       profilesActions.loadProfile(account);
       actions.fetchBalance();
-      // actions.getTransfers(account);
       unsubscribe = actions.listen(account);
-
-      // actions.send("0xAB07F26A25c5269b05ca57eBB2be7720f1C1fE4E", "1");
     }
 
     return () => {
@@ -136,7 +133,7 @@ export default function Wallet({ config }: WalletProps) {
         accountActions={actions}
       />
 
-      <Flex direction="column" className="w-full max-w-md" gap="3">
+      <Flex direction="column" className="w-full" gap="3">
         {transfers.map((tx) => (
           <TxRow
             key={tx.hash}

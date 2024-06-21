@@ -78,7 +78,7 @@ export default function SendModal({
     return (
       <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="h-4/6 sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Send</DialogTitle>
           </DialogHeader>

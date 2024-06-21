@@ -1,5 +1,6 @@
 "use client";
 
+import QRScannerModal from "@/components/qr/QRScannerModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import ActionBar from "@/components/wallet/ActionBar";
@@ -10,7 +11,13 @@ import { useScrollableWindowFetcher } from "@/hooks/useScrollableWindow";
 import { useAccount } from "@/state/account/actions";
 import { selectOrderedTransfers } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
-import { Config, useSafeEffect } from "@citizenwallet/sdk";
+import { useSend } from "@/state/send/actions";
+import {
+  Config,
+  QRFormat,
+  parseQRFormat,
+  useSafeEffect,
+} from "@citizenwallet/sdk";
 import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
 import { useCallback } from "react";
@@ -26,6 +33,7 @@ export default function Wallet({ config }: WalletProps) {
   const isScrolled = false;
 
   const [state, actions] = useAccount(config);
+  const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
 
   const hash = useHash();
@@ -68,8 +76,23 @@ export default function Wallet({ config }: WalletProps) {
 
   const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
 
-  const handleScan = () => {
-    console.log("scan");
+  const handleScan = (data: string) => {
+    switch (parseQRFormat(data)) {
+      case QRFormat.unsupported:
+        return;
+      case QRFormat.voucher:
+        // handle vouchers
+        return;
+      default:
+        // something we can try to receive from
+        sendActions.setModalOpen(true);
+
+        const to = sendActions.parseQRCode(data);
+        if (to) {
+          profilesActions.loadProfile(to);
+        }
+        return;
+    }
   };
 
   const balance = state((state) => state.balance);
@@ -96,13 +119,14 @@ export default function Wallet({ config }: WalletProps) {
         gap="2"
         className="z-20 fixed right-0 bottom-0 w-full mb-6"
       >
-        <Button
-          variant="ghost"
-          onClick={handleScan}
-          className="h-20 w-20 rounded-full border-primary border-4 m-4 shadow-lg bg-white"
-        >
-          <QrCodeIcon size={40} className="text-primary" />
-        </Button>
+        <QRScannerModal onScan={handleScan}>
+          <Button
+            variant="ghost"
+            className="h-20 w-20 rounded-full border-primary border-4 m-4 shadow-lg bg-white"
+          >
+            <QrCodeIcon size={40} className="text-primary" />
+          </Button>
+        </QRScannerModal>
       </Flex>
 
       <ActionBar

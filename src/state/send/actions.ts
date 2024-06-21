@@ -8,6 +8,7 @@ import {
   parseQRCode,
   parseQRFormat,
 } from "@citizenwallet/sdk";
+import { isHexString } from "ethers";
 
 class SendLogic {
   state: SendState;
@@ -54,7 +55,14 @@ class SendLogic {
     return null;
   }
 
+  setModalOpen(modalOpen: boolean) {
+    this.state.setModalOpen(modalOpen);
+  }
+
   updateTo(to: string) {
+    if (to.length === 42 && isHexString(to)) {
+      this.state.updateResolvedTo(to);
+    }
     this.state.updateTo(to);
   }
 

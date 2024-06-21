@@ -28,7 +28,7 @@ import {
 } from "@citizenwallet/sdk";
 import { useRef, useState } from "react";
 import { useSend } from "@/state/send/actions";
-import QRCode from "@/components/QRCode";
+import QRCode from "@/components/qr/QRCode";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccountStore } from "@/state/account/state";
 import { formatAddress, formatCurrency, formatUrl } from "@/utils/formatting";

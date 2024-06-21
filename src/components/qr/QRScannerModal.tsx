@@ -21,14 +21,16 @@ import {
 import { Box, Flex } from "@radix-ui/themes";
 import { useState } from "react";
 import { DialogClose } from "@radix-ui/react-dialog";
-import QRScanner from "@/components/QRScanner";
+import QRScanner from "@/components/qr/QRScanner";
 
 interface QRScannerModalProps {
+  title?: string;
   onScan: (data: string) => void;
   children: React.ReactNode;
 }
 
 export default function QRScannerModal({
+  title = "Scan QR Code",
   onScan,
   children,
 }: QRScannerModalProps) {
@@ -50,7 +52,7 @@ export default function QRScannerModal({
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="h-4/6 sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Send</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
           <QRScannerContent className="h-full" onScan={handleScan} />
           <DialogFooter className="pt-2">
@@ -68,7 +70,7 @@ export default function QRScannerModal({
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent className="h-4/6">
         <DrawerHeader className="text-left">
-          <DrawerTitle>Send</DrawerTitle>
+          <DrawerTitle>{title}</DrawerTitle>
         </DrawerHeader>
         <QRScannerContent className="h-full px-4" onScan={handleScan} />
         <DrawerFooter className="pt-2">

@@ -31,7 +31,7 @@ import { Config, Profile } from "@citizenwallet/sdk";
 import { useState } from "react";
 import { useSend } from "@/state/send/actions";
 import { DialogClose } from "@radix-ui/react-dialog";
-import QRScannerModal from "./QRScannerModal";
+import QRScannerModal from "../../components/qr/QRScannerModal";
 import { formatCurrency } from "@/utils/formatting";
 import { useProfiles } from "@/state/profiles/actions";
 import { AccountLogic, useAccount } from "@/state/account/actions";
@@ -49,15 +49,15 @@ export default function SendModal({
   config,
   children,
 }: SendModalProps) {
-  const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const [sendStore, actions] = useSend();
 
+  const modalOpen = sendStore((state) => state.modalOpen);
   const resolvedTo = sendStore((state) => state.resolvedTo);
 
   const handleOpenChange = (open: boolean) => {
-    setOpen(open);
+    actions.setModalOpen(open);
 
     if (!open) {
       setTimeout(() => {
@@ -67,7 +67,7 @@ export default function SendModal({
   };
 
   const handleClose = () => {
-    setOpen(false);
+    actions.setModalOpen(false);
   };
 
   const handleCancelToSelection = () => {
@@ -76,7 +76,7 @@ export default function SendModal({
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={handleOpenChange}>
+      <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -106,7 +106,7 @@ export default function SendModal({
   }
 
   return (
-    <Drawer open={open} onOpenChange={handleOpenChange}>
+    <Drawer open={modalOpen} onOpenChange={handleOpenChange}>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">

@@ -1,4 +1,4 @@
-import { generateReceiveLink } from "@/utils/deeplink";
+import { generateReceiveLink } from "@citizenwallet/sdk";
 import { ReceiveState } from "./state";
 
 export const generateSelectReceiveDeepLink =

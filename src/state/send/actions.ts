@@ -7,7 +7,7 @@ import {
   parseMessageFromReceiveLink,
   parseQRCode,
   parseQRFormat,
-} from "@/utils/deeplink";
+} from "@citizenwallet/sdk";
 
 class SendLogic {
   state: SendState;

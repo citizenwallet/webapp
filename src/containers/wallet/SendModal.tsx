@@ -261,7 +261,7 @@ const SendForm = ({
     const profile = profiles[resolvedTo] ?? getEmptyProfile(resolvedTo);
 
     modalContent = (
-      <Box key="amount" className="animate-fade-in w-full">
+      <ScrollArea key="amount" className="animate-fade-in w-full">
         <Flex justify="center" align="center" className="w-full">
           <ProfileRow fullWidth={false} profile={profile} />
         </Flex>
@@ -269,7 +269,7 @@ const SendForm = ({
         <Flex align="center" className="relative w-full h-14 pl-10 pr-10">
           <Text>Send</Text>
           <Input
-            type="text"
+            type="number"
             id="amount"
             autoFocus
             placeholder="0.00"
@@ -301,26 +301,33 @@ const SendForm = ({
             onChange={handleDescriptionChange}
           />
         </Flex>
-        <Flex
-          justify="center"
-          align="start"
-          className="w-full pl-10 pr-10 mt-10"
-        >
-          <Button onClick={handleSend} className="w-full">
-            Send
-            <ArrowRightIcon size={24} className="ml-4" />
-          </Button>
-        </Flex>
-      </Box>
+        <Box className="h-20" />
+      </ScrollArea>
     );
   }
 
   return (
     <Flex
       direction="column"
-      className={cn("w-full items-start gap-4 overflow-hidden", className)}
+      className={cn(
+        "relative w-full items-start gap-4 overflow-hidden",
+        className
+      )}
     >
       {modalContent}
+
+      {resolvedTo && (
+        <Flex
+          justify="center"
+          align="start"
+          className="absolute bottom-0 left-0 w-full px-4"
+        >
+          <Button onClick={handleSend} className="w-full">
+            Send
+            <ArrowRightIcon size={24} className="ml-4" />
+          </Button>
+        </Flex>
+      )}
     </Flex>
   );
 };

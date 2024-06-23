@@ -1,6 +1,5 @@
 import { Transfer } from "@citizenwallet/sdk";
 import { create } from "zustand";
-
 export interface AccountState {
   account: string;
   owner: boolean;

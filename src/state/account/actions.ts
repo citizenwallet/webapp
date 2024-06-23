@@ -222,7 +222,11 @@ export class AccountLogic {
     return false;
   }
 
-  async send(to: string, amount: string, description?: string) {
+  async send(
+    to: string,
+    amount: string,
+    description?: string
+  ): Promise<string | null> {
     try {
       if (!this.account) {
         throw new Error("Account not set");
@@ -230,11 +234,12 @@ export class AccountLogic {
 
       const tx = await this.account.send(to, amount, description);
 
-      //   this.fetchBalance();
-      //   this.state.putTransfers([tx]);
+      return tx;
     } catch (error) {
       console.error(error);
     }
+
+    return null;
   }
 
   clear() {

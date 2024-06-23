@@ -79,6 +79,7 @@ export default function Wallet({ config }: WalletProps) {
         return;
       case QRFormat.voucher:
         // handle vouchers
+        console.log("voucher", data);
         return;
       default:
         // something we can try to receive from

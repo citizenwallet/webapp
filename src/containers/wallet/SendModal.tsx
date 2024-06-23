@@ -32,11 +32,13 @@ import { useState } from "react";
 import { useSend } from "@/state/send/actions";
 import { DialogClose } from "@radix-ui/react-dialog";
 import QRScannerModal from "../../components/qr/QRScannerModal";
-import { formatCurrency } from "@/utils/formatting";
+import { formatAddress, formatCurrency } from "@/utils/formatting";
 import { useProfiles } from "@/state/profiles/actions";
 import { AccountLogic, useAccount } from "@/state/account/actions";
 import { useAccountStore } from "@/state/account/state";
 import { selectFilteredProfiles } from "@/state/profiles/selectors";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 interface SendModalProps {
   accountActions: AccountLogic;
@@ -161,6 +163,8 @@ const SendForm = ({
 
   const { token } = config;
 
+  const { toast } = useToast();
+
   const [sendStore, actions] = useSend();
   const [profilesStore, profilesActions] = useProfiles(config);
 
@@ -206,9 +210,43 @@ const SendForm = ({
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async (
+    sendTo: string,
+    sendAmount: string,
+    sendDescription?: string
+  ) => {
     if (!resolvedTo) return;
-    accountActions.send(resolvedTo, amount, description);
+    const tx = await accountActions.send(sendTo, sendAmount, sendDescription);
+    if (tx) {
+      // send toast
+      const profile = profiles[sendTo];
+      let toastDescription = `Sent ${sendAmount} ${
+        token.symbol
+      } to ${formatAddress(sendTo)}`;
+      if (profile) {
+        toastDescription = `Sent ${sendAmount} ${token.symbol} to ${profile.username}`;
+      }
+
+      toast({
+        title: "Sent",
+        description: toastDescription,
+        duration: 5000,
+      });
+    } else {
+      toast({
+        title: `Failed to send ${token.symbol}`,
+        duration: 5000,
+        variant: "destructive",
+        action: (
+          <ToastAction
+            altText="Try again"
+            onClick={() => handleSend(sendTo, sendAmount, sendDescription)}
+          >
+            Try again
+          </ToastAction>
+        ),
+      });
+    }
 
     onClose();
   };
@@ -325,7 +363,10 @@ const SendForm = ({
           align="start"
           className="absolute bottom-0 left-0 w-full px-4"
         >
-          <Button onClick={handleSend} className="w-full">
+          <Button
+            onClick={() => handleSend(resolvedTo, amount, description)}
+            className="w-full"
+          >
             Send
             <ArrowRightIcon size={24} className="ml-4" />
           </Button>

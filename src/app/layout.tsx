@@ -6,6 +6,7 @@ import "@radix-ui/themes/styles.css";
 import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         <Theme>
           <div className="flex flex-col items-center">{children}</div>
+          <Toaster />
         </Theme>
       </body>
     </html>

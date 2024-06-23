@@ -69,11 +69,16 @@ export default function ReceiveModal({
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="h-5/6 sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Receive</DialogTitle>
           </DialogHeader>
-          <ReceiveForm token={token} community={community} className="h-full" />
+          <ReceiveForm
+            isInModal
+            token={token}
+            community={community}
+            className="h-full"
+          />
           <DialogFooter className="pt-2">
             <DialogClose asChild>
               <Button variant="outline">Close</Button>
@@ -84,10 +89,13 @@ export default function ReceiveModal({
     );
   }
 
+  const contentHeight =
+    typeof window !== "undefined" ? window.innerHeight : 200;
+
   return (
     <Drawer open={open} onOpenChange={handleOpenChange}>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent className="h-full" style={{ height: contentHeight }}>
         <DrawerHeader className="text-left">
           <DrawerTitle>Receive</DrawerTitle>
         </DrawerHeader>
@@ -113,7 +121,18 @@ interface ReceiveFormProps {
   className?: string;
 }
 
-const ReceiveForm = ({ token, community, className }: ReceiveFormProps) => {
+const ReceiveForm = ({
+  isInModal = false,
+  token,
+  community,
+  className,
+}: ReceiveFormProps) => {
+  const divHeight =
+    typeof window !== "undefined"
+      ? isInModal
+        ? window.innerHeight * 0.6
+        : window.innerHeight
+      : 200;
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState(
     (ref.current ? ref.current.clientWidth : 200) * 0.8
@@ -151,7 +170,7 @@ const ReceiveForm = ({ token, community, className }: ReceiveFormProps) => {
     <Flex
       ref={ref}
       direction="column"
-      justify="center"
+      justify="start"
       align="center"
       className={cn("w-full items-start gap-4", className)}
     >
@@ -162,8 +181,8 @@ const ReceiveForm = ({ token, community, className }: ReceiveFormProps) => {
         </TabsList>
         <TabsContent value="cw" className="pt-4">
           <ScrollArea
-            className="overflow-scroll pb-60"
-            style={{ maxHeight: size + 200 }}
+            className="h-full overflow-scroll pb-60"
+            style={{ maxHeight: divHeight - 200 }}
           >
             <Flex justify="center" align="center" className="w-full">
               <Box className="p-4 border-2 rounded-2xl border-primary">

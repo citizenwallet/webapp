@@ -105,10 +105,13 @@ export default function SendModal({
     );
   }
 
+  const contentHeight =
+    typeof window !== "undefined" ? window.innerHeight : 200;
+
   return (
     <Drawer open={modalOpen} onOpenChange={handleOpenChange}>
       <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent className="h-full" style={{ height: contentHeight }}>
         <DrawerHeader className="text-left">
           <DrawerTitle>Send</DrawerTitle>
         </DrawerHeader>
@@ -235,8 +238,8 @@ const SendForm = ({
       </Flex>
       <Flex
         direction="column"
-        className="w-full gap-4"
-        style={{ height: divHeight - 250 }}
+        className="h-full w-full gap-4"
+        style={{ height: divHeight - 260 }}
       >
         <ScrollArea className="w-full">
           <Box className="z-10 absolute top-0 left-0 bg-transparent-to-white h-10 w-full"></Box>
@@ -310,7 +313,7 @@ const SendForm = ({
     <Flex
       direction="column"
       className={cn(
-        "relative w-full items-start gap-4 overflow-hidden",
+        "relative w-full h-full items-start gap-4 overflow-hidden",
         className
       )}
     >

@@ -10,7 +10,7 @@ import {
 } from "@citizenwallet/sdk";
 import { isHexString } from "ethers";
 
-class SendLogic {
+class SendActions {
   state: SendState;
   constructor(state: SendState) {
     this.state = state;
@@ -87,11 +87,14 @@ class SendLogic {
   }
 }
 
-export const useSend = (): [UseBoundStore<StoreApi<SendState>>, SendLogic] => {
+export const useSend = (): [
+  UseBoundStore<StoreApi<SendState>>,
+  SendActions
+] => {
   const sendStore = useSendStore;
 
   const actions = useMemo(
-    () => new SendLogic(sendStore.getState()),
+    () => new SendActions(sendStore.getState()),
     [sendStore]
   );
 

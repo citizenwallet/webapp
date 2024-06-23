@@ -64,7 +64,6 @@ export const generateWalletHash = async (
   wallet: HDNodeWallet | Wallet,
   walletPassword: string
 ): Promise<string> => {
-  console.log("generating wallet hash, walletPassword", walletPassword);
   const encryptedPrivateKey = await wallet.encrypt(walletPassword);
 
   const encoded = btoa(`${account}|${encryptedPrivateKey}`);

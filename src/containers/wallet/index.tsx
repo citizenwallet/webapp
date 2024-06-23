@@ -12,6 +12,7 @@ import { useAccount } from "@/state/account/actions";
 import { selectOrderedTransfers } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
 import { useSend } from "@/state/send/actions";
+import { useVoucher } from "@/state/voucher/actions";
 import {
   Config,
   QRFormat,
@@ -21,6 +22,8 @@ import {
 import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
 import { useCallback } from "react";
+import VoucherModal from "./VoucherModal";
+import { generateAccountHashPath } from "@/utils/hash";
 
 interface WalletProps {
   config: Config;
@@ -35,22 +38,19 @@ export default function Wallet({ config }: WalletProps) {
   const [state, actions] = useAccount(config);
   const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
+  const [voucherState, voucherActions] = useVoucher(config);
 
   const hash = useHash();
 
   useSafeEffect(() => {
     actions.openAccount(hash, (hash: string) => {
-      const hashPath = `${hash}?alias=${community.alias}`;
-      history.replaceState(null, "", `/#/wallet/${hashPath}`);
-      window.location.hash = `#/wallet/${hashPath}`;
+      const hashPath = generateAccountHashPath(hash, community.alias);
+      history.replaceState(null, "", hashPath);
+      window.location.hash = hashPath;
     });
   }, [actions, hash, profilesActions, community]);
 
   const account = state((state) => state.account);
-
-  useSafeEffect(() => {
-    console.log("rendering...", account);
-  }, [actions, account]);
 
   useSafeEffect(() => {
     let unsubscribe: () => void | undefined;
@@ -73,13 +73,17 @@ export default function Wallet({ config }: WalletProps) {
 
   const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
 
-  const handleScan = (data: string) => {
+  const handleScan = async (data: string) => {
     switch (parseQRFormat(data)) {
       case QRFormat.unsupported:
         return;
       case QRFormat.voucher:
         // handle vouchers
-        console.log("voucher", data);
+        const voucher = await voucherActions.readVoucher(data);
+
+        if (voucher) {
+          profilesActions.loadProfile(voucher.creator);
+        }
         return;
       default:
         // something we can try to receive from
@@ -145,6 +149,8 @@ export default function Wallet({ config }: WalletProps) {
           />
         ))}
       </Flex>
+
+      <VoucherModal config={config} actions={voucherActions} />
 
       <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
     </main>

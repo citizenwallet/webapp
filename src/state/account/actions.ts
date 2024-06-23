@@ -2,14 +2,18 @@ import { useMemo } from "react";
 import { AccountState, useAccountStore } from "./state";
 import { StoreApi, UseBoundStore } from "zustand";
 import { Config, IndexerService } from "@citizenwallet/sdk";
+import { StorageService } from "@/services/storage";
 import { CWAccount } from "@/services/account";
 import { generateWalletHash } from "@/services/account/urlAccount";
-import { formatUnits } from "ethers";
+import { SigningKey, Wallet, formatUnits } from "ethers";
 import { IndexerResponsePaginationMetadata } from "@citizenwallet/sdk/dist/src/services/indexer";
+import { generateAccountHashPath } from "@/utils/hash";
 
 export class AccountLogic {
   state: AccountState;
   config: Config;
+
+  storage: StorageService;
 
   indexer: IndexerService;
 
@@ -18,16 +22,22 @@ export class AccountLogic {
     this.state = state;
     this.config = config;
 
+    this.storage = new StorageService(config.community.alias);
+
     this.indexer = new IndexerService(config.indexer);
   }
 
   async openAccount(
-    url: string,
+    hash: string,
     createAccountCallback: (hash: string) => void
   ) {
-    if (!url) {
-      this.createAccount(createAccountCallback);
-      return;
+    let accountHash: string | null = hash;
+    if (!accountHash) {
+      accountHash = this.storage.getKey("hash");
+      if (!accountHash) {
+        this.createAccount(createAccountCallback);
+        return;
+      }
     }
 
     try {
@@ -43,7 +53,7 @@ export class AccountLogic {
 
       this.account = await CWAccount.fromHash(
         baseUrl,
-        url,
+        accountHash,
         walletPassword,
         this.config
       );
@@ -51,8 +61,14 @@ export class AccountLogic {
         throw new Error("Invalid wallet format");
       }
 
+      this.storage.setKey("hash", accountHash);
+
       this.state.setAccount(this.account.account);
       this.state.setOwner(true);
+
+      if (!hash) {
+        createAccountCallback(accountHash);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -60,17 +76,22 @@ export class AccountLogic {
 
   async createAccount(createAccountCallback: (hash: string) => void) {
     try {
-      this.account = await CWAccount.random(this.config);
-
       const walletPassword = process.env.NEXT_PUBLIC_WEB_BURNER_PASSWORD;
       if (!walletPassword) {
         throw new Error("Wallet password not set");
       }
 
+      this.account = await CWAccount.random(this.config);
+
       const hash = await generateWalletHash(
         this.account.account,
         this.account.signer,
         walletPassword
+      );
+
+      this.storage.setKey(
+        "hash",
+        generateAccountHashPath(hash, this.config.community.alias)
       );
 
       createAccountCallback(hash);

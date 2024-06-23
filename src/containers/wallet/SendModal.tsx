@@ -39,6 +39,7 @@ import { useAccountStore } from "@/state/account/state";
 import { selectFilteredProfiles } from "@/state/profiles/selectors";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { selectCanSend } from "@/state/send/selectors";
 
 interface SendModalProps {
   accountActions: AccountLogic;
@@ -52,6 +53,18 @@ export default function SendModal({
   children,
 }: SendModalProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  const { token } = config;
+
+  const { toast } = useToast();
+
+  const amount = useSendStore((state) => state.amount);
+  const description = useSendStore((state) => state.description);
+  const profiles = useProfilesStore((state) => state.profiles);
+
+  const balance = useAccountStore((state) => state.balance);
+
+  const canSend = useSendStore(selectCanSend(balance));
 
   const [sendStore, actions] = useSend();
 
@@ -76,6 +89,47 @@ export default function SendModal({
     actions.cancelToSelection();
   };
 
+  const handleSend = async (
+    sendTo: string,
+    sendAmount: string,
+    sendDescription?: string
+  ) => {
+    if (!resolvedTo) return;
+    const tx = await accountActions.send(sendTo, sendAmount, sendDescription);
+    if (tx) {
+      // send toast
+      const profile = profiles[sendTo];
+      let toastDescription = `Sent ${sendAmount} ${
+        token.symbol
+      } to ${formatAddress(sendTo)}`;
+      if (profile) {
+        toastDescription = `Sent ${sendAmount} ${token.symbol} to ${profile.username}`;
+      }
+
+      toast({
+        title: "Sent",
+        description: toastDescription,
+        duration: 5000,
+      });
+    } else {
+      toast({
+        title: `Failed to send ${token.symbol}`,
+        duration: 5000,
+        variant: "destructive",
+        action: (
+          <ToastAction
+            altText="Try again"
+            onClick={() => handleSend(sendTo, sendAmount, sendDescription)}
+          >
+            Try again
+          </ToastAction>
+        ),
+      });
+    }
+
+    handleClose();
+  };
+
   if (isDesktop) {
     return (
       <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
@@ -84,13 +138,7 @@ export default function SendModal({
           <DialogHeader>
             <DialogTitle>Send</DialogTitle>
           </DialogHeader>
-          <SendForm
-            className="h-full"
-            isInModal
-            config={config}
-            accountActions={accountActions}
-            onClose={handleClose}
-          />
+          <SendForm className="h-full" isInModal config={config} />
           <DialogFooter className="pt-2">
             {!resolvedTo ? (
               <DialogClose asChild>
@@ -100,6 +148,21 @@ export default function SendModal({
               <Button onClick={handleCancelToSelection} variant="outline">
                 Back
               </Button>
+            )}
+            {resolvedTo && canSend && (
+              <Flex
+                justify="center"
+                align="start"
+                className="absolute bottom-0 left-0 w-full px-4"
+              >
+                <Button
+                  onClick={() => handleSend(resolvedTo, amount, description)}
+                  className="w-full"
+                >
+                  Send
+                  <ArrowRightIcon size={24} className="ml-4" />
+                </Button>
+              </Flex>
             )}
           </DialogFooter>
         </DialogContent>
@@ -117,12 +180,7 @@ export default function SendModal({
         <DrawerHeader className="text-left">
           <DrawerTitle>Send</DrawerTitle>
         </DrawerHeader>
-        <SendForm
-          className="h-full px-4"
-          config={config}
-          accountActions={accountActions}
-          onClose={handleClose}
-        />
+        <SendForm className="h-full px-4" config={config} />
         <DrawerFooter className="pt-2">
           {!resolvedTo ? (
             <DrawerClose asChild>
@@ -133,6 +191,17 @@ export default function SendModal({
               Back
             </Button>
           )}
+          {resolvedTo && canSend && (
+            <Flex justify="center" align="start">
+              <Button
+                onClick={() => handleSend(resolvedTo, amount, description)}
+                className="w-full"
+              >
+                Send
+                <ArrowRightIcon size={24} className="ml-4" />
+              </Button>
+            </Flex>
+          )}
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
@@ -142,18 +211,10 @@ export default function SendModal({
 interface SendFormProps {
   isInModal?: boolean;
   config: Config;
-  accountActions: AccountLogic;
   className?: string;
-  onClose: () => void;
 }
 
-const SendForm = ({
-  isInModal = false,
-  config,
-  accountActions,
-  className,
-  onClose,
-}: SendFormProps) => {
+const SendForm = ({ isInModal = false, config, className }: SendFormProps) => {
   const divHeight =
     typeof window !== "undefined"
       ? isInModal
@@ -162,8 +223,6 @@ const SendForm = ({
       : 200;
 
   const { token } = config;
-
-  const { toast } = useToast();
 
   const [sendStore, actions] = useSend();
   const [profilesStore, profilesActions] = useProfiles(config);
@@ -208,47 +267,6 @@ const SendForm = ({
         profilesActions.loadProfile(to);
       }
     }
-  };
-
-  const handleSend = async (
-    sendTo: string,
-    sendAmount: string,
-    sendDescription?: string
-  ) => {
-    if (!resolvedTo) return;
-    const tx = await accountActions.send(sendTo, sendAmount, sendDescription);
-    if (tx) {
-      // send toast
-      const profile = profiles[sendTo];
-      let toastDescription = `Sent ${sendAmount} ${
-        token.symbol
-      } to ${formatAddress(sendTo)}`;
-      if (profile) {
-        toastDescription = `Sent ${sendAmount} ${token.symbol} to ${profile.username}`;
-      }
-
-      toast({
-        title: "Sent",
-        description: toastDescription,
-        duration: 5000,
-      });
-    } else {
-      toast({
-        title: `Failed to send ${token.symbol}`,
-        duration: 5000,
-        variant: "destructive",
-        action: (
-          <ToastAction
-            altText="Try again"
-            onClick={() => handleSend(sendTo, sendAmount, sendDescription)}
-          >
-            Try again
-          </ToastAction>
-        ),
-      });
-    }
-
-    onClose();
   };
 
   let modalContent = (
@@ -356,22 +374,6 @@ const SendForm = ({
       )}
     >
       {modalContent}
-
-      {resolvedTo && (
-        <Flex
-          justify="center"
-          align="start"
-          className="absolute bottom-0 left-0 w-full px-4"
-        >
-          <Button
-            onClick={() => handleSend(resolvedTo, amount, description)}
-            className="w-full"
-          >
-            Send
-            <ArrowRightIcon size={24} className="ml-4" />
-          </Button>
-        </Flex>
-      )}
     </Flex>
   );
 };

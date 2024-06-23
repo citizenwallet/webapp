@@ -24,6 +24,7 @@ import { QrCodeIcon } from "lucide-react";
 import { useCallback } from "react";
 import VoucherModal from "./VoucherModal";
 import { generateAccountHashPath } from "@/utils/hash";
+import { getFullUrl } from "@/utils/deeplink";
 
 interface WalletProps {
   config: Config;
@@ -42,13 +43,45 @@ export default function Wallet({ config }: WalletProps) {
 
   const hash = useHash();
 
+  const handleScan = useCallback(
+    async (data: string) => {
+      switch (parseQRFormat(data)) {
+        case QRFormat.unsupported:
+          return;
+        case QRFormat.voucher:
+          // handle vouchers
+          const voucher = await voucherActions.readVoucher(data);
+
+          if (voucher) {
+            profilesActions.loadProfile(voucher.creator);
+          }
+          return;
+        default:
+          // something we can try to receive from
+          sendActions.setModalOpen(true);
+
+          const to = sendActions.parseQRCode(data);
+          if (to) {
+            profilesActions.loadProfile(to);
+          }
+          return;
+      }
+    },
+    [sendActions, voucherActions, profilesActions]
+  );
+
   useSafeEffect(() => {
+    // read the url first
+    const href = getFullUrl();
+
     actions.openAccount(hash, (hash: string) => {
       const hashPath = generateAccountHashPath(hash, community.alias);
       history.replaceState(null, "", hashPath);
       window.location.hash = hashPath;
+
+      handleScan(href);
     });
-  }, [actions, hash, profilesActions, community]);
+  }, [actions, hash, profilesActions, community, handleScan]);
 
   const account = state((state) => state.account);
 
@@ -72,30 +105,6 @@ export default function Wallet({ config }: WalletProps) {
   }, [actions, account]);
 
   const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
-
-  const handleScan = async (data: string) => {
-    switch (parseQRFormat(data)) {
-      case QRFormat.unsupported:
-        return;
-      case QRFormat.voucher:
-        // handle vouchers
-        const voucher = await voucherActions.readVoucher(data);
-
-        if (voucher) {
-          profilesActions.loadProfile(voucher.creator);
-        }
-        return;
-      default:
-        // something we can try to receive from
-        sendActions.setModalOpen(true);
-
-        const to = sendActions.parseQRCode(data);
-        if (to) {
-          profilesActions.loadProfile(to);
-        }
-        return;
-    }
-  };
 
   const balance = state((state) => state.balance);
   const transfers = state(selectOrderedTransfers);

@@ -1,7 +1,12 @@
 import { useMemo } from "react";
 import { AccountState, useAccountStore } from "./state";
 import { StoreApi, UseBoundStore } from "zustand";
-import { Config, IndexerService } from "@citizenwallet/sdk";
+import {
+  Config,
+  IndexerService,
+  QRFormat,
+  parseQRFormat,
+} from "@citizenwallet/sdk";
 import { StorageService } from "@/services/storage";
 import { CWAccount } from "@/services/account";
 import { generateWalletHash } from "@/services/account/urlAccount";
@@ -31,8 +36,10 @@ export class AccountLogic {
     hash: string,
     createAccountCallback: (hash: string) => void
   ) {
+    const format = parseQRFormat(hash);
+
     let accountHash: string | null = hash;
-    if (!accountHash) {
+    if (!accountHash || format !== QRFormat.unsupported) {
       accountHash = this.storage.getKey("hash");
       if (!accountHash) {
         this.createAccount(createAccountCallback);
@@ -66,9 +73,7 @@ export class AccountLogic {
       this.state.setAccount(this.account.account);
       this.state.setOwner(true);
 
-      if (!hash) {
-        createAccountCallback(accountHash);
-      }
+      createAccountCallback(accountHash);
     } catch (e) {
       console.error(e);
     }

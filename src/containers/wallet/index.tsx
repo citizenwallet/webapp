@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import ActionBar from "@/components/wallet/ActionBar";
 import TxRow from "@/components/wallet/TxRow";
 import { useHash } from "@/hooks/hash";
-import { useIsScrolled } from "@/hooks/scroll";
 import { useScrollableWindowFetcher } from "@/hooks/useScrollableWindow";
 import { useAccount } from "@/state/account/actions";
 import { selectOrderedTransfers } from "@/state/account/selectors";
@@ -18,6 +17,7 @@ import {
   QRFormat,
   parseQRFormat,
   useSafeEffect,
+  useFocusEffect,
 } from "@citizenwallet/sdk";
 import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
@@ -52,7 +52,7 @@ export default function Wallet({ config }: WalletProps) {
 
   const account = state((state) => state.account);
 
-  useSafeEffect(() => {
+  useFocusEffect(() => {
     let unsubscribe: () => void | undefined;
 
     if (account) {

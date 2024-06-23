@@ -6,6 +6,7 @@ import { ArrowDownIcon, ArrowUpIcon, EllipsisIcon } from "lucide-react";
 import SendModal from "@/containers/wallet/SendModal";
 import ReceiveModal from "@/containers/wallet/ReceiveModal";
 import { AccountLogic } from "@/state/account/actions";
+import { cn } from "@/lib/utils";
 
 interface ActionBarProps {
   balance: string;
@@ -70,22 +71,6 @@ export default function ActionBar({
         </Flex>
       )}
 
-      {!small && (
-        <Flex
-          justify="center"
-          gap="8"
-          className="w-full bg-white pt-4 max-w-5xl items-center justify-between font-mono text-sm"
-        >
-          <SendModal config={config} accountActions={accountActions}>
-            <WalletAction icon={<ArrowUpIcon size={40} />} label="Send" />
-          </SendModal>
-
-          <ReceiveModal token={token} community={community}>
-            <WalletAction icon={<ArrowDownIcon size={40} />} label="Receive" />
-          </ReceiveModal>
-        </Flex>
-      )}
-
       {small && (
         <Flex
           justify="center"
@@ -106,29 +91,30 @@ export default function ActionBar({
         </Flex>
       )}
 
-      {small && (
-        <Flex
-          justify="center"
-          gap="4"
-          className="w-full bg-white pt-2 pb-4 max-w-5xl items-center justify-between font-mono text-sm"
-        >
-          <SendModal config={config} accountActions={accountActions}>
-            <WalletAction
-              compact
-              icon={<ArrowUpIcon size={30} />}
-              label="Send"
-            />
-          </SendModal>
+      <Flex
+        justify="center"
+        gap={small ? "4" : "8"}
+        className={cn(
+          "w-full bg-white max-w-5xl items-center justify-between font-mono text-sm",
+          small ? "pt-2 pb-4" : "pt-4"
+        )}
+      >
+        <SendModal config={config} accountActions={accountActions}>
+          <WalletAction
+            compact={small}
+            icon={<ArrowUpIcon size={small ? 30 : 40} />}
+            label="Send"
+          />
+        </SendModal>
 
-          <ReceiveModal token={token} community={community}>
-            <WalletAction
-              compact
-              icon={<ArrowDownIcon size={30} />}
-              label="Receive"
-            />
-          </ReceiveModal>
-        </Flex>
-      )}
+        <ReceiveModal token={token} community={community}>
+          <WalletAction
+            compact={small}
+            icon={<ArrowDownIcon size={small ? 30 : 40} />}
+            label="Receive"
+          />
+        </ReceiveModal>
+      </Flex>
 
       <Box className="bg-transparent-to-white h-10 w-full"></Box>
     </Flex>

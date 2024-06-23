@@ -25,6 +25,7 @@ import { useCallback } from "react";
 import VoucherModal from "./VoucherModal";
 import { generateAccountHashPath } from "@/utils/hash";
 import { getFullUrl } from "@/utils/deeplink";
+import { useIsScrolled } from "@/hooks/scroll";
 
 interface WalletProps {
   config: Config;
@@ -33,8 +34,7 @@ interface WalletProps {
 export default function Wallet({ config }: WalletProps) {
   const { community } = config;
 
-  // const isScrolled = useIsScrolled();
-  const isScrolled = false;
+  const isScrolled = useIsScrolled();
 
   const [state, actions] = useAccount(config);
   const [_, sendActions] = useSend();

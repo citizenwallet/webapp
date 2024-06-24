@@ -48,6 +48,8 @@ export class AccountLogic {
 
       const redirect = await this.reclaim.signIn(this.account.account);
 
+      console.log("redirect", redirect);
+
       window.open(redirect, "_blank");
     } catch (error) {
       console.error(error);

@@ -104,6 +104,12 @@ export default function Wallet({ config }: WalletProps) {
     actions.reclaimSignIn();
   };
 
+  const handleRedirect = (link: string) => {
+    actions.triggerLink(link);
+  };
+
+  const reclaimLink = state((state) => state.reclaimLink);
+
   const fetchMoreTransfers = useCallback(async () => {
     if (!account) return false;
     return actions.getTransfers(account);
@@ -152,14 +158,25 @@ export default function Wallet({ config }: WalletProps) {
         accountActions={actions}
       />
 
-      {transfers.length === 0 && (
+      {transfers.length === 0 && !reclaimLink && (
         <Flex
           direction="column"
           justify="center"
           align="center"
           className="w-full h-40"
         >
-          <Button onClick={handleClaim}>Verify Account</Button>
+          <Button onClick={handleClaim}>Request Proof</Button>
+        </Flex>
+      )}
+
+      {transfers.length === 0 && reclaimLink && (
+        <Flex
+          direction="column"
+          justify="center"
+          align="center"
+          className="w-full h-40"
+        >
+          <Button onClick={handleClaim}>Verify</Button>
         </Flex>
       )}
 

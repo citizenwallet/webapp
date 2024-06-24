@@ -7,6 +7,8 @@ export interface AccountState {
   transfers: Transfer[];
   sending: boolean;
   sendError: string | null;
+  reclaimLink: string | null;
+  setReclaimLink: (reclaimLink: string) => void;
   setAccount: (account: string) => void;
   setOwner: (owner: boolean) => void;
   setBalance: (balance: string) => void;
@@ -26,10 +28,12 @@ const initialState = () => ({
   transfers: [],
   sending: false,
   sendError: null,
+  reclaimLink: null,
 });
 
 export const useAccountStore = create<AccountState>((set) => ({
   ...initialState(),
+  setReclaimLink: (reclaimLink) => set((state) => ({ reclaimLink })),
   setAccount: (account) => set((state) => ({ account })),
   setOwner: (owner) => set((state) => ({ owner })),
   setBalance: (balance) => set((state) => ({ balance })),

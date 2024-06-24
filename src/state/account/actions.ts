@@ -50,10 +50,16 @@ export class AccountLogic {
 
       console.log("redirect", redirect);
 
-      window.open(redirect, "_blank");
+      this.state.setReclaimLink(redirect);
+
+      // window.open(redirect, "_blank");
     } catch (error) {
       console.error(error);
     }
+  }
+
+  triggerLink(link: string) {
+    window.open(link, "_blank");
   }
 
   async openAccount(

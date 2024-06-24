@@ -176,7 +176,7 @@ export default function Wallet({ config }: WalletProps) {
           align="center"
           className="w-full h-40"
         >
-          <Button onClick={handleClaim}>Verify</Button>
+          <Button onClick={() => handleRedirect(reclaimLink)}>Verify</Button>
         </Flex>
       )}
 

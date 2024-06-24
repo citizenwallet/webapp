@@ -38,6 +38,10 @@ export class ReclaimService {
       throw new Error("Invalid response");
     }
 
-    return response.json();
+    const {
+      data: { signedUrl },
+    } = await response.json();
+
+    return signedUrl;
   }
 }

@@ -93,14 +93,16 @@ export default function Wallet({ config }: WalletProps) {
       profilesActions.loadProfile(account);
       actions.fetchBalance();
       unsubscribe = actions.listen(account);
-
-      actions.reclaimSignIn();
     }
 
     return () => {
       unsubscribe?.();
     };
   }, [account]);
+
+  const handleClaim = () => {
+    actions.reclaimSignIn();
+  };
 
   const fetchMoreTransfers = useCallback(async () => {
     if (!account) return false;
@@ -149,6 +151,17 @@ export default function Wallet({ config }: WalletProps) {
         config={config}
         accountActions={actions}
       />
+
+      {transfers.length === 0 && (
+        <Flex
+          direction="column"
+          justify="center"
+          align="center"
+          className="w-full h-40"
+        >
+          <Button onClick={handleClaim}>Verify Account</Button>
+        </Flex>
+      )}
 
       <Flex direction="column" className="w-full" gap="3">
         {transfers.map((tx) => (

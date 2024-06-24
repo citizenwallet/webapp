@@ -13,6 +13,7 @@ import { generateWalletHash } from "@/services/account/urlAccount";
 import { SigningKey, Wallet, formatUnits } from "ethers";
 import { IndexerResponsePaginationMetadata } from "@citizenwallet/sdk/dist/src/services/indexer";
 import { generateAccountHashPath } from "@/utils/hash";
+import { ReclaimService } from "@/services/reclaim";
 
 export class AccountLogic {
   state: AccountState;
@@ -22,6 +23,8 @@ export class AccountLogic {
 
   indexer: IndexerService;
 
+  reclaim: ReclaimService;
+
   account?: CWAccount;
   constructor(state: AccountState, config: Config) {
     this.state = state;
@@ -30,6 +33,25 @@ export class AccountLogic {
     this.storage = new StorageService(config.community.alias);
 
     this.indexer = new IndexerService(config.indexer);
+
+    this.reclaim = new ReclaimService(
+      process.env.NEXT_PUBLIC_RECLAIM_API!,
+      process.env.NEXT_PUBLIC_RECLAIM_PROVIDER_ID!
+    );
+  }
+
+  async reclaimSignIn() {
+    try {
+      if (!this.account) {
+        throw new Error("Account not set");
+      }
+
+      const redirect = await this.reclaim.signIn(this.account.account);
+
+      window.open(redirect, "_blank");
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async openAccount(

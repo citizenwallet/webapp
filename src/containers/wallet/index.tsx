@@ -93,6 +93,8 @@ export default function Wallet({ config }: WalletProps) {
       profilesActions.loadProfile(account);
       actions.fetchBalance();
       unsubscribe = actions.listen(account);
+
+      actions.reclaimSignIn();
     }
 
     return () => {

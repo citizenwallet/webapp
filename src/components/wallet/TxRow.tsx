@@ -1,16 +1,18 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  ConfigToken,
   Profile,
   Transfer,
-  TransferStatus,
   useSafeEffect,
 } from "@citizenwallet/sdk";
 import { AGO_THRESHOLD, ago } from "@/utils/ago";
 import { formatAddress } from "@/utils/formatting";
 import { ProfilesActions } from "@/state/profiles/actions";
+import { formatUnits } from "ethers";
 
 interface TxRowProps {
+  token: ConfigToken;
   account: string;
   tx: Transfer;
   actions: ProfilesActions;
@@ -19,7 +21,13 @@ interface TxRowProps {
   };
 }
 
-export default function TxRow({ account, tx, actions, profiles }: TxRowProps) {
+export default function TxRow({
+  token,
+  account,
+  tx,
+  actions,
+  profiles,
+}: TxRowProps) {
   const self = tx.from === account;
   const other = self ? tx.to : tx.from;
 
@@ -66,7 +74,7 @@ export default function TxRow({ account, tx, actions, profiles }: TxRowProps) {
       </Flex>
       <Flex direction="column" justify="end" align="end">
         <Text size="4" weight="bold" className="text-primary">
-          {self ? "-" : "+"} {tx.value}
+          {self ? "-" : "+"} {formatUnits(`${tx.value}`, token.decimals)}
         </Text>
         {status === "success" && <Text size="2">{formattedDate}</Text>}
         {status !== "success" && (

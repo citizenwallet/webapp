@@ -32,7 +32,7 @@ interface WalletProps {
 }
 
 export default function Wallet({ config }: WalletProps) {
-  const { community } = config;
+  const { community, token } = config;
 
   // const isScrolled = useIsScrolled();
   const isScrolled = false;
@@ -152,6 +152,7 @@ export default function Wallet({ config }: WalletProps) {
         {transfers.map((tx) => (
           <TxRow
             key={tx.hash}
+            token={token}
             account={account}
             tx={tx}
             actions={profilesActions}

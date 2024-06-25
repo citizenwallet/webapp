@@ -37,8 +37,7 @@ export default function Container({ config }: ContainerProps) {
 
   const router = useRouter();
 
-  // const isScrolled = useIsScrolled();
-  const isScrolled = false;
+  const isScrolled = useIsScrolled();
 
   const [state, actions] = useAccount(config);
   const [_, sendActions] = useSend();

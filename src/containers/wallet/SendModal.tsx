@@ -174,18 +174,18 @@ export default function SendModal({
     typeof window !== "undefined" ? window.innerHeight : 200;
 
   return (
-    <Drawer open={modalOpen} onOpenChange={handleOpenChange}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent className="h-full" style={{ height: contentHeight }}>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>Send</DrawerTitle>
-        </DrawerHeader>
+    <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="h-full" style={{ height: contentHeight }}>
+        <DialogHeader>
+          <DialogTitle>Send</DialogTitle>
+        </DialogHeader>
         <SendForm className="h-full px-4" config={config} />
-        <DrawerFooter className="pt-2">
+        <DialogFooter className="pt-2 gap-2">
           {!resolvedTo ? (
-            <DrawerClose asChild>
+            <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
-            </DrawerClose>
+            </DialogClose>
           ) : (
             <Button onClick={handleCancelToSelection} variant="outline">
               Back
@@ -202,9 +202,9 @@ export default function SendModal({
               </Button>
             </Flex>
           )}
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

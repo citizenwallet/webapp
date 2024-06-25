@@ -93,24 +93,24 @@ export default function ReceiveModal({
     typeof window !== "undefined" ? window.innerHeight : 200;
 
   return (
-    <Drawer open={open} onOpenChange={handleOpenChange}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent className="h-full" style={{ height: contentHeight }}>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>Receive</DrawerTitle>
-        </DrawerHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="h-full" style={{ height: contentHeight }}>
+        <DialogHeader>
+          <DialogTitle>Receive</DialogTitle>
+        </DialogHeader>
         <ReceiveForm
           token={token}
           community={community}
           className="h-full px-4"
         />
-        <DrawerFooter className="pt-2">
-          <DrawerClose asChild>
+        <DialogFooter className="pt-2">
+          <DialogClose asChild>
             <Button variant="outline">Close</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -85,6 +85,9 @@ export class CWAccount {
         walletPassword
       );
 
+      console.log("account", account);
+      console.log("signer", signer);
+
       if (!account || !signer) {
         throw new Error("Invalid wallet format");
       }

@@ -17,11 +17,35 @@ export const getEmptyProfile = (account: string): Profile => {
   return {
     account,
     description: "",
-    image: `https://api.multiavatar.com/${account}.png`,
-    image_medium: `https://api.multiavatar.com/${account}.png`,
-    image_small: `https://api.multiavatar.com/${account}.png`,
+    image: "/anonymous-user.svg",
+    image_medium: "/anonymous-user.svg",
+    image_small: "/anonymous-user.svg",
     name: "Anonymous",
     username: formatAddress(account),
+  };
+};
+
+export const getMinterProfile = (account: string): Profile => {
+  return {
+    account,
+    description: "",
+    image: "/mint.svg",
+    image_medium: "/mint.svg",
+    image_small: "/mint.svg",
+    name: "Mint",
+    username: "@mint",
+  };
+};
+
+export const getBurnerProfile = (account: string): Profile => {
+  return {
+    account,
+    description: "",
+    image: "/burn.svg",
+    image_medium: "/burn.svg",
+    image_small: "/burn.svg",
+    name: "Burn",
+    username: "@burn",
   };
 };
 
@@ -38,7 +62,7 @@ export const useProfilesStore = create<ProfilesState>((set) => ({
     set((state) => ({
       profiles: {
         ...state.profiles,
-        [profile.account]: profile,
+        [profile.account]: { ...profile, username: `@${profile.username}` },
       },
     })),
   clear: () => set(initialState()),

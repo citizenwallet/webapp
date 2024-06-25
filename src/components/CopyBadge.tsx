@@ -8,7 +8,7 @@ import { useRef, useState } from "react";
 interface CopyBadgeProps {
   label?: string;
   value: string;
-  onClick: (value: string) => void;
+  onClick?: (value: string) => void;
 }
 
 export default function CopyBadge({ label, value, onClick }: CopyBadgeProps) {
@@ -28,7 +28,7 @@ export default function CopyBadge({ label, value, onClick }: CopyBadgeProps) {
   const handleClick = () => {
     setClicked(true);
 
-    onClick(value);
+    if (onClick) onClick(value);
     copyToClipboard(value);
 
     timeoutRef.current = setTimeout(() => {

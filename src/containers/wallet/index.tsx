@@ -26,13 +26,16 @@ import VoucherModal from "./VoucherModal";
 import { generateAccountHashPath } from "@/utils/hash";
 import { getFullUrl } from "@/utils/deeplink";
 import { useIsScrolled } from "@/hooks/scroll";
+import { useRouter } from "next/navigation";
 
-interface WalletProps {
+interface ContainerProps {
   config: Config;
 }
 
-export default function Wallet({ config }: WalletProps) {
+export default function Container({ config }: ContainerProps) {
   const { community, token } = config;
+
+  const router = useRouter();
 
   // const isScrolled = useIsScrolled();
   const isScrolled = false;
@@ -105,6 +108,10 @@ export default function Wallet({ config }: WalletProps) {
     return actions.getTransfers(account);
   }, [actions, account]);
 
+  const handleTxClick = (hash: string) => {
+    router.push(`/tx/${hash}`);
+  };
+
   const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
 
   const balance = state((state) => state.balance);
@@ -157,6 +164,7 @@ export default function Wallet({ config }: WalletProps) {
             tx={tx}
             actions={profilesActions}
             profiles={profiles}
+            onClick={handleTxClick}
           />
         ))}
       </Flex>

@@ -3,14 +3,6 @@ import debounce from "debounce";
 import { ProfilesState, useProfilesStore } from "./state";
 import { StoreApi, UseBoundStore } from "zustand";
 import { Config, ProfileService } from "@citizenwallet/sdk";
-import {
-  decodeBytes32String,
-  encodeBytes32String,
-  hexlify,
-  toUtf8Bytes,
-  zeroPadBytes,
-  zeroPadValue,
-} from "ethers";
 
 const RELOAD_INTERVAL = 30000;
 

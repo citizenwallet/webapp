@@ -1,10 +1,11 @@
-import { HDNodeWallet, Wallet } from "ethers";
+import { HDNodeWallet, Wallet, getBytes } from "ethers";
 
 export const parsePrivateKeyFromHash = async (
   baseUrl: string,
   hash: string,
   walletPassword: string
 ): Promise<[string, HDNodeWallet | Wallet] | [undefined, undefined]> => {
+  console.log("baseUrl", `${baseUrl}/${hash.replace("#/", "")}`);
   const encodedURL = new URL(`${baseUrl}/${hash.replace("#/", "")}`);
   const encoded = encodedURL.pathname.replace("/wallet/", "");
 
@@ -13,6 +14,8 @@ export const parsePrivateKeyFromHash = async (
       throw new Error("Invalid wallet format");
     }
 
+    console.log("encoded", encoded);
+
     const decoded = atob(encoded.replace("v3-", ""));
 
     const [account, encryptedPrivateKey] = decoded.split("|");
@@ -20,10 +23,32 @@ export const parsePrivateKeyFromHash = async (
       throw new Error("Invalid wallet format");
     }
 
+    console.log("encryptedPrivateKey", encryptedPrivateKey);
+    console.log("walletPassword", walletPassword);
+
+    const jsonPrivateKey = JSON.parse(encryptedPrivateKey);
+    // console.log("jsonPrivateKey", jsonPrivateKey.crypto.ciphertext.length);
+
+    // console.log(
+    //   "jsonPrivateKey.crypto.ciphertext",
+    //   getBytes(jsonPrivateKey.crypto.ciphertext)
+    // );
+
+    // jsonPrivateKey.crypto.ciphertext = jsonPrivateKey.crypto.ciphertext.slice(
+    //   0,
+    //   -2
+    // );
+    // jsonPrivateKey.crypto.ciphertext =
+    //   jsonPrivateKey.crypto.ciphertext.slice(2);
+
+    // console.log("jsonPrivateKey", jsonPrivateKey.crypto.ciphertext.length);
+
     const wallet = await Wallet.fromEncryptedJson(
       encryptedPrivateKey,
       walletPassword
     );
+
+    console.log(wallet);
 
     return [account, wallet];
   } catch (e) {

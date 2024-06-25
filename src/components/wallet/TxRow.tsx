@@ -9,7 +9,9 @@ import {
 import { AGO_THRESHOLD, ago } from "@/utils/ago";
 import { formatAddress } from "@/utils/formatting";
 import { ProfilesActions } from "@/state/profiles/actions";
-import { formatUnits } from "ethers";
+import { ZeroAddress, formatUnits } from "ethers";
+import { getBurnerProfile, getMinterProfile } from "@/state/profiles/state";
+import Link from "next/link";
 
 interface TxRowProps {
   token: ConfigToken;
@@ -19,6 +21,7 @@ interface TxRowProps {
   profiles: {
     [key: string]: Profile;
   };
+  onClick?: (hash: string) => void;
 }
 
 export default function TxRow({
@@ -27,15 +30,26 @@ export default function TxRow({
   tx,
   actions,
   profiles,
+  onClick,
 }: TxRowProps) {
   const self = tx.from === account;
   const other = self ? tx.to : tx.from;
+
+  const isMinting = ZeroAddress === tx.from;
+  const isBurning = ZeroAddress === tx.to;
 
   useSafeEffect(() => {
     actions.loadProfile(other);
   }, [other, actions]);
 
-  const profile: Profile | undefined = profiles[other];
+  let profile: Profile | undefined = profiles[other];
+  if (isMinting) {
+    profile = getMinterProfile(other);
+  }
+
+  if (isBurning) {
+    profile = getBurnerProfile(other);
+  }
 
   const weekAgo = Date.now() - AGO_THRESHOLD;
   const createdAt = new Date(tx.created_at);
@@ -48,8 +62,9 @@ export default function TxRow({
     <Flex
       justify="start"
       align="center"
-      className="h-20 w-full max-w-full"
+      className="h-20 w-full max-w-full active:bg-muted rounded-lg"
       gap="3"
+      onClick={() => onClick?.(tx.hash)}
     >
       <Avatar className="h-16 w-16 border-2 border-primary">
         <AvatarImage

@@ -190,11 +190,7 @@ const ReceiveForm = ({
               </Box>
             </Flex>
             <Flex justify="center" className="w-full pt-4">
-              <CopyBadge
-                value={link}
-                label={formatUrl(link)}
-                onClick={(v) => console.log(v)}
-              />
+              <CopyBadge value={link} label={formatUrl(link)} />
             </Flex>
             <Flex
               align="center"
@@ -238,11 +234,7 @@ const ReceiveForm = ({
               </Box>
             </Flex>
             <Flex justify="center" className="w-full py-4">
-              <CopyBadge
-                value={account}
-                label={formatAddress(account)}
-                onClick={(v) => console.log(v)}
-              />
+              <CopyBadge value={account} label={formatAddress(account)} />
             </Flex>
           </Flex>
         </TabsContent>

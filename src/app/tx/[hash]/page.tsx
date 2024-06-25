@@ -34,12 +34,12 @@ export default async function Page({ params: { hash } }: PageProps) {
     let fromProfile =
       (await profiles.getProfile(tx.from)) ?? getEmptyProfile(tx.from);
     if (ZeroAddress === tx.from) {
-      fromProfile = getMinterProfile(tx.from);
+      fromProfile = getMinterProfile(tx.from, config.community);
     }
     let toProfile =
       (await profiles.getProfile(tx.to)) ?? getEmptyProfile(tx.to);
     if (ZeroAddress === tx.to) {
-      toProfile = getBurnerProfile(tx.to);
+      toProfile = getBurnerProfile(tx.to, config.community);
     }
 
     return (

@@ -1,11 +1,11 @@
-import { HDNodeWallet, Wallet, getBytes } from "ethers";
+import { HDNodeWallet, Wallet, pbkdf2, scrypt } from "ethers";
+import { getAccount, getDecryptKdfParams, getPassword } from "./ethers";
 
 export const parsePrivateKeyFromHash = async (
   baseUrl: string,
   hash: string,
   walletPassword: string
 ): Promise<[string, HDNodeWallet | Wallet] | [undefined, undefined]> => {
-  console.log("baseUrl", `${baseUrl}/${hash.replace("#/", "")}`);
   const encodedURL = new URL(`${baseUrl}/${hash.replace("#/", "")}`);
   const encoded = encodedURL.pathname.replace("/wallet/", "");
 
@@ -14,41 +14,38 @@ export const parsePrivateKeyFromHash = async (
       throw new Error("Invalid wallet format");
     }
 
-    console.log("encoded", encoded);
-
-    const decoded = atob(encoded.replace("v3-", ""));
+    const decoded = Buffer.from(encoded.replace("v3-", ""), "base64").toString(
+      "utf-8"
+    );
 
     const [account, encryptedPrivateKey] = decoded.split("|");
     if (!account || !encryptedPrivateKey) {
       throw new Error("Invalid wallet format");
     }
 
-    console.log("encryptedPrivateKey", encryptedPrivateKey);
-    console.log("walletPassword", walletPassword);
-
     const jsonPrivateKey = JSON.parse(encryptedPrivateKey);
-    // console.log("jsonPrivateKey", jsonPrivateKey.crypto.ciphertext.length);
+    if (!!jsonPrivateKey.Crypto) {
+      jsonPrivateKey.crypto = jsonPrivateKey.Crypto;
+      delete jsonPrivateKey.Crypto;
+    }
 
-    // console.log(
-    //   "jsonPrivateKey.crypto.ciphertext",
-    //   getBytes(jsonPrivateKey.crypto.ciphertext)
-    // );
+    const password = getPassword(walletPassword);
 
-    // jsonPrivateKey.crypto.ciphertext = jsonPrivateKey.crypto.ciphertext.slice(
-    //   0,
-    //   -2
-    // );
-    // jsonPrivateKey.crypto.ciphertext =
-    //   jsonPrivateKey.crypto.ciphertext.slice(2);
+    const params = getDecryptKdfParams(jsonPrivateKey);
+    let key: string;
+    if (params.name === "pbkdf2") {
+      const { salt, count, dkLen, algorithm } = params;
+      key = pbkdf2(password, salt, count, dkLen, algorithm);
+    } else {
+      const { salt, N, r, p, dkLen } = params;
+      key = await scrypt(password, salt, N, r, p, dkLen, () => {});
+    }
 
-    // console.log("jsonPrivateKey", jsonPrivateKey.crypto.ciphertext.length);
+    const keyStoreAccount = getAccount(jsonPrivateKey, key);
 
-    const wallet = await Wallet.fromEncryptedJson(
-      encryptedPrivateKey,
-      walletPassword
-    );
+    const wallet = new Wallet(keyStoreAccount.privateKey);
 
-    console.log(wallet);
+    console.log("wallet", wallet);
 
     return [account, wallet];
   } catch (e) {

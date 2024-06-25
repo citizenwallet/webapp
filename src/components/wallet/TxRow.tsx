@@ -1,6 +1,7 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  ConfigCommunity,
   ConfigToken,
   Profile,
   Transfer,
@@ -15,6 +16,7 @@ import Link from "next/link";
 
 interface TxRowProps {
   token: ConfigToken;
+  community: ConfigCommunity;
   account: string;
   tx: Transfer;
   actions: ProfilesActions;
@@ -26,6 +28,7 @@ interface TxRowProps {
 
 export default function TxRow({
   token,
+  community,
   account,
   tx,
   actions,
@@ -44,11 +47,11 @@ export default function TxRow({
 
   let profile: Profile | undefined = profiles[other];
   if (isMinting) {
-    profile = getMinterProfile(other);
+    profile = getMinterProfile(other, community);
   }
 
   if (isBurning) {
-    profile = getBurnerProfile(other);
+    profile = getBurnerProfile(other, community);
   }
 
   const weekAgo = Date.now() - AGO_THRESHOLD;

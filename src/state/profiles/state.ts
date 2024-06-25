@@ -1,5 +1,5 @@
 import { formatAddress } from "@/utils/formatting";
-import { Profile } from "@citizenwallet/sdk";
+import { ConfigCommunity, Profile } from "@citizenwallet/sdk";
 import { create } from "zustand";
 
 export interface ProfilesState {
@@ -25,25 +25,31 @@ export const getEmptyProfile = (account: string): Profile => {
   };
 };
 
-export const getMinterProfile = (account: string): Profile => {
+export const getMinterProfile = (
+  account: string,
+  community: ConfigCommunity
+): Profile => {
   return {
     account,
     description: "",
-    image: "/mint.svg",
-    image_medium: "/mint.svg",
-    image_small: "/mint.svg",
+    image: community.logo,
+    image_medium: community.logo,
+    image_small: community.logo,
     name: "Mint",
     username: "@mint",
   };
 };
 
-export const getBurnerProfile = (account: string): Profile => {
+export const getBurnerProfile = (
+  account: string,
+  community: ConfigCommunity
+): Profile => {
   return {
     account,
     description: "",
-    image: "/burn.svg",
-    image_medium: "/burn.svg",
-    image_small: "/burn.svg",
+    image: community.logo,
+    image_medium: community.logo,
+    image_small: community.logo,
     name: "Burn",
     username: "@burn",
   };

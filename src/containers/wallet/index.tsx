@@ -159,6 +159,7 @@ export default function Container({ config }: ContainerProps) {
           <TxRow
             key={tx.hash}
             token={token}
+            community={community}
             account={account}
             tx={tx}
             actions={profilesActions}

@@ -40,8 +40,7 @@ export default function Container({
     router.replace("/");
   };
 
-  const handleOpenExplorer = (txHash: string | undefined) => {
-    if (!txHash) return;
+  const handleOpenExplorer = (txHash: string) => {
     window.open(`${scan.url}/tx/${txHash}`, "_blank");
   };
 

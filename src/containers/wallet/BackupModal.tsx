@@ -56,8 +56,8 @@ export default function BackupModal({
         <DialogHeader>
           <DialogTitle>Save Account</DialogTitle>
           <DialogDescription>
-            Don't loose access to your account. Bookmark this page or save its
-            unique address that contains your private key in a safe place.
+            Don&apos;t loose access to your account. Bookmark this page or save
+            its unique address that contains your private key in a safe place.
           </DialogDescription>
         </DialogHeader>
         <Flex direction="column" align="center" className="grid gap-4 py-4">

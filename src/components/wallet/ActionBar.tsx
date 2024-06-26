@@ -1,16 +1,14 @@
 import { Box, Flex, Text } from "@radix-ui/themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Config, ConfigCommunity, ConfigToken } from "@citizenwallet/sdk";
+import { Config } from "@citizenwallet/sdk";
 import WalletAction from "./Action";
-import { ArrowDownIcon, ArrowUpIcon, EllipsisIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import SendModal from "@/containers/wallet/SendModal";
 import ReceiveModal from "@/containers/wallet/ReceiveModal";
 import { AccountLogic } from "@/state/account/actions";
 import { cn } from "@/lib/utils";
-import { MutableRefObject } from "react";
 
 interface ActionBarProps {
-  scrollableRef: MutableRefObject<HTMLDivElement | null>;
   balance: string;
   small?: boolean;
   config: Config;
@@ -18,7 +16,6 @@ interface ActionBarProps {
 }
 
 export default function ActionBar({
-  scrollableRef,
   balance,
   small,
   config,
@@ -102,11 +99,7 @@ export default function ActionBar({
           small ? "pt-2 pb-4" : "pt-4"
         )}
       >
-        <SendModal
-          scrollableRef={scrollableRef}
-          config={config}
-          accountActions={accountActions}
-        >
+        <SendModal config={config} accountActions={accountActions}>
           <WalletAction
             compact={small}
             icon={<ArrowUpIcon size={small ? 30 : 40} />}

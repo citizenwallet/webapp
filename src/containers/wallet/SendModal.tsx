@@ -4,53 +4,38 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ArrowRightIcon, QrCodeIcon, SearchIcon } from "lucide-react";
 import { useSendStore } from "@/state/send/state";
 import { Box, Flex, ScrollArea, Text } from "@radix-ui/themes";
 import ProfileRow from "@/components/profiles/ProfileRow";
 import { getEmptyProfile, useProfilesStore } from "@/state/profiles/state";
 import { Config, Profile } from "@citizenwallet/sdk";
-import { MutableRefObject, useState } from "react";
 import { useSend } from "@/state/send/actions";
 import { DialogClose } from "@radix-ui/react-dialog";
 import QRScannerModal from "../../components/qr/QRScannerModal";
 import { formatAddress, formatCurrency } from "@/utils/formatting";
 import { useProfiles } from "@/state/profiles/actions";
-import { AccountLogic, useAccount } from "@/state/account/actions";
+import { AccountLogic } from "@/state/account/actions";
 import { useAccountStore } from "@/state/account/state";
 import { selectFilteredProfiles } from "@/state/profiles/selectors";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { selectCanSend } from "@/state/send/selectors";
-import { getWindow } from "@/utils/window";
+import { getWindow, scrollToTop } from "@/utils/window";
 
 interface SendModalProps {
-  scrollableRef: MutableRefObject<HTMLDivElement | null>;
   accountActions: AccountLogic;
   config: Config;
   children: React.ReactNode;
 }
 
 export default function SendModal({
-  scrollableRef,
   accountActions,
   config,
   children,
@@ -132,10 +117,7 @@ export default function SendModal({
 
     handleClose();
 
-    scrollableRef.current?.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    scrollToTop();
   };
 
   if (isDesktop) {

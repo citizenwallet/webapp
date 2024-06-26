@@ -159,7 +159,6 @@ export default function Container({ config }: ContainerProps) {
       </Flex>
 
       <ActionBar
-        scrollableRef={scrollableRef}
         balance={balance}
         small={isScrolled}
         config={config}

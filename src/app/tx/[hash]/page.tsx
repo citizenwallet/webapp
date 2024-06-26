@@ -1,6 +1,6 @@
 import Tx from "@/containers/tx";
 import Transaction404 from "@/containers/404/Transaction";
-import { getConfig } from "@/services/config";
+import { readCommunityFile } from "@/services/config";
 import {
   getBurnerProfile,
   getEmptyProfile,
@@ -19,7 +19,11 @@ interface PageProps {
 }
 
 export default async function Page({ params: { hash } }: PageProps) {
-  const config = getConfig();
+  const config = readCommunityFile();
+
+  if (!config) {
+    return <div>Community not found</div>;
+  }
 
   const indexer = new IndexerService(config.indexer);
 

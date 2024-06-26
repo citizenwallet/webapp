@@ -1,6 +1,6 @@
 import Profile from "@/containers/profile";
 import Transaction404 from "@/containers/404/Transaction";
-import { getConfig } from "@/services/config";
+import { readCommunityFile } from "@/services/config";
 import { getEmptyProfile, getMinterProfile } from "@/state/profiles/state";
 import { ProfileService, generateReceiveLink } from "@citizenwallet/sdk";
 import { Suspense } from "react";
@@ -15,7 +15,11 @@ interface PageProps {
 }
 
 export default async function Page({ params: { address } }: PageProps) {
-  const config = getConfig();
+  const config = readCommunityFile();
+
+  if (!config) {
+    return <div>Community not found</div>;
+  }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
   if (!baseUrl) {

@@ -70,16 +70,11 @@ export default function ReceiveModal({
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="h-5/6 sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Receive</DialogTitle>
           </DialogHeader>
-          <ReceiveForm
-            isInModal
-            token={token}
-            community={community}
-            className="h-full"
-          />
+          <ReceiveForm isInModal token={token} community={community} />
           <DialogFooter className="pt-2">
             <DialogClose asChild>
               <Button variant="outline">Close</Button>
@@ -181,8 +176,8 @@ const ReceiveForm = ({
         </TabsList>
         <TabsContent value="cw" className="pt-4">
           <ScrollArea
-            className="h-full overflow-scroll pb-60"
-            style={{ maxHeight: divHeight - 200 }}
+            className={isInModal ? "" : "h-full overflow-scroll pb-60"}
+            style={isInModal ? undefined : { height: divHeight - 200 }}
           >
             <Flex justify="center" align="center" className="w-full">
               <Box className="p-4 border-2 rounded-2xl border-primary">
@@ -227,7 +222,11 @@ const ReceiveForm = ({
           </ScrollArea>
         </TabsContent>
         <TabsContent value="external" className="pt-4">
-          <Flex direction="column">
+          <Flex
+            direction="column"
+            className={isInModal ? "" : "h-full"}
+            style={isInModal ? undefined : { height: divHeight - 200 }}
+          >
             <Flex justify="center" align="center" className="w-full">
               <Box className="p-4 border-2 rounded-2xl border-primary">
                 <QRCode size={size} qrCode={account} />

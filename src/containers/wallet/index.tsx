@@ -27,6 +27,7 @@ import { generateAccountHashPath } from "@/utils/hash";
 import { getFullUrl } from "@/utils/deeplink";
 import { useIsScrolled } from "@/hooks/scroll";
 import Link from "next/link";
+import BackupModal from "./BackupModal";
 
 interface ContainerProps {
   config: Config;
@@ -117,8 +118,15 @@ export default function Container({ config }: ContainerProps) {
       ref={scrollableRef}
       className="flex min-h-screen w-full flex-col align-center p-4 max-w-xl"
     >
+      <BackupModal
+        community={community}
+        account={account}
+        url={window.location.href}
+        className="z-20 fixed left-0 top-0"
+      />
+
       <Link href={`/profile/${account}`} className="z-20 fixed right-0 top-0">
-        <Avatar className="m-4 border-2 border-primary">
+        <Avatar className="h-11 w-11 m-4 border-2 border-primary">
           <AvatarImage
             src={!profile ? "/anonymous-user.svg" : profile.image_small}
             alt="profile image"

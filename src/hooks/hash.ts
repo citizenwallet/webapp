@@ -1,8 +1,8 @@
+import { getWindow } from "@/utils/window";
 import { useSafeEffect } from "@citizenwallet/sdk";
 import { useState } from "react";
 
-export const getHash = () =>
-  typeof window !== "undefined" ? window.location.hash : "";
+export const getHash = () => getWindow()?.location.hash ?? "";
 
 export const useHash = () => {
   const [hash, setHash] = useState(getHash());
@@ -12,11 +12,11 @@ export const useHash = () => {
       setHash(getHash());
     };
 
-    window.addEventListener("hashchange", onHashChange);
+    getWindow()?.addEventListener("hashchange", onHashChange);
     onHashChange();
 
     return () => {
-      window.removeEventListener("hashchange", onHashChange);
+      getWindow()?.removeEventListener("hashchange", onHashChange);
     };
   }, []);
 

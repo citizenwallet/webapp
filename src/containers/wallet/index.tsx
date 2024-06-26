@@ -28,6 +28,7 @@ import { getFullUrl } from "@/utils/deeplink";
 import { useIsScrolled } from "@/hooks/scroll";
 import Link from "next/link";
 import BackupModal from "./BackupModal";
+import { getWindow } from "@/utils/window";
 
 interface ContainerProps {
   config: Config;
@@ -79,7 +80,10 @@ export default function Container({ config }: ContainerProps) {
     actions.openAccount(hash, (hash: string) => {
       const hashPath = generateAccountHashPath(hash, community.alias);
       history.replaceState(null, "", hashPath);
-      window.location.hash = hashPath;
+      const w = getWindow();
+      if (w) {
+        w.location.hash = hashPath;
+      }
 
       handleScan(href);
     });
@@ -116,16 +120,19 @@ export default function Container({ config }: ContainerProps) {
   return (
     <main
       ref={scrollableRef}
-      className="flex min-h-screen w-full flex-col align-center p-4 max-w-xl"
+      className="relative flex min-h-screen w-full flex-col align-center p-4 max-w-xl"
     >
       <BackupModal
         community={community}
         account={account}
-        url={window.location.href}
-        className="z-20 fixed left-0 top-0"
+        url={getWindow()?.location.href ?? "/"}
+        className="z-20 absolute left-0 top-0"
       />
 
-      <Link href={`/profile/${account}`} className="z-20 fixed right-0 top-0">
+      <Link
+        href={`/profile/${account}`}
+        className="z-20 absolute right-0 top-0"
+      >
         <Avatar className="h-11 w-11 m-4 border-2 border-primary">
           <AvatarImage
             src={!profile ? "/anonymous-user.svg" : profile.image_small}
@@ -152,13 +159,14 @@ export default function Container({ config }: ContainerProps) {
       </Flex>
 
       <ActionBar
+        scrollableRef={scrollableRef}
         balance={balance}
         small={isScrolled}
         config={config}
         accountActions={actions}
       />
 
-      <Flex direction="column" className="w-full" gap="3">
+      <Flex direction="column" className="w-full pt-[420px]" gap="3">
         {transfers.map((tx) => (
           <TxRow
             key={tx.hash}

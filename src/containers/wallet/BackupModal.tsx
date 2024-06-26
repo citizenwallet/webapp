@@ -8,8 +8,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { getWindow } from "@/utils/window";
 import { ConfigCommunity } from "@citizenwallet/sdk";
 import { Flex, Text } from "@radix-ui/themes";
 import { SaveIcon } from "lucide-react";
@@ -34,7 +36,7 @@ export default function BackupModal({
       emailSubject
     )}&body=${encodeURIComponent(emailBody)}`;
 
-    window.open(mailtoLink, "_blank");
+    getWindow()?.open(mailtoLink, "_blank");
   };
 
   return (
@@ -70,7 +72,9 @@ export default function BackupModal({
           </Button>
         </Flex>
         <DialogFooter>
-          <Button>Close</Button>
+          <DialogClose asChild>
+            <Button>Close</Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

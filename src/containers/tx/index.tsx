@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { formatDate } from "@/utils/date";
 import { formatAddress } from "@/utils/formatting";
 import { canGoBack } from "@/utils/history";
+import { getWindow } from "@/utils/window";
 import { Config, Profile, Transfer } from "@citizenwallet/sdk";
 import { Box, Flex, Text } from "@radix-ui/themes";
 import { formatUnits } from "ethers";
@@ -41,7 +42,7 @@ export default function Container({
   };
 
   const handleOpenExplorer = (txHash: string) => {
-    window.open(`${scan.url}/tx/${txHash}`, "_blank");
+    getWindow()?.open(`${scan.url}/tx/${txHash}`, "_blank");
   };
 
   const createdAt = formatDate(tx.created_at);

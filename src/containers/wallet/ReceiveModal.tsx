@@ -38,6 +38,7 @@ import { useReceiveStore } from "@/state/receive/state";
 import { generateSelectReceiveDeepLink } from "@/state/receive/selectors";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getWindow } from "@/utils/window";
 
 interface ReceiveModalProps {
   token: ConfigToken;
@@ -89,8 +90,7 @@ export default function ReceiveModal({
     );
   }
 
-  const contentHeight =
-    typeof window !== "undefined" ? window.innerHeight : 200;
+  const contentHeight = getWindow()?.innerHeight ?? 200;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>

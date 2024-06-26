@@ -1,6 +1,7 @@
 import { MutableRefObject, useCallback, useRef } from "react";
 import { delay } from "../utils/delay";
 import { useSafeEffect } from "@citizenwallet/sdk";
+import { getWindow } from "@/utils/window";
 
 const FETCHER_THRESHOLD = 100;
 
@@ -47,10 +48,10 @@ export const useScrollableWindowFetcher = (
       }
     };
 
-    window.addEventListener("scroll", scrollListener);
+    getWindow()?.addEventListener("scroll", scrollListener);
 
     return () => {
-      window.removeEventListener("scroll", scrollListener);
+      getWindow()?.removeEventListener("scroll", scrollListener);
     };
   }, [fetchFunction, fetchUntilScrollable]);
 
@@ -78,9 +79,6 @@ export const isAtBottom = (el: HTMLDivElement | null) => {
 };
 
 export const windowHeight = () =>
-  typeof window !== "undefined"
-    ? window.document.documentElement.clientHeight
-    : 0;
+  getWindow()?.document.documentElement.clientHeight ?? 0;
 
-export const windowScrollY = () =>
-  typeof window !== "undefined" ? window.scrollY : 0;
+export const windowScrollY = () => getWindow()?.scrollY ?? 0;

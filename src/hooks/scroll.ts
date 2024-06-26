@@ -1,3 +1,4 @@
+import { getWindow } from "@/utils/window";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const SCROLL_THRESHOLD = 100;

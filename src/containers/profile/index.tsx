@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { formatAddress, formatUrl } from "@/utils/formatting";
 import { canGoBack } from "@/utils/history";
+import { getWindow } from "@/utils/window";
 import { Config, Profile, useSafeEffect } from "@citizenwallet/sdk";
 import { Box, Flex, Text } from "@radix-ui/themes";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
@@ -47,7 +48,7 @@ export default function Container({
   };
 
   const handleOpenExplorer = (account: string) => {
-    window.open(`${scan.url}/address/${account}`, "_blank");
+    getWindow()?.open(`${scan.url}/address/${account}`, "_blank");
   };
 
   return (

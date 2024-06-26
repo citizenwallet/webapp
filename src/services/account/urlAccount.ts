@@ -45,8 +45,6 @@ export const parsePrivateKeyFromHash = async (
 
     const wallet = new Wallet(keyStoreAccount.privateKey);
 
-    console.log("wallet", wallet);
-
     return [account, wallet];
   } catch (e) {
     console.error(e);

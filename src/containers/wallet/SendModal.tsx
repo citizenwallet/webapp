@@ -28,7 +28,7 @@ import { Box, Flex, ScrollArea, Text } from "@radix-ui/themes";
 import ProfileRow from "@/components/profiles/ProfileRow";
 import { getEmptyProfile, useProfilesStore } from "@/state/profiles/state";
 import { Config, Profile } from "@citizenwallet/sdk";
-import { useState } from "react";
+import { MutableRefObject, useState } from "react";
 import { useSend } from "@/state/send/actions";
 import { DialogClose } from "@radix-ui/react-dialog";
 import QRScannerModal from "../../components/qr/QRScannerModal";
@@ -40,14 +40,17 @@ import { selectFilteredProfiles } from "@/state/profiles/selectors";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { selectCanSend } from "@/state/send/selectors";
+import { getWindow } from "@/utils/window";
 
 interface SendModalProps {
+  scrollableRef: MutableRefObject<HTMLDivElement | null>;
   accountActions: AccountLogic;
   config: Config;
   children: React.ReactNode;
 }
 
 export default function SendModal({
+  scrollableRef,
   accountActions,
   config,
   children,
@@ -128,6 +131,11 @@ export default function SendModal({
     }
 
     handleClose();
+
+    scrollableRef.current?.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   if (isDesktop) {
@@ -170,8 +178,7 @@ export default function SendModal({
     );
   }
 
-  const contentHeight =
-    typeof window !== "undefined" ? window.innerHeight : 200;
+  const contentHeight = getWindow()?.innerHeight ?? 200;
 
   return (
     <Dialog open={modalOpen} onOpenChange={handleOpenChange}>

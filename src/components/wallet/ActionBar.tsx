@@ -7,8 +7,10 @@ import SendModal from "@/containers/wallet/SendModal";
 import ReceiveModal from "@/containers/wallet/ReceiveModal";
 import { AccountLogic } from "@/state/account/actions";
 import { cn } from "@/lib/utils";
+import { MutableRefObject } from "react";
 
 interface ActionBarProps {
+  scrollableRef: MutableRefObject<HTMLDivElement | null>;
   balance: string;
   small?: boolean;
   config: Config;
@@ -16,6 +18,7 @@ interface ActionBarProps {
 }
 
 export default function ActionBar({
+  scrollableRef,
   balance,
   small,
   config,
@@ -26,7 +29,7 @@ export default function ActionBar({
   return (
     <Flex
       direction="column"
-      className="z-10 sticky top-0 left-0 w-full max-w-5xl items-center justify-between font-mono text-sm"
+      className="z-10 fixed top-0 left-0 w-full max-w-5xl items-center justify-between font-mono text-sm"
     >
       {!small && (
         <Flex
@@ -99,7 +102,11 @@ export default function ActionBar({
           small ? "pt-2 pb-4" : "pt-4"
         )}
       >
-        <SendModal config={config} accountActions={accountActions}>
+        <SendModal
+          scrollableRef={scrollableRef}
+          config={config}
+          accountActions={accountActions}
+        >
           <WalletAction
             compact={small}
             icon={<ArrowUpIcon size={small ? 30 : 40} />}

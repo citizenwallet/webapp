@@ -13,6 +13,7 @@ import { ProfilesActions } from "@/state/profiles/actions";
 import { ZeroAddress, formatUnits } from "ethers";
 import { getBurnerProfile, getMinterProfile } from "@/state/profiles/state";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface TxRowProps {
   token: ConfigToken;
@@ -59,12 +60,17 @@ export default function TxRow({
 
   const status = tx.status;
 
+  const isConfirmed = status === "success";
+
   return (
     <Link href={`/tx/${tx.hash}`}>
       <Flex
         justify="start"
         align="center"
-        className="h-20 w-full max-w-full active:bg-muted rounded-lg"
+        className={cn(
+          "h-20 w-full max-w-full active:bg-muted rounded-lg transition-colors duration-500 ease-in-out",
+          isConfirmed ? "bg-white" : "bg-muted"
+        )}
         gap="3"
       >
         <Avatar className="h-16 w-16 border-2 border-primary">

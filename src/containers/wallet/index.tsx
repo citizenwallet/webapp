@@ -26,7 +26,6 @@ import VoucherModal from "./VoucherModal";
 import { generateAccountHashPath } from "@/utils/hash";
 import { getFullUrl } from "@/utils/deeplink";
 import { useIsScrolled } from "@/hooks/scroll";
-import { useRouter } from "next/navigation";
 
 interface ContainerProps {
   config: Config;
@@ -34,8 +33,6 @@ interface ContainerProps {
 
 export default function Container({ config }: ContainerProps) {
   const { community, token } = config;
-
-  const router = useRouter();
 
   const isScrolled = useIsScrolled();
 
@@ -107,10 +104,6 @@ export default function Container({ config }: ContainerProps) {
     return actions.getTransfers(account);
   }, [actions, account]);
 
-  const handleTxClick = (hash: string) => {
-    router.push(`/tx/${hash}`);
-  };
-
   const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
 
   const balance = state((state) => state.balance);
@@ -164,7 +157,6 @@ export default function Container({ config }: ContainerProps) {
             tx={tx}
             actions={profilesActions}
             profiles={profiles}
-            onClick={handleTxClick}
           />
         ))}
       </Flex>

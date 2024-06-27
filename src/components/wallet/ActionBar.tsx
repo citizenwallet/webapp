@@ -26,7 +26,7 @@ export default function ActionBar({
   return (
     <Flex
       direction="column"
-      className="z-10 fixed top-0 w-full max-w-xl items-center justify-between font-mono text-sm"
+      className="z-10 fixed top-0 w-full max-w-xl items-center justify-between text-sm"
     >
       {!small && (
         <Flex
@@ -95,7 +95,7 @@ export default function ActionBar({
         justify="center"
         gap={small ? "4" : "8"}
         className={cn(
-          "w-full bg-white max-w-5xl items-center justify-between font-mono text-sm",
+          "w-full bg-white max-w-5xl items-center justify-between text-sm",
           small ? "pt-2 pb-4" : "pt-4"
         )}
       >

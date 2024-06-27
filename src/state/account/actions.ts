@@ -34,7 +34,7 @@ export class AccountLogic {
 
   async openAccount(
     hash: string,
-    createAccountCallback: (hash: string) => void
+    createAccountCallback: (hashPath: string) => void
   ) {
     const format = parseQRFormat(hash);
 
@@ -79,7 +79,7 @@ export class AccountLogic {
     }
   }
 
-  async createAccount(createAccountCallback: (hash: string) => void) {
+  async createAccount(createAccountCallback: (hashPath: string) => void) {
     try {
       const walletPassword = process.env.NEXT_PUBLIC_WEB_BURNER_PASSWORD;
       if (!walletPassword) {
@@ -94,12 +94,17 @@ export class AccountLogic {
         walletPassword
       );
 
-      this.storage.setKey(
-        "hash",
-        generateAccountHashPath(hash, this.config.community.alias)
+      const hashPath = generateAccountHashPath(
+        hash,
+        this.config.community.alias
       );
 
-      createAccountCallback(hash);
+      this.storage.setKey("hash", hashPath);
+
+      this.state.setAccount(this.account.account);
+      this.state.setOwner(true);
+
+      createAccountCallback(hashPath);
     } catch (e) {
       console.error(e);
     }

@@ -58,7 +58,7 @@ export class CWAccount {
 
     const account = await afService.getAddress();
 
-    return new CWAccount(config, account, connectedWallet);
+    return new CWAccount(config, account, wallet);
   }
 
   static async fromHash(

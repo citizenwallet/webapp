@@ -78,8 +78,7 @@ export default function Container({ config }: ContainerProps) {
     // read the url first
     const href = getFullUrl();
 
-    actions.openAccount(hash, (hash: string) => {
-      const hashPath = generateAccountHashPath(hash, community.alias);
+    actions.openAccount(hash, (hashPath: string) => {
       history.replaceState(null, "", hashPath);
       const w = getWindow();
       if (w) {

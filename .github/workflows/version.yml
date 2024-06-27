@@ -47,7 +47,9 @@ jobs:
 
       # just so that we can compile, remove .env from the standalone folder later
       - name: Make .env file
-        run: cp .env.example .env
+        run: |
+          touch .env
+          echo ${{ secrets.ENV_FILE }} > .env
 
       - name: Modify Version in code
         run: |
@@ -56,9 +58,6 @@ jobs:
 
       - name: Compile
         run: npm run build
-
-      - name: Remove temporary .env file from standalone folder
-        run: rm .next/standalone/.env
 
       - name: Package files into standalone folder
         run: |

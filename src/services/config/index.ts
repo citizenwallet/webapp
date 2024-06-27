@@ -3,9 +3,7 @@ import { existsSync, readFileSync } from "fs";
 import path from "path";
 
 const communityPath =
-  process.env.NODE_ENV === "production"
-    ? "community.json"
-    : "../config/community.json";
+  process.env.NEXT_PUBLIC_COMMUNITY_JSON_PATH || "community.json";
 
 export const readCommunityFile = (): Config | undefined => {
   if (!communityFileExists()) {

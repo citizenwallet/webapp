@@ -48,8 +48,7 @@ jobs:
       # just so that we can compile, remove .env from the standalone folder later
       - name: Make .env file
         run: |
-          touch .env
-          echo "${{ secrets.ENV_FILE }}"" >> .env
+          echo "${{ secrets.ENV_FILE }}" >> .env
 
       - name: Modify Version in code
         run: |

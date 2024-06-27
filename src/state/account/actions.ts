@@ -113,7 +113,10 @@ export class AccountLogic {
 
       const balance = await this.account.getBalance();
 
-      const formattedBalance = formatUnits(balance, this.config.token.decimals);
+      let formattedBalance = formatUnits(balance, this.config.token.decimals);
+      if (this.config.token.decimals === 0) {
+        formattedBalance = parseInt(formattedBalance).toString();
+      }
 
       this.state.setBalance(formattedBalance);
     } catch (error) {}

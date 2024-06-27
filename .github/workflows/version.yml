@@ -56,10 +56,6 @@ jobs:
           NEW_VERSION="${{ steps.bump-semver.outputs.new_version }}"
           sed -i "s/export const VERSION = \".*\";/export const VERSION = \"$NEW_VERSION\";/" src/constants/version.ts
 
-      - name: Remove community.json
-        run: |
-          rm public/community.json
-
       - name: Compile
         run: npm run build
 

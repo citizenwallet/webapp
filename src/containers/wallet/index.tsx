@@ -136,7 +136,7 @@ export default function Container({ config }: ContainerProps) {
       >
         <Avatar className="h-11 w-11 m-4 border-2 border-primary">
           <AvatarImage
-            src={getAvatarUrl(profile?.image_small, profile?.account)}
+            src={getAvatarUrl(profile?.image_small, account)}
             alt="profile image"
           />
           <AvatarFallback>{!profile ? "PRF" : profile.username}</AvatarFallback>

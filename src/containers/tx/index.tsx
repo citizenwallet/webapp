@@ -8,6 +8,7 @@ import { formatDate } from "@/utils/date";
 import { formatAddress } from "@/utils/formatting";
 import { canGoBack } from "@/utils/history";
 import { getWindow } from "@/utils/window";
+import { getAvatarUrl } from "@/lib/utils";
 import { Config, Profile, Transfer } from "@citizenwallet/sdk";
 import { Box, Flex, Text } from "@radix-ui/themes";
 import { formatUnits } from "ethers";
@@ -62,7 +63,7 @@ export default function Container({
           <Link href={`/profile/${fromProfile.account}`}>
             <Avatar className="h-28 w-28 border-2 border-primary">
               <AvatarImage
-                src={fromProfile.image_medium ?? "/anonymous-user.svg"}
+                src={getAvatarUrl(fromProfile.image_medium, tx.from)}
                 alt="user profile photo"
                 className="object-cover"
               />
@@ -79,7 +80,7 @@ export default function Container({
           <Link href={`/profile/${toProfile.account}`}>
             <Avatar className="h-28 w-28 border-2 border-primary">
               <AvatarImage
-                src={toProfile.image_medium ?? "/anonymous-user.svg"}
+                src={getAvatarUrl(toProfile.image_medium, tx.to)}
                 alt="user profile photo"
                 className="object-cover"
               />

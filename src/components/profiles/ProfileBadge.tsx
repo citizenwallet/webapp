@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 import { Flex, Text } from "@radix-ui/themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Profile } from "@citizenwallet/sdk";
@@ -19,7 +19,7 @@ export default function ProfileBadge({ profile, ...props }: ProfileBadgeProps) {
     >
       <Avatar className="h-40 w-40">
         <AvatarImage
-          src={profile.image}
+          src={getAvatarUrl(profile?.image, profile?.account)}
           alt="avatar"
           className="object-cover"
         />

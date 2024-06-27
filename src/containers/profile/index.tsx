@@ -12,7 +12,7 @@ import { Box, Flex, Text } from "@radix-ui/themes";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-
+import { getAvatarUrl } from "@/lib/utils";
 interface ContainerProps {
   config: Config;
   profile: Profile;
@@ -66,7 +66,7 @@ export default function Container({
         <Flex direction="column" justify="center" align="center">
           <Avatar className="h-32 w-32 border-2 border-primary">
             <AvatarImage
-              src={profile.image ?? "/anonymous-user.svg"}
+              src={getAvatarUrl(profile?.image, profile?.account)}
               alt="user profile photo"
               className="object-cover"
             />

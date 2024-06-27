@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 import { Flex, Text } from "@radix-ui/themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Profile } from "@citizenwallet/sdk";
@@ -32,7 +32,7 @@ export default function ProfileRow({
     >
       <Avatar className="h-12 w-12">
         <AvatarImage
-          src={profile.image_medium}
+          src={getAvatarUrl(profile?.image_medium, profile?.account)}
           alt="avatar"
           className="object-cover"
         />

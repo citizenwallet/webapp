@@ -29,6 +29,7 @@ import { useIsScrolled } from "@/hooks/scroll";
 import Link from "next/link";
 import BackupModal from "./BackupModal";
 import { getWindow } from "@/utils/window";
+import { getAvatarUrl } from "@/lib/utils";
 
 interface ContainerProps {
   config: Config;
@@ -135,7 +136,7 @@ export default function Container({ config }: ContainerProps) {
       >
         <Avatar className="h-11 w-11 m-4 border-2 border-primary">
           <AvatarImage
-            src={!profile ? "/anonymous-user.svg" : profile.image_small}
+            src={getAvatarUrl(profile?.image_small, profile?.account)}
             alt="profile image"
           />
           <AvatarFallback>{!profile ? "PRF" : profile.username}</AvatarFallback>

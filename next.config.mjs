@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  output:
+    process.env.BUILD_OUTPUT === "default" || !process.env.BUILD_OUTPUT
+      ? undefined
+      : process.env.BUILD_OUTPUT,
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Note: we provide webpack above so you should not `require` it
     // Perform customizations to webpack config

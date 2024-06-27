@@ -23,7 +23,7 @@ export default function Container() {
     <main className="relative flex min-h-screen w-full flex-col justify-center align-center items-center p-4 max-w-xl gap-12">
       <Flex className="absolute top-0 left-0 h-10 p-4">
         <ArrowLeft
-          className="active:bg-muted rounded-full"
+          className="active:bg-muted rounded-full cursor-pointer"
           onClick={handleBack}
         />
       </Flex>

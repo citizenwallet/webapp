@@ -58,7 +58,7 @@ export default function Container({
     >
       <Flex className="h-10">
         <ArrowLeft
-          className="active:bg-muted rounded-full"
+          className="active:bg-muted rounded-full cursor-pointer"
           onClick={handleBack}
         />
       </Flex>
@@ -88,7 +88,7 @@ export default function Container({
         </Flex>
         <Flex justify="center">
           <Button
-            variant="default"
+            variant="link"
             className="gap-2"
             onClick={() => handleOpenExplorer(profile.account)}
           >

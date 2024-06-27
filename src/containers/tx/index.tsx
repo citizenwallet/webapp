@@ -13,7 +13,7 @@ import { Box, Flex, Text } from "@radix-ui/themes";
 import { formatUnits } from "ethers";
 import { ArrowLeft, ArrowRight, ArrowUpRight, StickyNote } from "lucide-react";
 import { useRouter } from "next/navigation";
-
+import Link from "next/link";
 interface ContainerProps {
   tx: Transfer;
   fromProfile: Profile;
@@ -53,20 +53,22 @@ export default function Container({
     <main className="flex min-h-screen w-full flex-col align-center p-4 max-w-xl gap-12">
       <Flex className="h-10">
         <ArrowLeft
-          className="active:bg-muted rounded-full"
+          className="active:bg-muted rounded-full cursor-pointer"
           onClick={handleBack}
         />
       </Flex>
       <Flex justify="center" align="center" gap="4">
         <Flex direction="column" justify="center" align="center">
-          <Avatar className="h-28 w-28 border-2 border-primary">
-            <AvatarImage
-              src={fromProfile.image_medium ?? "/anonymous-user.svg"}
-              alt="user profile photo"
-              className="object-cover"
-            />
-            <AvatarFallback>{fromProfile.username ?? "USER"}</AvatarFallback>
-          </Avatar>
+          <Link href={`/profile/${fromProfile.account}`}>
+            <Avatar className="h-28 w-28 border-2 border-primary">
+              <AvatarImage
+                src={fromProfile.image_medium ?? "/anonymous-user.svg"}
+                alt="user profile photo"
+                className="object-cover"
+              />
+              <AvatarFallback>{fromProfile.username ?? "USER"}</AvatarFallback>
+            </Avatar>
+          </Link>
           <Text size="4" weight="bold">
             {fromProfile.name}
           </Text>
@@ -74,14 +76,16 @@ export default function Container({
         </Flex>
         <ArrowRight />
         <Flex direction="column" justify="center" align="center">
-          <Avatar className="h-28 w-28 border-2 border-primary">
-            <AvatarImage
-              src={toProfile.image_medium ?? "/anonymous-user.svg"}
-              alt="user profile photo"
-              className="object-cover"
-            />
-            <AvatarFallback>{toProfile.username ?? "USER"}</AvatarFallback>
-          </Avatar>
+          <Link href={`/profile/${toProfile.account}`}>
+            <Avatar className="h-28 w-28 border-2 border-primary">
+              <AvatarImage
+                src={toProfile.image_medium ?? "/anonymous-user.svg"}
+                alt="user profile photo"
+                className="object-cover"
+              />
+              <AvatarFallback>{toProfile.username ?? "USER"}</AvatarFallback>
+            </Avatar>
+          </Link>
           <Text size="4" weight="bold">
             {toProfile.name}
           </Text>
@@ -119,7 +123,7 @@ export default function Container({
         </Flex>
         <Flex justify="center">
           <Button
-            variant="default"
+            variant="link"
             className="gap-2"
             disabled={!tx}
             onClick={() => handleOpenExplorer(tx.tx_hash)}

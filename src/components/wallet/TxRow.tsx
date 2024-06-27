@@ -13,7 +13,7 @@ import { ProfilesActions } from "@/state/profiles/actions";
 import { ZeroAddress, formatUnits } from "ethers";
 import { getBurnerProfile, getMinterProfile } from "@/state/profiles/state";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 
 interface TxRowProps {
   token: ConfigToken;
@@ -75,7 +75,7 @@ export default function TxRow({
       >
         <Avatar className="h-16 w-16 border-2 border-primary">
           <AvatarImage
-            src={profile?.image_medium ?? "/anonymous-user.svg"}
+            src={getAvatarUrl(profile?.image_medium, other)}
             alt="user profile photo"
             className="object-cover"
           />

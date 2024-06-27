@@ -17,9 +17,9 @@ export const getEmptyProfile = (account: string): Profile => {
   return {
     account,
     description: "",
-    image: "/anonymous-user.svg",
-    image_medium: "/anonymous-user.svg",
-    image_small: "/anonymous-user.svg",
+    image: "",
+    image_medium: "",
+    image_small: "",
     name: "Anonymous",
     username: formatAddress(account),
   };

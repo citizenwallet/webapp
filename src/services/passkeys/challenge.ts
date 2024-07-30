@@ -25,9 +25,9 @@ export const verifyAssertion = async (
     },
     expectedChallenge: base64url.encode(expectedChallenge),
     expectedOrigin: expectedOrigin,
-    expectedRPID: "example.com", // replace with your Relying Party ID
+    expectedRPID: process.env.NEXT_PUBLIC_APP_BASE_URL,
     authenticator: {
-      counter: 0, // replace with the stored counter value for the credential
+      counter: 0,
       credentialPublicKey: base64url.toBuffer(publicKey),
     },
   });

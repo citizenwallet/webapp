@@ -20,16 +20,15 @@ import {
   useFocusEffect,
 } from "@citizenwallet/sdk";
 import { Box, Flex } from "@radix-ui/themes";
-import { QrCodeIcon } from "lucide-react";
+import { FileKey2, QrCodeIcon } from "lucide-react";
 import { useCallback } from "react";
 import VoucherModal from "./VoucherModal";
-import { generateAccountHashPath } from "@/utils/hash";
 import { getFullUrl } from "@/utils/deeplink";
 import { useIsScrolled } from "@/hooks/scroll";
 import Link from "next/link";
 import BackupModal from "./BackupModal";
 import { getWindow } from "@/utils/window";
-import { getAvatarUrl } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 
 interface ContainerProps {
   config: Config;
@@ -128,7 +127,14 @@ export default function Container({ config }: ContainerProps) {
         url={getWindow()?.location.href ?? "/"}
         className="z-20 absolute left-0 top-0"
       />
-
+      <Link href={`/passkeys`} className="z-20 absolute right-14 top-0">
+        <Button
+          variant="outline"
+          className={cn("h-11 w-11 rounded-full p-2 m-4 gap-2 border-primary")}
+        >
+          <FileKey2 />
+        </Button>
+      </Link>
       <Link
         href={`/profile/${account}`}
         className="z-20 absolute right-0 top-0"
@@ -178,9 +184,7 @@ export default function Container({ config }: ContainerProps) {
           />
         ))}
       </Flex>
-
       <VoucherModal config={config} actions={voucherActions} />
-
       <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
     </main>
   );

@@ -26,7 +26,7 @@ export default function ActionBar({
   return (
     <Flex
       direction="column"
-      className="z-10 fixed top-0 w-full max-w-xl items-center justify-between text-sm pr-4"
+      className="fixed top-0 w-full max-w-xl items-center justify-between text-sm pr-4"
     >
       {!small && (
         <Flex

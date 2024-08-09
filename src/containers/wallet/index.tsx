@@ -30,6 +30,7 @@ import Link from "next/link";
 import BackupModal from "./BackupModal";
 import { getWindow } from "@/utils/window";
 import { getAvatarUrl } from "@/lib/utils";
+import { useThemeUpdater } from "@/hooks/theme";
 
 interface ContainerProps {
   config: Config;
@@ -73,6 +74,8 @@ export default function Container({ config }: ContainerProps) {
     },
     [sendActions, voucherActions, profilesActions]
   );
+
+  useThemeUpdater(community);
 
   useSafeEffect(() => {
     // read the url first

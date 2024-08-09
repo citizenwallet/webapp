@@ -15,6 +15,7 @@ import { formatUnits } from "ethers";
 import { ArrowLeft, ArrowRight, ArrowUpRight, StickyNote } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useThemeUpdater } from "@/hooks/theme";
 interface ContainerProps {
   tx: Transfer;
   fromProfile: Profile;
@@ -28,7 +29,9 @@ export default function Container({
   toProfile,
   config,
 }: ContainerProps) {
-  const { token, scan } = config;
+  const { community, token, scan } = config;
+
+  useThemeUpdater(community);
 
   const router = useRouter();
 

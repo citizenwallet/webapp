@@ -27,7 +27,7 @@ import { selectFilteredProfiles } from "@/state/profiles/selectors";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { selectCanSend } from "@/state/send/selectors";
-import { getWindow, scrollToTop } from "@/utils/window";
+import { scrollToTop } from "@/utils/window";
 
 interface SendModalProps {
   accountActions: AccountLogic;
@@ -120,56 +120,19 @@ export default function SendModal({
     scrollToTop();
   };
 
-  if (isDesktop) {
-    return (
-      <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
-        <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="h-4/6 sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Send</DialogTitle>
-          </DialogHeader>
-          <SendForm className="h-full" isInModal config={config} />
-          <DialogFooter className="pt-2">
-            {!resolvedTo ? (
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-            ) : (
-              <Button onClick={handleCancelToSelection} variant="outline">
-                Back
-              </Button>
-            )}
-            {resolvedTo && canSend && (
-              <Flex
-                justify="center"
-                align="start"
-                className="absolute bottom-0 left-0 w-full px-4"
-              >
-                <Button
-                  onClick={() => handleSend(resolvedTo, amount, description)}
-                  className="w-full"
-                >
-                  Send
-                  <ArrowRightIcon size={24} className="ml-4" />
-                </Button>
-              </Flex>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  const contentHeight = getWindow()?.innerHeight ?? 200;
-
   return (
     <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="h-full" style={{ height: contentHeight }}>
+      <DialogContent
+        className={cn(
+          "h-full flex flex-col",
+          isDesktop ? "h-4/6 sm:max-w-[425px]" : ""
+        )}
+      >
         <DialogHeader>
           <DialogTitle>Send</DialogTitle>
         </DialogHeader>
-        <SendForm className="h-full px-4" config={config} />
+        <SendForm className="flex-1 px-4" config={config} />
         <DialogFooter className="pt-2 gap-2">
           {!resolvedTo ? (
             <DialogClose asChild>
@@ -198,19 +161,11 @@ export default function SendModal({
 }
 
 interface SendFormProps {
-  isInModal?: boolean;
   config: Config;
   className?: string;
 }
 
-const SendForm = ({ isInModal = false, config, className }: SendFormProps) => {
-  const divHeight =
-    typeof window !== "undefined"
-      ? isInModal
-        ? window.innerHeight * 0.6
-        : window.innerHeight
-      : 200;
-
+const SendForm = ({ config, className }: SendFormProps) => {
   const { token } = config;
 
   const [sendStore, actions] = useSend();
@@ -259,7 +214,7 @@ const SendForm = ({ isInModal = false, config, className }: SendFormProps) => {
   };
 
   let modalContent = (
-    <Box key="to" className="animate-fade-in w-full">
+    <Box key="to" className="animate-fade-in flex flex-col flex-1 w-full">
       <Box className="relative w-full h-14 my-4">
         <Input
           type="search"
@@ -281,26 +236,19 @@ const SendForm = ({ isInModal = false, config, className }: SendFormProps) => {
           </Button>
         </QRScannerModal>
       </Flex>
-      <Flex
-        direction="column"
-        className="h-full w-full gap-4"
-        style={{ height: divHeight - 260 }}
-      >
-        <ScrollArea className="w-full">
-          <Box className="z-10 absolute top-0 left-0 bg-transparent-to-white h-10 w-full"></Box>
-          <Box className="h-4"></Box>
-          <Box>
-            {profileList.map((profile) => (
-              <ProfileRow
-                key={profile.account}
-                profile={profile}
-                onSelect={handleProfileSelect}
-              />
-            ))}
-          </Box>
-          <Box className="h-4"></Box>
-          <Box className="z-10 absolute bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
-        </ScrollArea>
+      <Flex direction="column" className="w-full flex flex-col flex-1 gap-4">
+        <Box className="z-10 absolute top-0 left-0 bg-transparent-to-white h-10 w-full"></Box>
+        <Box>
+          {profileList.map((profile) => (
+            <ProfileRow
+              key={profile.account}
+              profile={profile}
+              onSelect={handleProfileSelect}
+            />
+          ))}
+        </Box>
+        <Box className="h-4"></Box>
+        <Box className="z-10 absolute bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
       </Flex>
     </Box>
   );
@@ -358,7 +306,7 @@ const SendForm = ({ isInModal = false, config, className }: SendFormProps) => {
     <Flex
       direction="column"
       className={cn(
-        "relative w-full h-full items-start gap-4 overflow-hidden",
+        "relative h-full flex flex-col items-start overflow-y-auto gap-4",
         className
       )}
     >

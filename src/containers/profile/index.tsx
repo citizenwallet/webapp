@@ -13,6 +13,7 @@ import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { getAvatarUrl } from "@/lib/utils";
+import { useThemeUpdater } from "@/hooks/theme";
 interface ContainerProps {
   config: Config;
   profile: Profile;
@@ -30,6 +31,8 @@ export default function Container({
   const [size, setSize] = useState(
     (ref.current ? ref.current.clientWidth : 200) * 0.8
   );
+
+  useThemeUpdater(config.community);
 
   useSafeEffect(() => {
     setSize((ref.current ? ref.current.clientWidth : 200) * 0.8);

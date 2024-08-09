@@ -92,7 +92,7 @@ export default function ReceiveModal({
       <DialogContent
         className={cn(
           "h-full flex flex-col",
-          isDesktop ? "sm:max-w-[425px]" : ""
+          isDesktop ? "sm:max-w-[425px] max-h-[750px]" : ""
         )}
       >
         <DialogHeader className="h-10 pb-4 justify-center">

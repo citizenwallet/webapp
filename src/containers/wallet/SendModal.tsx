@@ -126,7 +126,7 @@ export default function SendModal({
       <DialogContent
         className={cn(
           "h-full flex flex-col",
-          isDesktop ? "h-4/6 sm:max-w-[425px]" : ""
+          isDesktop ? "sm:max-w-[425px] max-h-[750px]" : ""
         )}
       >
         <DialogHeader>

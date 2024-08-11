@@ -6,7 +6,7 @@ import React, { useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { canGoBack } from "@/utils/history";
 import { useRouter } from "next/navigation";
-import { createPasskey, storePasskeyInLocalStorage } from "@/lib/passkeys";
+import { PasskeyService } from "@/services/passkeys";
 
 const Passkeys = () => {
   const router = useRouter();
@@ -28,38 +28,12 @@ const Passkeys = () => {
   };
 
   async function onCreatePassKey() {
-    const passkey = await createPasskey();
-    storePasskeyInLocalStorage(passkey);
+    PasskeyService.createPasskey();
   }
-  const handleAuthenticate = async () => {
-    generateChallenge();
-    if (!challenge) {
-      console.error("Challenge is not set");
-      return;
-    }
 
-    const publicKey = {
-      challenge: Uint8Array.from(atob(challenge), (c) => c.charCodeAt(0)),
-    };
-
-    try {
-      let credential = (await navigator.credentials.get({
-        publicKey,
-      })) as PublicKeyCredential;
-
-      const response = credential.response as AuthenticatorAssertionResponse;
-
-      console.log("------------Message signing successful------------");
-      console.log("Message Signature: ", response.signature);
-      console.log("Message Content: ", message);
-
-      setMessage("");
-    } catch (error) {
-      console.error(
-        "------------Message signing successful------------",
-        error
-      );
-    }
+  const signMessage = async () => {
+    PasskeyService.signMessage();
+    setMessage("");
   };
 
   return (
@@ -100,7 +74,7 @@ const Passkeys = () => {
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type your message here..."
           />
-          <Button className="w-full mt-3" onClick={handleAuthenticate}>
+          <Button className="w-full mt-3" onClick={signMessage}>
             Sign Message
           </Button>
         </Container>

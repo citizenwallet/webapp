@@ -58,7 +58,7 @@ export class CWAccount {
 
     const account = await afService.getAddress();
 
-    return new CWAccount(config, account, connectedWallet);
+    return new CWAccount(config, account, wallet);
   }
 
   static async fromHash(
@@ -84,6 +84,9 @@ export class CWAccount {
         hash,
         walletPassword
       );
+
+      console.log("account", account);
+      console.log("signer", signer);
 
       if (!account || !signer) {
         throw new Error("Invalid wallet format");

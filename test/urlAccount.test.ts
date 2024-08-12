@@ -1,5 +1,4 @@
 import { parsePrivateKeyFromHash } from "../src/services/account/urlAccount";
-import { Wallet } from "ethers";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -21,11 +20,6 @@ describe("parsePrivateKeyFromHash", () => {
 
     const expectedAccount = "0xb112AD8fd12704FaD58e1B1afa94965B39217a44";
 
-    // (Wallet.fromEncryptedJson as jest.Mock).mockResolvedValue([
-    //   "account",
-    //   "wallet",
-    // ]);
-
     const [account, wallet] = await parsePrivateKeyFromHash(
       baseUrl,
       hash,
@@ -33,6 +27,7 @@ describe("parsePrivateKeyFromHash", () => {
     );
 
     expect(account).toBe(expectedAccount);
+    expect(wallet).toBeDefined();
   });
 
   it("should return account and wallet from the dart v3 wallet", async () => {
@@ -46,21 +41,14 @@ describe("parsePrivateKeyFromHash", () => {
 
     const expectedAccount = "0xe035d4efb6b211af86d174635e3ee1b17acd2036";
 
-    // (Wallet.fromEncryptedJson as jest.Mock).mockResolvedValue([
-    //   "account",
-    //   "wallet",
-    // ]);
-
     const [account, wallet] = await parsePrivateKeyFromHash(
       baseUrl,
       hash,
       walletPassword
     );
 
-    console.log(account);
-    console.log(wallet?.address);
-
     expect(account).toBe(expectedAccount);
+    expect(wallet).toBeDefined();
   });
 
   it("should return undefined when invalid input is provided", async () => {

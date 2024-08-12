@@ -1,5 +1,5 @@
 import { formatAddress } from "@/utils/formatting";
-import { Profile } from "@citizenwallet/sdk";
+import { ConfigCommunity, Profile } from "@citizenwallet/sdk";
 import { create } from "zustand";
 
 export interface ProfilesState {
@@ -17,11 +17,41 @@ export const getEmptyProfile = (account: string): Profile => {
   return {
     account,
     description: "",
-    image: `https://api.multiavatar.com/${account}.png`,
-    image_medium: `https://api.multiavatar.com/${account}.png`,
-    image_small: `https://api.multiavatar.com/${account}.png`,
+    image: "",
+    image_medium: "",
+    image_small: "",
     name: "Anonymous",
     username: formatAddress(account),
+  };
+};
+
+export const getMinterProfile = (
+  account: string,
+  community: ConfigCommunity
+): Profile => {
+  return {
+    account,
+    description: "",
+    image: community.logo,
+    image_medium: community.logo,
+    image_small: community.logo,
+    name: "Mint",
+    username: "@mint",
+  };
+};
+
+export const getBurnerProfile = (
+  account: string,
+  community: ConfigCommunity
+): Profile => {
+  return {
+    account,
+    description: "",
+    image: community.logo,
+    image_medium: community.logo,
+    image_small: community.logo,
+    name: "Burn",
+    username: "@burn",
   };
 };
 
@@ -38,7 +68,7 @@ export const useProfilesStore = create<ProfilesState>((set) => ({
     set((state) => ({
       profiles: {
         ...state.profiles,
-        [profile.account]: profile,
+        [profile.account]: { ...profile, username: `@${profile.username}` },
       },
     })),
   clear: () => set(initialState()),

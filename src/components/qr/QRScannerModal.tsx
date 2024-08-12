@@ -66,20 +66,20 @@ export default function QRScannerModal({
   }
 
   return (
-    <Drawer open={open} onOpenChange={handleOpenChange}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent className="h-4/6">
-        <DrawerHeader className="text-left">
-          <DrawerTitle>{title}</DrawerTitle>
-        </DrawerHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="h-full">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
         <QRScannerContent className="h-full px-4" onScan={handleScan} />
-        <DrawerFooter className="pt-2">
-          <DrawerClose asChild>
+        <DialogFooter className="pt-2">
+          <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

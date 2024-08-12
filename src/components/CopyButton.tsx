@@ -1,17 +1,17 @@
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { copyToClipboard } from "@/utils/clipboard";
 import { useSafeEffect } from "@citizenwallet/sdk";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 
-interface CopyBadgeProps {
+interface CopyButtonProps {
   label?: string;
   value: string;
   onClick?: (value: string) => void;
 }
 
-export default function CopyBadge({ label, value, onClick }: CopyBadgeProps) {
+export default function CopyButton({ label, value, onClick }: CopyButtonProps) {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [clicked, setClicked] = useState(false);
 
@@ -37,7 +37,7 @@ export default function CopyBadge({ label, value, onClick }: CopyBadgeProps) {
   };
 
   return (
-    <Badge
+    <Button
       onClick={handleClick}
       variant="outline"
       className={cn(
@@ -49,6 +49,6 @@ export default function CopyBadge({ label, value, onClick }: CopyBadgeProps) {
       {clicked && (
         <CheckIcon size="18" className="animate-fade-in text-success" />
       )}
-    </Badge>
+    </Button>
   );
 }

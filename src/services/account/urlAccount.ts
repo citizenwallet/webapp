@@ -1,4 +1,5 @@
-import { HDNodeWallet, Wallet } from "ethers";
+import { HDNodeWallet, Wallet, pbkdf2, scrypt } from "ethers";
+import { getAccount, getDecryptKdfParams, getPassword } from "./ethers";
 
 export const parsePrivateKeyFromHash = async (
   baseUrl: string,
@@ -13,17 +14,36 @@ export const parsePrivateKeyFromHash = async (
       throw new Error("Invalid wallet format");
     }
 
-    const decoded = atob(encoded.replace("v3-", ""));
+    const decoded = Buffer.from(encoded.replace("v3-", ""), "base64").toString(
+      "utf-8"
+    );
 
     const [account, encryptedPrivateKey] = decoded.split("|");
     if (!account || !encryptedPrivateKey) {
       throw new Error("Invalid wallet format");
     }
 
-    const wallet = await Wallet.fromEncryptedJson(
-      encryptedPrivateKey,
-      walletPassword
-    );
+    const jsonPrivateKey = JSON.parse(encryptedPrivateKey);
+    if (!!jsonPrivateKey.Crypto) {
+      jsonPrivateKey.crypto = jsonPrivateKey.Crypto;
+      delete jsonPrivateKey.Crypto;
+    }
+
+    const password = getPassword(walletPassword);
+
+    const params = getDecryptKdfParams(jsonPrivateKey);
+    let key: string;
+    if (params.name === "pbkdf2") {
+      const { salt, count, dkLen, algorithm } = params;
+      key = pbkdf2(password, salt, count, dkLen, algorithm);
+    } else {
+      const { salt, N, r, p, dkLen } = params;
+      key = await scrypt(password, salt, N, r, p, dkLen, () => {});
+    }
+
+    const keyStoreAccount = getAccount(jsonPrivateKey, key);
+
+    const wallet = new Wallet(keyStoreAccount.privateKey);
 
     return [account, wallet];
   } catch (e) {

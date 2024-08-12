@@ -1,10 +1,19 @@
 import Wallet from "@/containers/wallet";
-import { getConfig } from "@/services/config";
+import { readCommunityFile } from "@/services/config";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
-  const config = getConfig();
+export default async function Home() {
+  const config = readCommunityFile();
 
-  return <Wallet config={config} />;
+  if (!config) {
+    return <div>Community not found</div>;
+  }
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Wallet config={config} />
+    </Suspense>
+  );
 }

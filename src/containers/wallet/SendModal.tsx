@@ -4,42 +4,30 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ArrowRightIcon, QrCodeIcon, SearchIcon } from "lucide-react";
 import { useSendStore } from "@/state/send/state";
 import { Box, Flex, ScrollArea, Text } from "@radix-ui/themes";
 import ProfileRow from "@/components/profiles/ProfileRow";
 import { getEmptyProfile, useProfilesStore } from "@/state/profiles/state";
 import { Config, Profile } from "@citizenwallet/sdk";
-import { useState } from "react";
 import { useSend } from "@/state/send/actions";
 import { DialogClose } from "@radix-ui/react-dialog";
 import QRScannerModal from "../../components/qr/QRScannerModal";
 import { formatAddress, formatCurrency } from "@/utils/formatting";
 import { useProfiles } from "@/state/profiles/actions";
-import { AccountLogic, useAccount } from "@/state/account/actions";
+import { AccountLogic } from "@/state/account/actions";
 import { useAccountStore } from "@/state/account/state";
 import { selectFilteredProfiles } from "@/state/profiles/selectors";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { selectCanSend } from "@/state/send/selectors";
+import { scrollToTop } from "@/utils/window";
 
 interface SendModalProps {
   accountActions: AccountLogic;
@@ -128,64 +116,28 @@ export default function SendModal({
     }
 
     handleClose();
+
+    scrollToTop();
   };
 
-  if (isDesktop) {
-    return (
-      <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
-        <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="h-4/6 sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Send</DialogTitle>
-          </DialogHeader>
-          <SendForm className="h-full" isInModal config={config} />
-          <DialogFooter className="pt-2">
-            {!resolvedTo ? (
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-            ) : (
-              <Button onClick={handleCancelToSelection} variant="outline">
-                Back
-              </Button>
-            )}
-            {resolvedTo && canSend && (
-              <Flex
-                justify="center"
-                align="start"
-                className="absolute bottom-0 left-0 w-full px-4"
-              >
-                <Button
-                  onClick={() => handleSend(resolvedTo, amount, description)}
-                  className="w-full"
-                >
-                  Send
-                  <ArrowRightIcon size={24} className="ml-4" />
-                </Button>
-              </Flex>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  const contentHeight =
-    typeof window !== "undefined" ? window.innerHeight : 200;
-
   return (
-    <Drawer open={modalOpen} onOpenChange={handleOpenChange}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerContent className="h-full" style={{ height: contentHeight }}>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>Send</DrawerTitle>
-        </DrawerHeader>
-        <SendForm className="h-full px-4" config={config} />
-        <DrawerFooter className="pt-2">
+    <Dialog open={modalOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent
+        className={cn(
+          "h-full flex flex-col",
+          isDesktop ? "sm:max-w-[425px] max-h-[750px]" : ""
+        )}
+      >
+        <DialogHeader>
+          <DialogTitle>Send</DialogTitle>
+        </DialogHeader>
+        <SendForm className="flex-1 px-4" config={config} />
+        <DialogFooter className="pt-2 gap-2">
           {!resolvedTo ? (
-            <DrawerClose asChild>
+            <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
-            </DrawerClose>
+            </DialogClose>
           ) : (
             <Button onClick={handleCancelToSelection} variant="outline">
               Back
@@ -202,26 +154,18 @@ export default function SendModal({
               </Button>
             </Flex>
           )}
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
 interface SendFormProps {
-  isInModal?: boolean;
   config: Config;
   className?: string;
 }
 
-const SendForm = ({ isInModal = false, config, className }: SendFormProps) => {
-  const divHeight =
-    typeof window !== "undefined"
-      ? isInModal
-        ? window.innerHeight * 0.6
-        : window.innerHeight
-      : 200;
-
+const SendForm = ({ config, className }: SendFormProps) => {
   const { token } = config;
 
   const [sendStore, actions] = useSend();
@@ -270,7 +214,7 @@ const SendForm = ({ isInModal = false, config, className }: SendFormProps) => {
   };
 
   let modalContent = (
-    <Box key="to" className="animate-fade-in w-full">
+    <Box key="to" className="animate-fade-in flex flex-col flex-1 w-full">
       <Box className="relative w-full h-14 my-4">
         <Input
           type="search"
@@ -292,26 +236,19 @@ const SendForm = ({ isInModal = false, config, className }: SendFormProps) => {
           </Button>
         </QRScannerModal>
       </Flex>
-      <Flex
-        direction="column"
-        className="h-full w-full gap-4"
-        style={{ height: divHeight - 260 }}
-      >
-        <ScrollArea className="w-full">
-          <Box className="z-10 absolute top-0 left-0 bg-transparent-to-white h-10 w-full"></Box>
-          <Box className="h-4"></Box>
-          <Box>
-            {profileList.map((profile) => (
-              <ProfileRow
-                key={profile.account}
-                profile={profile}
-                onSelect={handleProfileSelect}
-              />
-            ))}
-          </Box>
-          <Box className="h-4"></Box>
-          <Box className="z-10 absolute bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
-        </ScrollArea>
+      <Flex direction="column" className="w-full flex flex-col flex-1 gap-4">
+        <Box className="z-10 absolute top-0 left-0 bg-transparent-to-white h-10 w-full"></Box>
+        <Box>
+          {profileList.map((profile) => (
+            <ProfileRow
+              key={profile.account}
+              profile={profile}
+              onSelect={handleProfileSelect}
+            />
+          ))}
+        </Box>
+        <Box className="h-4"></Box>
+        <Box className="z-10 absolute bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
       </Flex>
     </Box>
   );
@@ -369,7 +306,7 @@ const SendForm = ({ isInModal = false, config, className }: SendFormProps) => {
     <Flex
       direction="column"
       className={cn(
-        "relative w-full h-full items-start gap-4 overflow-hidden",
+        "relative h-full flex flex-col items-start overflow-y-auto gap-4",
         className
       )}
     >

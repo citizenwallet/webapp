@@ -26,16 +26,20 @@ import VoucherModal from "./VoucherModal";
 import { generateAccountHashPath } from "@/utils/hash";
 import { getFullUrl } from "@/utils/deeplink";
 import { useIsScrolled } from "@/hooks/scroll";
+import Link from "next/link";
+import BackupModal from "./BackupModal";
+import { getWindow } from "@/utils/window";
+import { getAvatarUrl } from "@/lib/utils";
+import { useThemeUpdater } from "@/hooks/theme";
 
-interface WalletProps {
+interface ContainerProps {
   config: Config;
 }
 
-export default function Wallet({ config }: WalletProps) {
-  const { community } = config;
+export default function Container({ config }: ContainerProps) {
+  const { community, token } = config;
 
-  // const isScrolled = useIsScrolled();
-  const isScrolled = false;
+  const isScrolled = useIsScrolled();
 
   const [state, actions] = useAccount(config);
   const [_, sendActions] = useSend();
@@ -71,14 +75,18 @@ export default function Wallet({ config }: WalletProps) {
     [sendActions, voucherActions, profilesActions]
   );
 
+  useThemeUpdater(community);
+
   useSafeEffect(() => {
     // read the url first
     const href = getFullUrl();
 
-    actions.openAccount(hash, (hash: string) => {
-      const hashPath = generateAccountHashPath(hash, community.alias);
+    actions.openAccount(hash, (hashPath: string) => {
       history.replaceState(null, "", hashPath);
-      window.location.hash = hashPath;
+      const w = getWindow();
+      if (w) {
+        w.location.hash = hashPath;
+      }
 
       handleScan(href);
     });
@@ -125,15 +133,27 @@ export default function Wallet({ config }: WalletProps) {
   return (
     <main
       ref={scrollableRef}
-      className="flex min-h-screen w-full flex-col align-center p-4 max-w-xl"
+      className="relative flex min-h-screen w-full flex-col align-center p-4 max-w-xl"
     >
-      <Avatar className="z-20 fixed right-0 top-0 m-4 border-2 border-primary">
-        <AvatarImage
-          src={!profile ? "/anonymous-user.svg" : profile.image_small}
-          alt="profile image"
-        />
-        <AvatarFallback>{!profile ? "PRF" : profile.username}</AvatarFallback>
-      </Avatar>
+      <BackupModal
+        community={community}
+        account={account}
+        url={getWindow()?.location.href ?? "/"}
+        className="z-20 absolute left-0 top-0"
+      />
+
+      <Link
+        href={`/profile/${account}`}
+        className="z-20 absolute right-0 top-0"
+      >
+        <Avatar className="h-11 w-11 m-4 border-2 border-primary">
+          <AvatarImage
+            src={getAvatarUrl(profile?.image_small, account)}
+            alt="profile image"
+          />
+          <AvatarFallback>{!profile ? "PRF" : profile.username}</AvatarFallback>
+        </Avatar>
+      </Link>
 
       <Flex
         justify="center"
@@ -184,6 +204,8 @@ export default function Wallet({ config }: WalletProps) {
         {transfers.map((tx) => (
           <TxRow
             key={tx.hash}
+            token={token}
+            community={community}
             account={account}
             tx={tx}
             actions={profilesActions}

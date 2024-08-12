@@ -178,6 +178,20 @@ export default function Container({ config }: ContainerProps) {
         accountActions={actions}
       />
 
+      <Flex direction="column" className="w-full pt-[420px]" gap="3">
+        {transfers.map((tx) => (
+          <TxRow
+            key={tx.hash}
+            token={token}
+            community={community}
+            account={account}
+            tx={tx}
+            actions={profilesActions}
+            profiles={profiles}
+          />
+        ))}
+      </Flex>
+
       {transfers.length === 0 && !reclaimLink && (
         <Flex
           direction="column"
@@ -199,20 +213,6 @@ export default function Container({ config }: ContainerProps) {
           <Button onClick={() => handleRedirect(reclaimLink)}>Verify</Button>
         </Flex>
       )}
-
-      <Flex direction="column" className="w-full" gap="3">
-        {transfers.map((tx) => (
-          <TxRow
-            key={tx.hash}
-            token={token}
-            community={community}
-            account={account}
-            tx={tx}
-            actions={profilesActions}
-            profiles={profiles}
-          />
-        ))}
-      </Flex>
 
       <VoucherModal config={config} actions={voucherActions} />
 

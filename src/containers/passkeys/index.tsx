@@ -7,17 +7,13 @@ import { ArrowLeft } from "lucide-react";
 import { canGoBack } from "@/utils/history";
 import { useRouter } from "next/navigation";
 import { PasskeyService } from "@/services/passkeys";
+import { useSafeEffect } from "@citizenwallet/sdk";
 
 const Passkeys = () => {
   const router = useRouter();
   const ref = useRef<HTMLDivElement>(null);
   const [message, setMessage] = useState("");
-  const [challenge, setChallenge] = useState("");
-
-  const generateChallenge = () => {
-    const challenge = window.crypto.getRandomValues(new Uint8Array(32));
-    setChallenge(btoa(String.fromCharCode(...challenge)));
-  };
+  const [selectedPasskey, setSelectedPasskey] = useState<string | null>(null);
 
   const handleBack = () => {
     if (canGoBack()) {
@@ -29,12 +25,39 @@ const Passkeys = () => {
 
   async function onCreatePassKey() {
     PasskeyService.createPasskey();
+    checkForPasskeys();
   }
 
   const signMessage = async () => {
-    PasskeyService.signMessage();
+    const signature = await PasskeyService.signMessage();
+    console.log("Signed message, signature - ", signature);
     setMessage("");
   };
+
+  async function checkForPasskeys() {
+    const options: PublicKeyCredentialRequestOptions = {
+      challenge: window.crypto.getRandomValues(new Uint8Array(32)),
+      allowCredentials: [],
+      userVerification: "preferred",
+    };
+
+    try {
+      const credential = await navigator.credentials.get({
+        publicKey: options,
+      });
+      if (credential) {
+        setSelectedPasskey(credential.id);
+      } else {
+        setSelectedPasskey(null);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useSafeEffect(() => {
+    checkForPasskeys();
+  }, []);
 
   return (
     <main
@@ -53,17 +76,17 @@ const Passkeys = () => {
           Passkeys
         </Text>
         <br />
-
-        <Container className="m-1">
-          <Button
-            variant="outline"
-            className="w-full mt-3"
-            onClick={onCreatePassKey}
-          >
-            Add a new passkey
-          </Button>
-        </Container>
-
+        {!selectedPasskey && (
+          <Container className="m-1">
+            <Button
+              variant="outline"
+              className="w-full mt-3"
+              onClick={onCreatePassKey}
+            >
+              Add a new passkey
+            </Button>
+          </Container>
+        )}
         <Container className="mt-3">
           <Text size="3" weight="medium">
             Sign a message with a passkey

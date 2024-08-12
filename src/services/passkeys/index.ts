@@ -1,25 +1,4 @@
 export class PasskeyService {
-  static async checkForPasskeys() {
-    const options: PublicKeyCredentialRequestOptions = {
-      challenge: window.crypto.getRandomValues(new Uint8Array(32)),
-      allowCredentials: [],
-      userVerification: "preferred",
-    };
-
-    try {
-      const credential = await navigator.credentials.get({
-        publicKey: options,
-      });
-      if (credential) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   static async createPasskey(displayName?: string) {
     const passkeyCredential = await navigator.credentials.create({
       publicKey: {

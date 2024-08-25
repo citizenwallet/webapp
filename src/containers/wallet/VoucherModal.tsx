@@ -49,7 +49,7 @@ export default function VoucherModal({ config, actions }: VoucherModalProps) {
   const voucher = state((state) => state.voucher);
   const balance = state((state) => state.balance);
 
-  const hasBalance = BigInt(balance) > 0n;
+  const hasBalance = parseFloat(balance) > 0;
 
   const handleClaimVoucher = async (voucher: Voucher | null) => {
     if (!voucher) return;

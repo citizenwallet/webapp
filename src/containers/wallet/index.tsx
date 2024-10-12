@@ -162,6 +162,7 @@ export default function Container({ config }: ContainerProps) {
       </Flex>
 
       <ActionBar
+        account={account}
         balance={balance}
         small={isScrolled}
         config={config}

@@ -2,13 +2,15 @@ import { Box, Flex, Text } from "@radix-ui/themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Config } from "@citizenwallet/sdk";
 import WalletAction from "./Action";
-import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, EllipsisIcon } from "lucide-react";
 import SendModal from "@/containers/wallet/SendModal";
 import ReceiveModal from "@/containers/wallet/ReceiveModal";
 import { AccountLogic } from "@/state/account/actions";
 import { cn } from "@/lib/utils";
+import PluginsSheet from "./PluginsSheet";
 
 interface ActionBarProps {
+  account: string;
   balance: string;
   small?: boolean;
   config: Config;
@@ -16,12 +18,13 @@ interface ActionBarProps {
 }
 
 export default function ActionBar({
+  account,
   balance,
   small,
   config,
   accountActions,
 }: ActionBarProps) {
-  const { community, token } = config;
+  const { community, token, plugins = [] } = config;
 
   return (
     <Flex
@@ -114,6 +117,19 @@ export default function ActionBar({
             label="Receive"
           />
         </ReceiveModal>
+
+        {plugins.length > 0 && (
+          <PluginsSheet account={account} plugins={plugins}>
+            <WalletAction
+              compact={small}
+              alt
+              icon={
+                <EllipsisIcon size={small ? 30 : 40} className="text-primary" />
+              }
+              label="More"
+            />
+          </PluginsSheet>
+        )}
       </Flex>
 
       <Box className="bg-transparent-to-white h-10 w-full"></Box>

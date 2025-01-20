@@ -1,13 +1,13 @@
 import {
   Config,
-  ERC20ContractService,
-  IndexerService,
+  CommunityConfig,
+  BundlerService,
+  getAccountBalance,
+  getAccountAddress,
 } from "@citizenwallet/sdk";
 import {
-  BaseWallet,
   HDNodeWallet,
   JsonRpcProvider,
-  Signer,
   Wallet,
   toUtf8Bytes,
 } from "ethers";
@@ -15,48 +15,44 @@ import {
   parseLegacyWalletFromHash,
   parsePrivateKeyFromHash,
 } from "./urlAccount";
-import { AccountFactoryService } from "@citizenwallet/sdk/dist/src/services/contracts/AccountFactory";
-import { BundlerService } from "@citizenwallet/sdk/dist/src/services/bundler";
 
 export class CWAccount {
   provider: JsonRpcProvider;
   bundler: BundlerService;
-  indexer: IndexerService;
 
   config: Config;
+  communityConfig: CommunityConfig;
   account: string;
   signer: Wallet | HDNodeWallet;
 
-  erc20: ERC20ContractService;
   constructor(config: Config, account: string, signer: Wallet | HDNodeWallet) {
-    this.provider = new JsonRpcProvider(config.node.url);
-    this.bundler = new BundlerService(config);
-    this.indexer = new IndexerService(config.indexer);
+    this.communityConfig = new CommunityConfig(config);
+
+    this.provider = new JsonRpcProvider(this.communityConfig.primaryRPCUrl);
+
+    this.bundler = new BundlerService(this.communityConfig);
 
     this.config = config;
     this.account = account;
     this.signer = signer;
-
-    this.erc20 = new ERC20ContractService(
-      config.token.address,
-      config.node.ws_url,
-      this.provider
-    );
   }
 
   static async random(config: Config) {
     const wallet = Wallet.createRandom();
 
-    const provider = new JsonRpcProvider(config.node.url);
+    const communityConfig = new CommunityConfig(config);
+    const provider = new JsonRpcProvider(communityConfig.primaryRPCUrl);
 
     const connectedWallet = wallet.connect(provider);
 
-    const afService = new AccountFactoryService(
-      config.erc4337.account_factory_address,
-      connectedWallet
+    const account = await getAccountAddress(
+      communityConfig,
+      connectedWallet.address 
     );
 
-    const account = await afService.getAddress();
+    if (!account) {
+      throw new Error("Failed to get account address");
+    }
 
     return new CWAccount(config, account, wallet);
   }
@@ -102,12 +98,8 @@ export class CWAccount {
         throw new Error("Invalid wallet format");
       }
 
-      const afService = new AccountFactoryService(
-        config.erc4337.account_factory_address,
-        signer
-      );
-
-      account = await afService.getAddress();
+      const communityConfig = new CommunityConfig(config);
+      account = await getAccountAddress(communityConfig, signer.address) || undefined;
     }
 
     if (!account || !signer) {
@@ -118,13 +110,15 @@ export class CWAccount {
   }
 
   async getBalance() {
-    return this.erc20.balanceOf(this.account);
+    return (await getAccountBalance(this.communityConfig, this.account)) ?? 0n;
   }
 
   async send(to: string, amount: string, description?: string) {
+    const primaryToken = this.communityConfig.primaryToken;
+
     const hash = await this.bundler.sendERC20Token(
       this.signer,
-      this.config.token.address,
+      primaryToken.address,
       this.account,
       to,
       amount,

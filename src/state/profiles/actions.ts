@@ -2,20 +2,19 @@ import { useMemo } from "react";
 import debounce from "debounce";
 import { ProfilesState, useProfilesStore } from "./state";
 import { StoreApi, UseBoundStore } from "zustand";
-import { Config, ProfileService } from "@citizenwallet/sdk";
+import { Config, CommunityConfig, getProfileFromAddress, getProfileFromUsername } from "@citizenwallet/sdk";
 
 const RELOAD_INTERVAL = 30000;
 
 export class ProfilesActions {
   state: ProfilesState;
   config: Config;
+  communityConfig: CommunityConfig;
 
-  profiles: ProfileService;
   constructor(state: ProfilesState, config: Config) {
     this.state = state;
     this.config = config;
-
-    this.profiles = new ProfileService(config);
+    this.communityConfig = new CommunityConfig(config);
   }
 
   private lastLoadedProfile: { [key: string]: number } = {};
@@ -31,7 +30,12 @@ export class ProfilesActions {
       }
       this.lastLoadedProfile[account] = new Date().getTime();
 
-      const profile = await this.profiles.getProfile(account);
+      const profile = await getProfileFromAddress(
+        this.communityConfig.ipfs.url,
+        this.communityConfig,
+        account
+      );
+
       if (!profile) {
         throw new Error("Profile not found");
       }
@@ -48,7 +52,12 @@ export class ProfilesActions {
     try {
       this.state.startLoading();
 
-      const profile = await this.profiles.getProfileFromUsername(username);
+      const profile = await getProfileFromUsername(
+        this.communityConfig.ipfs.url,
+        this.communityConfig,
+        username
+      );
+
       if (!profile) {
         throw new Error("Profile not found");
       }

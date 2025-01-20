@@ -3,38 +3,33 @@ import { VoucherState, useVoucherStore } from "./state";
 import { useMemo } from "react";
 import {
   Config,
-  ERC20ContractService,
-  ProfileService,
+  CommunityConfig,
+  BundlerService,
   Voucher,
-  decompress,
   parseVoucher,
+  getProfileFromAddress,
+  getAccountBalance
 } from "@citizenwallet/sdk";
 import { BaseWallet, JsonRpcProvider, SigningKey, formatUnits } from "ethers";
-import { BundlerService } from "@citizenwallet/sdk/dist/src/services/bundler";
 import { formatAddress } from "@/utils/formatting";
 
 export class VoucherActions {
   state: VoucherState;
   config: Config;
+  communityConfig: CommunityConfig;
 
   signer?: BaseWallet;
   rpc: JsonRpcProvider;
-  erc20: ERC20ContractService;
 
-  profiles: ProfileService;
   bundler: BundlerService;
   constructor(state: VoucherState, config: Config) {
     this.state = state;
     this.config = config;
+    this.communityConfig = new CommunityConfig(config);
 
-    this.rpc = new JsonRpcProvider(config.node.url);
-    this.erc20 = new ERC20ContractService(
-      config.token.address,
-      config.node.ws_url,
-      this.rpc
-    );
-    this.profiles = new ProfileService(config);
-    this.bundler = new BundlerService(config);
+    this.rpc = new JsonRpcProvider(this.communityConfig.primaryRPCUrl);
+
+    this.bundler = new BundlerService(this.communityConfig);
   }
 
   setModalOpen(modalOpen: boolean) {
@@ -48,9 +43,9 @@ export class VoucherActions {
 
       const { voucher, signer } = parseVoucher(data);
 
-      const balance = await this.erc20.balanceOf(voucher.account);
+      const balance = await getAccountBalance(this.communityConfig, voucher.account) ?? 0n;
 
-      this.state.setBalance(formatUnits(balance, this.config.token.decimals));
+      this.state.setBalance(formatUnits(balance, this.communityConfig.primaryToken.decimals));
 
       this.state.voucherLoaded(voucher);
 
@@ -73,8 +68,10 @@ export class VoucherActions {
 
       this.state.setClaiming(true);
 
-      const balance = await this.erc20.balanceOf(voucher.account);
-      const profile = await this.profiles.getProfile(voucher.creator);
+
+      const balance = await getAccountBalance(this.communityConfig, voucher.account) ?? 0n;
+
+      const profile = await getProfileFromAddress(this.config.ipfs.url, this.communityConfig, voucher.creator );
 
       let description = `Claimed voucher from ${formatAddress(
         voucher.creator
@@ -83,12 +80,14 @@ export class VoucherActions {
         description = `Claimed voucher from ${profile.username}`;
       }
 
+      const primaryToken = this.communityConfig.primaryToken;
+
       this.bundler.sendERC20Token(
         this.signer,
-        this.config.token.address,
+        primaryToken.address,
         voucher.account,
         to,
-        formatUnits(balance, this.config.token.decimals),
+        formatUnits(balance, primaryToken.decimals),
         description
       );
 

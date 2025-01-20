@@ -6,7 +6,7 @@ import {
   getEmptyProfile,
   getMinterProfile,
 } from "@/state/profiles/state";
-import { IndexerService, ProfileService } from "@citizenwallet/sdk";
+import { CommunityConfig, LogsService, getProfileFromAddress } from "@citizenwallet/sdk";
 import { Suspense } from "react";
 import { ZeroAddress } from "ethers";
 
@@ -25,31 +25,41 @@ export default async function Page({ params: { hash } }: PageProps) {
     return <div>Community not found</div>;
   }
 
-  const indexer = new IndexerService(config.indexer);
+  const communityConfig = new CommunityConfig(config);
+  const logsService = new LogsService(communityConfig);
+
 
   try {
-    const { object: tx } = await indexer.getTransfer(
-      config.token.address,
+    const { object } = await logsService.getLog(
+      communityConfig.primaryToken.address,
       hash
     );
 
-    const profiles = new ProfileService(config);
+    const logData = object.data;
 
-    let fromProfile =
-      (await profiles.getProfile(tx.from)) ?? getEmptyProfile(tx.from);
-    if (ZeroAddress === tx.from) {
-      fromProfile = getMinterProfile(tx.from, config.community);
+    if (!logData) {
+      throw new Error("Log data not found");
     }
-    let toProfile =
-      (await profiles.getProfile(tx.to)) ?? getEmptyProfile(tx.to);
-    if (ZeroAddress === tx.to) {
-      toProfile = getBurnerProfile(tx.to, config.community);
+
+    const txFrom = logData['from'];
+    const txTo = logData['to'];
+
+    let fromProfile = await getProfileFromAddress(communityConfig.ipfs.url, communityConfig, txFrom) ?? getEmptyProfile(txFrom);
+    
+    if (ZeroAddress === txFrom) {
+      fromProfile = getMinterProfile(txFrom, config.community);
+    }
+
+    let toProfile = await getProfileFromAddress(communityConfig.ipfs.url, communityConfig, txTo) ?? getEmptyProfile(txTo);
+  
+    if (ZeroAddress === txTo) {
+      toProfile = getBurnerProfile(txTo, config.community);
     }
 
     return (
       <Suspense fallback={<div>Loading...</div>}>
         <Tx
-          tx={tx}
+          tx={object}
           fromProfile={fromProfile}
           toProfile={toProfile}
           config={config}

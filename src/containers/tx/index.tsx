@@ -9,7 +9,7 @@ import { formatAddress } from "@/utils/formatting";
 import { canGoBack } from "@/utils/history";
 import { getWindow } from "@/utils/window";
 import { getAvatarUrl } from "@/lib/utils";
-import { Config, Profile, Transfer } from "@citizenwallet/sdk";
+import { Config, Profile, Log, CommunityConfig } from "@citizenwallet/sdk";
 import { Box, Flex, Text } from "@radix-ui/themes";
 import { formatUnits } from "ethers";
 import { ArrowLeft, ArrowRight, ArrowUpRight, StickyNote } from "lucide-react";
@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useThemeUpdater } from "@/hooks/theme";
 interface ContainerProps {
-  tx: Transfer;
+  tx: Log;
   fromProfile: Profile;
   toProfile: Profile;
   config: Config;
@@ -29,7 +29,9 @@ export default function Container({
   toProfile,
   config,
 }: ContainerProps) {
-  const { community, token, scan } = config;
+  const { community, scan } = config;
+  const communityConfig = new CommunityConfig(config);
+  const primaryToken = communityConfig.primaryToken
 
   useThemeUpdater(community);
 
@@ -49,7 +51,7 @@ export default function Container({
     getWindow()?.open(`${scan.url}/tx/${txHash}`, "_blank");
   };
 
-  const createdAt = formatDate(tx.created_at);
+  const createdAt = formatDate(new Date(tx.created_at));
 
   const isSuccess = tx.status === "success";
 
@@ -66,7 +68,7 @@ export default function Container({
           <Link href={`/profile/${fromProfile.account}`}>
             <Avatar className="h-28 w-28 border-2 border-primary">
               <AvatarImage
-                src={getAvatarUrl(fromProfile.image_medium, tx.from)}
+                src={getAvatarUrl(fromProfile.image_medium, tx.data?.from)}
                 alt="user profile photo"
                 className="object-cover"
               />
@@ -100,10 +102,10 @@ export default function Container({
       <Flex direction="column" gap="2">
         <Flex justify="center" align="center" gap="4">
           <Text size="8" weight="bold">
-            {formatUnits(`${tx.value ?? 0}`, token.decimals)}
+            {formatUnits(`${tx.value ?? 0}`, primaryToken.decimals)}
           </Text>
           <Text size="6" weight="bold">
-            {token.symbol}
+            {primaryToken.symbol}
           </Text>
         </Flex>
         <Flex justify="center">

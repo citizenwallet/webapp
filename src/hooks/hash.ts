@@ -1,4 +1,6 @@
 import { getWindow } from "@/utils/window";
+
+// TODO: refer old sdk repo. include locally in project
 import { useSafeEffect } from "@citizenwallet/sdk";
 import { useState } from "react";
 

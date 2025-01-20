@@ -4,7 +4,7 @@ import {
   ConfigCommunity,
   ConfigToken,
   Profile,
-  Transfer,
+  Log,
   useSafeEffect,
 } from "@citizenwallet/sdk";
 import { AGO_THRESHOLD, ago } from "@/utils/ago";
@@ -19,7 +19,7 @@ interface TxRowProps {
   token: ConfigToken;
   community: ConfigCommunity;
   account: string;
-  tx: Transfer;
+  tx: Log;
   actions: ProfilesActions;
   profiles: {
     [key: string]: Profile;
@@ -34,11 +34,16 @@ export default function TxRow({
   actions,
   profiles,
 }: TxRowProps) {
-  const self = tx.from === account;
-  const other = self ? tx.to : tx.from;
 
-  const isMinting = ZeroAddress === tx.from;
-  const isBurning = ZeroAddress === tx.to;
+  const from = tx.data?.from ?? "";
+  const to = tx.data?.to ?? "";
+
+
+  const self = from === account;
+  const other = self ? to : from;
+
+  const isMinting = ZeroAddress === from;
+  const isBurning = ZeroAddress === to;
 
   useSafeEffect(() => {
     actions.loadProfile(other);

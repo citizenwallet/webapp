@@ -28,6 +28,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { selectCanSend } from "@/state/send/selectors";
 import { scrollToTop } from "@/utils/window";
+import { CommunityConfig } from "@citizenwallet/sdk";
 
 interface SendModalProps {
   accountActions: AccountLogic;
@@ -42,7 +43,8 @@ export default function SendModal({
 }: SendModalProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  const { token } = config;
+  const communityConfig = new CommunityConfig(config);
+  const primaryToken = communityConfig.primaryToken;
 
   const { toast } = useToast();
 
@@ -88,10 +90,10 @@ export default function SendModal({
       // send toast
       const profile = profiles[sendTo];
       let toastDescription = `Sent ${sendAmount} ${
-        token.symbol
+        primaryToken.symbol
       } to ${formatAddress(sendTo)}`;
       if (profile) {
-        toastDescription = `Sent ${sendAmount} ${token.symbol} to ${profile.username}`;
+        toastDescription = `Sent ${sendAmount} ${primaryToken.symbol} to ${profile.username}`;
       }
 
       toast({
@@ -101,7 +103,7 @@ export default function SendModal({
       });
     } else {
       toast({
-        title: `Failed to send ${token.symbol}`,
+        title: `Failed to send ${primaryToken.symbol}`,
         duration: 5000,
         variant: "destructive",
         action: (
@@ -166,7 +168,8 @@ interface SendFormProps {
 }
 
 const SendForm = ({ config, className }: SendFormProps) => {
-  const { token } = config;
+  const communityConfig = new CommunityConfig(config);
+  const primaryToken = communityConfig.primaryToken;
 
   const [sendStore, actions] = useSend();
   const [profilesStore, profilesActions] = useProfiles(config);
@@ -192,7 +195,7 @@ const SendForm = ({ config, className }: SendFormProps) => {
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const amount = e.target.value;
-    actions.updateAmount(formatCurrency(amount, token.decimals > 0));
+    actions.updateAmount(formatCurrency(amount, primaryToken.decimals > 0));
   };
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -274,12 +277,12 @@ const SendForm = ({ config, className }: SendFormProps) => {
             onChange={handleAmountChange}
           />
           <Text size="6" weight="bold" className="font-bold">
-            {token.symbol}
+            {primaryToken.symbol}
           </Text>
         </Flex>
         <Flex justify="center" align="center" className="w-full">
           <Text>
-            Current Balance: {balance} {token.symbol}
+            Current Balance: {balance} {primaryToken.symbol}
           </Text>
         </Flex>
         <Flex

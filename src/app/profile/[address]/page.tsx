@@ -2,7 +2,11 @@ import Profile from "@/containers/profile";
 import Transaction404 from "@/containers/404/Transaction";
 import { readCommunityFile } from "@/services/config";
 import { getEmptyProfile, getMinterProfile } from "@/state/profiles/state";
-import { ProfileService, generateReceiveLink } from "@citizenwallet/sdk";
+import {
+  getProfileFromAddress,
+  generateReceiveLink,
+  CommunityConfig,
+} from "@citizenwallet/sdk";
 import { Suspense } from "react";
 import { ZeroAddress } from "ethers";
 
@@ -26,19 +30,23 @@ export default async function Page({ params: { address } }: PageProps) {
     throw new Error("Base URL not set");
   }
 
-  try {
-    const profiles = new ProfileService(config);
+  const communityConfig = new CommunityConfig(config);
 
+  try {
     let profile =
-      (await profiles.getProfile(address)) ?? getEmptyProfile(address);
+      (await getProfileFromAddress(
+        communityConfig.ipfs.url,
+        communityConfig,
+        address
+      )) ?? getEmptyProfile(address);
     if (ZeroAddress === address) {
       profile = getMinterProfile(address, config.community);
     }
 
     const receiveLink = generateReceiveLink(
       baseUrl,
-      profile.account,
-      config.community.alias
+      communityConfig,
+      profile.account
     );
 
     return (

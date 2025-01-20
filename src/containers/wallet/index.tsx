@@ -8,14 +8,15 @@ import TxRow from "@/components/wallet/TxRow";
 import { useHash } from "@/hooks/hash";
 import { useScrollableWindowFetcher } from "@/hooks/useScrollableWindow";
 import { useAccount } from "@/state/account/actions";
-import { selectOrderedTransfers } from "@/state/account/selectors";
+import { selectOrderedLogs } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
 import { useSend } from "@/state/send/actions";
 import { useVoucher } from "@/state/voucher/actions";
 import {
   Config,
+  CommunityConfig,
   QRFormat,
-  parseQRFormat,
+  parseQRFormat, 
   useSafeEffect,
   useFocusEffect,
 } from "@citizenwallet/sdk";
@@ -37,7 +38,8 @@ interface ContainerProps {
 }
 
 export default function Container({ config }: ContainerProps) {
-  const { community, token } = config;
+  const { community } = config;
+  const communityConfig = new CommunityConfig(config);
 
   const isScrolled = useIsScrolled();
 
@@ -116,7 +118,7 @@ export default function Container({ config }: ContainerProps) {
   const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
 
   const balance = state((state) => state.balance);
-  const transfers = state(selectOrderedTransfers);
+  const logs = state(selectOrderedLogs);
   const profile = profilesState((state) => state.profiles[account]);
   const profiles = profilesState((state) => state.profiles);
 
@@ -170,10 +172,10 @@ export default function Container({ config }: ContainerProps) {
       />
 
       <Flex direction="column" className="w-full pt-[420px]" gap="3">
-        {transfers.map((tx) => (
+        {logs.map((tx) => (
           <TxRow
             key={tx.hash}
-            token={token}
+            token={communityConfig.primaryToken}
             community={community}
             account={account}
             tx={tx}

@@ -2,8 +2,10 @@ import { useMemo } from "react";
 import { AccountState, useAccountStore } from "./state";
 import { StoreApi, UseBoundStore } from "zustand";
 import {
+  CommunityConfig,
   Config,
-  IndexerService,
+  LogsService,
+  ResponsePaginationMetadata as LogsPaginationMetadata,
   QRFormat,
   parseQRFormat,
 } from "@citizenwallet/sdk";
@@ -11,25 +13,26 @@ import { StorageService } from "@/services/storage";
 import { CWAccount } from "@/services/account";
 import { generateWalletHash } from "@/services/account/urlAccount";
 import { SigningKey, Wallet, formatUnits } from "ethers";
-import { IndexerResponsePaginationMetadata } from "@citizenwallet/sdk/dist/src/services/indexer";
 import { generateAccountHashPath } from "@/utils/hash";
 
 export class AccountLogic {
   state: AccountState;
   config: Config;
+  communityConfig: CommunityConfig;
 
   storage: StorageService;
 
-  indexer: IndexerService;
+  logsService: LogsService;
 
   account?: CWAccount;
   constructor(state: AccountState, config: Config) {
     this.state = state;
     this.config = config;
+    this.communityConfig = new CommunityConfig(config);
 
     this.storage = new StorageService(config.community.alias);
 
-    this.indexer = new IndexerService(config.indexer);
+    this.logsService = new LogsService(this.communityConfig);
   }
 
   async openAccount(
@@ -111,6 +114,8 @@ export class AccountLogic {
   }
 
   async fetchBalance() {
+    const primaryToken = this.communityConfig.primaryToken;
+
     try {
       if (!this.account) {
         throw new Error("Account not set");
@@ -118,8 +123,8 @@ export class AccountLogic {
 
       const balance = await this.account.getBalance();
 
-      let formattedBalance = formatUnits(balance, this.config.token.decimals);
-      if (this.config.token.decimals === 0) {
+      let formattedBalance = formatUnits(balance, primaryToken.decimals);
+      if (primaryToken.decimals === 0) {
         formattedBalance = parseInt(formattedBalance).toString();
       }
 
@@ -132,6 +137,8 @@ export class AccountLogic {
   private listenerFetchLimit = 10;
 
   listen(account: string) {
+    const primaryToken = this.communityConfig.primaryToken;
+
     try {
       if (this.listenerInterval) {
         clearInterval(this.listenerInterval);
@@ -144,18 +151,18 @@ export class AccountLogic {
           offset: 0,
         };
 
-        const { array: transfers = [] } = await this.indexer.getNewTransfers(
-          this.config.token.address,
+        const { array: logs = [] } = await this.logsService.getNewLogs(
+          primaryToken.address,
           account,
           params
         );
 
-        if (transfers.length > 0) {
+        if (logs.length > 0) {
           // new items, move the max date to the latest one
           this.listenMaxDate = new Date();
         }
 
-        if (transfers.length === 0) {
+        if (logs.length === 0) {
           // nothing new to add
           return;
         }
@@ -163,7 +170,7 @@ export class AccountLogic {
         this.fetchBalance();
 
         // new items, add them to the store
-        this.state.putTransfers(transfers);
+        this.state.putLogs(logs);
       }, 1000);
 
       return () => {
@@ -174,6 +181,7 @@ export class AccountLogic {
   }
 
   async fetchInitialTransfers(account: string) {
+    const primaryToken = this.communityConfig.primaryToken;
     try {
       const params = {
         maxDate: new Date("10/06/2024").toISOString(),
@@ -181,19 +189,19 @@ export class AccountLogic {
         offset: 0,
       };
 
-      const { array: transfers } = await this.indexer.getTransfers(
-        this.config.token.address,
+      const { array: logs } = await this.logsService.getLogs(
+        primaryToken.address,
         account,
         params
       );
 
-      this.state.putTransfers(transfers);
+      this.state.putLogs(logs);
     } catch (error) {}
   }
 
   private fetchMaxDate = new Date();
   private fetchLimit = 10;
-  private transfersPagination?: IndexerResponsePaginationMetadata;
+  private logsPagination?: LogsPaginationMetadata;
   private previousFetchLength = 0;
   private fetchedOffsets: number[] = [];
 
@@ -205,24 +213,25 @@ export class AccountLogic {
    * @returns A promise that resolves to a boolean indicating whether the transfers were successfully retrieved.
    */
   async getTransfers(account: string, reset = false): Promise<boolean> {
+    const primaryToken = this.communityConfig.primaryToken;
     try {
       if (reset) {
         this.fetchMaxDate = new Date();
-        this.transfersPagination = undefined;
+        this.logsPagination = undefined;
         this.previousFetchLength = 0;
         this.fetchedOffsets = [];
       }
 
       if (
-        this.transfersPagination &&
+        this.logsPagination &&
         this.previousFetchLength < this.fetchLimit
       ) {
         // nothing more to fetch
         return false;
       }
 
-      const nextOffset = this.transfersPagination
-        ? this.transfersPagination.offset + this.fetchLimit
+      const nextOffset = this.logsPagination
+        ? this.logsPagination.offset + this.fetchLimit
         : 0;
       if (this.fetchedOffsets.includes(nextOffset)) {
         return false;
@@ -235,21 +244,21 @@ export class AccountLogic {
         offset: nextOffset,
       };
 
-      const transfers = await this.indexer.getTransfers(
-        this.config.token.address,
+      const logs = await this.logsService.getLogs(
+        primaryToken.address,
         account,
         params
       );
 
-      this.transfersPagination = transfers.meta;
-      this.previousFetchLength = transfers.array.length;
+      this.logsPagination = logs.meta;
+      this.previousFetchLength = logs.array.length;
 
       if (reset) {
-        this.state.replaceTransfers(transfers.array);
+        this.state.replaceLogs(logs.array);
         return true;
       }
 
-      this.state.appendTransfers(transfers.array);
+      this.state.appendLogs(logs.array);
       return true;
     } catch (error) {}
 

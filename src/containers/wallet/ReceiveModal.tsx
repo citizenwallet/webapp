@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Box, Flex, Text } from "@radix-ui/themes";
 import {
-  ConfigCommunity,
+  CommunityConfig,
   ConfigToken,
   useSafeEffect,
 } from "@citizenwallet/sdk";
@@ -31,13 +31,13 @@ import { getAppName } from "@/utils/app";
 
 interface ReceiveModalProps {
   token: ConfigToken;
-  community: ConfigCommunity;
+  communityConfig: CommunityConfig;
   children: React.ReactNode;
 }
 
 export default function ReceiveModal({
   token,
-  community,
+  communityConfig,
   children,
 }: ReceiveModalProps) {
   const [open, setOpen] = useState(false);
@@ -71,7 +71,7 @@ export default function ReceiveModal({
   }, [actions]);
 
   const link = useReceiveStore(
-    generateSelectReceiveDeepLink(account, community.alias)
+    generateSelectReceiveDeepLink(account, communityConfig)
   );
   const amount = receiveStore((state) => state.amount);
   const description = receiveStore((state) => state.description);

@@ -12,7 +12,7 @@
     "test-watch": "jest --watch"
   },
   "dependencies": {
-    "@citizenwallet/sdk": "^1.2.37",
+    "@citizenwallet/sdk": "^2.0.63",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-label": "^2.0.2",

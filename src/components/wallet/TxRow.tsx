@@ -4,9 +4,9 @@ import {
   ConfigCommunity,
   ConfigToken,
   Profile,
-  Log,
-  useSafeEffect,
+  Log
 } from "@citizenwallet/sdk";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { AGO_THRESHOLD, ago } from "@/utils/ago";
 import { formatAddress } from "@/utils/formatting";
 import { ProfilesActions } from "@/state/profiles/actions";

@@ -14,8 +14,8 @@ import { Box, Flex, Text } from "@radix-ui/themes";
 import {
   CommunityConfig,
   ConfigToken,
-  useSafeEffect,
 } from "@citizenwallet/sdk";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { useRef, useState } from "react";
 import QRCode from "@/components/qr/QRCode";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

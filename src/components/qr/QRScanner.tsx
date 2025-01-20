@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from "react";
 import QrScanner from "qr-scanner";
-import { useSafeEffect } from "@citizenwallet/sdk";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
 
 interface QRScannerProps {
   onScan: (data: string) => void;

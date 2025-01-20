@@ -17,9 +17,9 @@ import {
   CommunityConfig,
   QRFormat,
   parseQRFormat, 
-  useSafeEffect,
-  useFocusEffect,
 } from "@citizenwallet/sdk";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
+import { useFocusEffect } from "@/hooks/useFocusEffect";
 import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
 import { useCallback } from "react";

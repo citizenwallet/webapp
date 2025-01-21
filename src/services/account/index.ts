@@ -65,8 +65,6 @@ export class CWAccount {
   ) {
     const [_, encoded] = hash.split("#/wallet/");
 
-    console.log(encoded);
-
     let account: string | undefined;
     let signer: Wallet | HDNodeWallet | undefined;
 
@@ -80,9 +78,6 @@ export class CWAccount {
         hash,
         walletPassword
       );
-
-      console.log("account", account);
-      console.log("signer", signer);
 
       if (!account || !signer) {
         throw new Error("Invalid wallet format");

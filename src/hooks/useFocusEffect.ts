@@ -35,7 +35,6 @@ export const useFocusEffect = (
 
     // Return a cleanup function that removes the event listener and calls the destructor.
     return () => {
-      console.log("useFocusEffect destructor"); // Log cleanup for debugging.
       // Remove the visibility change event listener.
       document.removeEventListener("visibilitychange", handleVisibilityChange);
 

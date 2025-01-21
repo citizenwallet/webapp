@@ -38,6 +38,12 @@ export default function TxRow({
   const from = tx.data?.from ?? "";
   const to = tx.data?.to ?? "";
 
+  let description = '';
+  if (tx.extra_data) {
+    const extraData = tx.extra_data as { [key: string]: string };
+    description = 'description' in extraData ? extraData.description : '';
+  }
+
   const self = from === account;
   const other = self ? to : from;
 
@@ -90,10 +96,10 @@ export default function TxRow({
             {profile?.name ?? "Anonymous"}
           </Text>
           <Text size="3">{profile?.username ?? formatAddress(other)}</Text>
-          {tx.data?.description && (
+          {description !== "" && (
             <Flex className="w-full h-6 overflow-hidden overflow-ellipsis">
               <Text size="3" className="text-muted-strong">
-                {tx.data?.description}
+                {description}
               </Text>
             </Flex>
           )}

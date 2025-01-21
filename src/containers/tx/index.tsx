@@ -55,6 +55,12 @@ export default function Container({
 
   const isSuccess = tx.status === "success";
 
+     let description = "";
+     if (tx.extra_data) {
+       const extraData = tx.extra_data as { [key: string]: string };
+       description = "description" in extraData ? extraData.description : "";
+     }
+
   return (
     <main className="flex min-h-screen w-full flex-col align-center p-4 max-w-xl gap-12">
       <Flex className="h-10">
@@ -115,10 +121,10 @@ export default function Container({
       </Flex>
 
       <Flex justify="center">
-        {tx.data && (
+        {description !== "" && (
           <Box className="relative p-4 border border-solid border-muted rounded-xl">
             <StickyNote size={18} className="absolute -top-1 -left-1" />
-            {tx.data.description}
+            {description}
           </Box>
         )}
       </Flex>

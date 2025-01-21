@@ -8,6 +8,7 @@ import {
   ResponsePaginationMetadata as LogsPaginationMetadata,
   QRFormat,
   parseQRFormat,
+  tokenTransferEventTopic
 } from "@citizenwallet/sdk";
 import { StorageService } from "@/services/storage";
 import { CWAccount } from "@/services/account";
@@ -145,15 +146,25 @@ export class AccountLogic {
       }
 
       this.listenerInterval = setInterval(async () => {
+
+          const data = {
+            from: account,
+          };
+          const orData = {
+            to: account,
+          };
+
         const params = {
           fromDate: this.listenMaxDate.toISOString(),
           limit: this.listenerFetchLimit,
           offset: 0,
+          data,
+          orData
         };
 
         const { array: logs = [] } = await this.logsService.getNewLogs(
           primaryToken.address,
-          account,
+          tokenTransferEventTopic,
           params
         );
 
@@ -238,15 +249,24 @@ export class AccountLogic {
       }
       this.fetchedOffsets.push(nextOffset);
 
+      const data = {
+        from: account,
+      };
+      const orData = {
+        to: account,
+      };
+
       const params = {
         maxDate: this.fetchMaxDate.toISOString(),
         limit: this.fetchLimit,
         offset: nextOffset,
+        data,
+        orData
       };
 
       const logs = await this.logsService.getLogs(
         primaryToken.address,
-        account,
+        tokenTransferEventTopic,
         params
       );
 

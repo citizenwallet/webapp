@@ -38,7 +38,6 @@ export default function TxRow({
   const from = tx.data?.from ?? "";
   const to = tx.data?.to ?? "";
 
-
   const self = from === account;
   const other = self ? to : from;
 
@@ -101,7 +100,7 @@ export default function TxRow({
         </Flex>
         <Flex direction="column" justify="end" align="end">
           <Text size="4" weight="bold" className="text-primary">
-            {self ? "-" : "+"} {formatUnits(`${tx.value}`, token.decimals)}
+            {self ? "-" : "+"} {formatUnits(`${tx.data?.value}`, token.decimals)}
           </Text>
           {status === "success" && <Text size="2">{formattedDate}</Text>}
           {status !== "success" && (

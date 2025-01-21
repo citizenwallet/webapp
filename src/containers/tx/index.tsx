@@ -102,7 +102,7 @@ export default function Container({
       <Flex direction="column" gap="2">
         <Flex justify="center" align="center" gap="4">
           <Text size="8" weight="bold">
-            {formatUnits(`${tx.value ?? 0}`, primaryToken.decimals)}
+            {formatUnits(`${tx.data?.value ?? 0}`, primaryToken.decimals)}
           </Text>
           <Text size="6" weight="bold">
             {primaryToken.symbol}

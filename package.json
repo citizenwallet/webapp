@@ -5,14 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "local": "next dev -H 0.0.0.0",
-    "build": "next build",
+    "build": "tsc --noEmit && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
     "test-watch": "jest --watch"
   },
   "dependencies": {
-    "@citizenwallet/sdk": "^2.0.63",
+    "@citizenwallet/sdk": "file:../js-sdk",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-label": "^2.0.2",
@@ -21,6 +21,9 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.2.1",
     "@radix-ui/themes": "^3.0.5",
+    "@reown/walletkit": "^1.1.2",
+    "@walletconnect/core": "^2.17.5",
+    "@walletconnect/utils": "^2.17.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "debounce": "^2.1.0",

@@ -112,7 +112,7 @@ export class CWAccount {
     const primaryToken = this.communityConfig.primaryToken;
 
     const hash = await this.bundler.sendERC20Token(
-      this.signer,
+      this.signer as any, 
       primaryToken.address,
       this.account,
       to,

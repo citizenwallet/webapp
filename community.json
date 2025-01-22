@@ -1,89 +1,72 @@
 {
-    "community": {
-      "name": "Gratitude Token",
-      "description": "Express your gratitude towards someone by sending them a token of gratitude.",
-      "url": "https://citizenwallet.xyz/gratitude",
-      "alias": "gratitude",
-      "custom_domain": "gratitude.citizenwallet.xyz",
-      "logo": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
-      "theme": {
-        "primary": "#4EC19D"
-      },
-      "profile": {
-        "address": "0xEEc0F3257369c6bCD2Fd8755CbEf8A95b12Bc4c9",
-        "chain_id": 42220
-      },
-      "primary_token": {
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "chain_id": 42220
-      },
-      "primary_account_factory": {
-        "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
-        "chain_id": 42220
-      },
-      "primary_card_manager": {
-        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "chain_id": 42220
+  "community": {
+    "name": "Breadchain Community Token",
+    "description": "BREAD is a digital community token and solidarity primitive developed by Breadchain Cooperative that generates yield for post-capitalist organizations",
+    "url": "https://breadchain.xyz/",
+    "alias": "bread",
+    "logo": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+    "profile": {
+      "address": "0x6b3a1f4277391526413F583c23D5B9EF4d2fE986",
+      "chain_id": 100
+    },
+    "primary_token": {
+      "address": "0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3",
+      "chain_id": 100
+    },
+    "primary_account_factory": {
+      "address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+      "chain_id": 100
+    }
+  },
+  "tokens": {
+    "100:0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3": {
+      "standard": "erc20",
+      "name": "Breadchain Community Token",
+      "address": "0xa555d5344f6fb6c65da19e403cb4c1ec4a1a5ee3",
+      "symbol": "BREAD",
+      "decimals": 18,
+      "chain_id": 100
+    }
+  },
+  "scan": {
+    "url": "https://gnosisscan.io",
+    "name": "Gnosis Explorer"
+  },
+  "accounts": {
+    "100:0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9": {
+      "chain_id": 100,
+      "entrypoint_address": "0xcA0a75EF803a364C83c5EAE7Eb889aE7419c9dF2",
+      "paymaster_address": "0xbE2Cb3358aa14621134e923B68b8429315368E32",
+      "account_factory_address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+      "paymaster_type": "cw"
+    }
+  },
+  "chains": {
+    "100": {
+      "id": 100,
+      "node": {
+        "url": "https://100.engine.citizenwallet.xyz",
+        "ws_url": "wss://100.engine.citizenwallet.xyz"
       }
+    }
+  },
+  "ipfs": {
+    "url": "https://ipfs.internal.citizenwallet.xyz"
+  },
+  "plugins": [
+    {
+      "name": "Top Up",
+      "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+      "url": "https://topup.citizenspring.earth/bread",
+      "action": "topup"
     },
-    "tokens": {
-      "42220:0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1": {
-        "standard": "erc20",
-        "name": "Gratitude Token",
-        "address": "0x5815E61eF72c9E6107b5c5A05FD121F334f7a7f1",
-        "symbol": "GT",
-        "decimals": 0,
-        "chain_id": 42220
-      }
-    },
-    "scan": {
-      "url": "https://celoscan.io",
-      "name": "Celo Explorer"
-    },
-    "accounts": {
-      "42220:0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x985ec7d08D9d15Ea79876E35FAdEFD58A627187E",
-        "paymaster_address": "0x8dd43eE72f6A816b8eB0411B712D96cDd95246d8",
-        "account_factory_address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
-        "paymaster_type": "cw"
-      },
-      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
-        "chain_id": 42220,
-        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
-        "paymaster_address": "0x8fc2e97671C691e7Ff7B42e5c7cCbDD38fC8B729",
-        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
-        "paymaster_type": "cw-safe"
-      }
-    },
-    "cards": {
-      "42220:0x1EaF6B6A6967608aF6c77224f087b042095891EB": {
-        "chain_id": 42220,
-        "address": "0x1EaF6B6A6967608aF6c77224f087b042095891EB",
-        "type": "classic"
-      }
-    },
-    "chains": {
-      "42220": {
-        "id": 42220,
-        "node": {
-          "url": "https://42220.engine.citizenwallet.xyz",
-          "ws_url": "wss://42220.engine.citizenwallet.xyz"
-        }
-      }
-    },
-    "ipfs": {
-      "url": "https://ipfs.internal.citizenwallet.xyz"
-    },
-    "plugins": [
-      {
-        "name": "Top Up",
-        "icon": "https://gratitude.citizenwallet.xyz/wallet-config/_images/gt.svg",
-        "url": "https://topup.citizenwallet.xyz/gratitude",
-        "launch_mode": "webview",
-        "action": "topup"
-      }
-    ],
-    "config_location": "https://gratitude.citizenwallet.xyz/config/community.json",
-    "version": 4
-  }
+    {
+      "name": "Market",
+      "icon": "https://bread.citizenwallet.xyz/uploads/logo.svg",
+      "url": "https://marketplace.citizenwallet.xyz/bread",
+      "launch_mode": "webview"
+    }
+  ],
+  "config_location": "https://config.internal.citizenwallet.xyz/v4/bread.citizenwallet.xyz.json",
+  "version": 4
+}

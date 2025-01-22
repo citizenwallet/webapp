@@ -63,6 +63,10 @@ export default function Container({ config }: ContainerProps) {
             profilesActions.loadProfile(voucher.creator);
           }
           return;
+        case QRFormat.walletConnectAuthentication:
+          // handle wallet connect authentication
+          console.log("wallet connect authentication");
+          return;
         default:
           // something we can try to receive from
           sendActions.setModalOpen(true);

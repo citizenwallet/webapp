@@ -1,5 +1,4 @@
 import Wallet from "@/containers/wallet";
-import WalletKitService from "@/services/walletkit";
 import { readCommunityFile } from "@/services/config";
 import { Suspense } from "react";
 

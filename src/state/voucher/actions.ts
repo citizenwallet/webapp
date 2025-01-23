@@ -49,7 +49,7 @@ export class VoucherActions {
 
       this.state.voucherLoaded(voucher);
 
-      this.signer = signer.connect(this.rpc as any) as any;
+      this.signer = signer.connect(this.rpc);
 
       return voucher;
     } catch (e) {
@@ -83,7 +83,7 @@ export class VoucherActions {
       const primaryToken = this.communityConfig.primaryToken;
 
       this.bundler.sendERC20Token(
-        this.signer as any,
+        this.signer,
         primaryToken.address,
         voucher.account,
         to,

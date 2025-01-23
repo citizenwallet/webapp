@@ -7,6 +7,8 @@ import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
+import WalletKitProvider from "@/provider/wallet_kit";
+import { readCommunityFile } from "@/services/config";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -23,6 +25,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const config = readCommunityFile();
+
   return (
     <html lang="en">
       <body
@@ -32,8 +36,10 @@ export default function RootLayout({
         )}
       >
         <Theme>
-          <div className="flex flex-col items-center">{children}</div>
-          <Toaster />
+          <WalletKitProvider config={config}>
+            <div className="flex flex-col items-center">{children}</div>
+            <Toaster />
+          </WalletKitProvider>
         </Theme>
       </body>
     </html>

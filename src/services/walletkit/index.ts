@@ -2,26 +2,23 @@ import { Core } from "@walletconnect/core";
 import { WalletKit, IWalletKit } from "@reown/walletkit";
 import { CommunityConfig, Config } from "@citizenwallet/sdk";
 import { buildApprovedNamespaces } from "@walletconnect/utils";
+import { ProposalTypes, SessionTypes, CoreTypes } from "@walletconnect/types";
+
+export const SUPPORTED_METHODS = ["eth_sendTransaction", "personal_sign"];
+export const SUPPORTED_EVENTS = ["accountsChanged", "chainChanged"];
 
 class WalletKitService {
+  private static instance: WalletKitService | null = null;
+  private static walletKit: IWalletKit | null = null;
+  private static config: Config;
+  private static communityConfig: CommunityConfig;
 
-  walletKit: IWalletKit | null = null;
-  config: Config;
-  communityConfig: CommunityConfig;
-  account: string;
+  static async createInstance(config: Config): Promise<void> {
+    if (WalletKitService.instance) return;
 
-   constructor(config: Config, account: string) {
-    this.config = config;
-    this.communityConfig = new CommunityConfig(config);
-    this.account = account;
-    this.init(config);
-  }
+    WalletKitService.config = config;
+    WalletKitService.communityConfig = new CommunityConfig(config);
 
- 
-
-
-
-  async init(config: Config) {
     try {
       if (!process.env.NEXT_PUBLIC_REOWN_PROJECT_ID) {
         throw new Error("NEXT_PUBLIC_REOWN_PROJECT_ID is not set");
@@ -33,7 +30,7 @@ class WalletKitService {
 
       const { community: walletCommunity } = config;
 
-      const walletMetadata = {
+      const walletMetadata: CoreTypes.Metadata = {
         name: walletCommunity.name,
         description: walletCommunity.description,
         url: walletCommunity.url,
@@ -46,27 +43,40 @@ class WalletKitService {
         },
       };
 
-      this.walletKit = await WalletKit.init({
+      WalletKitService.walletKit = await WalletKit.init({
         core,
         metadata: walletMetadata,
       });
+
+      console.log("wallet kit", WalletKitService.walletKit?.name);
     } catch (e) {
-      console.error("Error initializing WalletKit", e);
+      console.error("Error creating WalletKitService instance", e);
     }
   }
 
-  buildNamespace(accountAddress: string) {
+  static getWalletKit(): IWalletKit | null {
+    return WalletKitService.walletKit;
+  }
+
+  static buildNamespaces(
+    proposal: ProposalTypes.Struct,
+    account: string
+  ): SessionTypes.Namespaces {
+    const chainId = WalletKitService.communityConfig.primaryToken.chain_id;
+
     const approvedNamespaces = buildApprovedNamespaces({
-      proposal: data.proposal?.params as ProposalTypes.Struct,
+      proposal: proposal,
       supportedNamespaces: {
         eip155: {
-          chains: SUPPORTED_CHAINS,
+          chains: [`eip155:${chainId}`],
           methods: SUPPORTED_METHODS,
           events: SUPPORTED_EVENTS,
-          accounts: [`eip155:11155111:${accountAddress}`],
+          accounts: [`eip155:${chainId}:${account}`],
         },
       },
     });
+
+    return approvedNamespaces;
   }
 }
 

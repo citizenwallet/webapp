@@ -16,7 +16,7 @@ import {
   Config,
   CommunityConfig,
   QRFormat,
-  parseQRFormat, 
+  parseQRFormat,
 } from "@citizenwallet/sdk";
 import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { useFocusEffect } from "@/hooks/useFocusEffect";
@@ -32,6 +32,8 @@ import BackupModal from "./BackupModal";
 import { getWindow } from "@/utils/window";
 import { getAvatarUrl } from "@/lib/utils";
 import { useThemeUpdater } from "@/hooks/theme";
+import WalletKitService from "@/services/walletkit";
+import WalletConnect from "@/containers/wallet_connect";
 
 interface ContainerProps {
   config: Config;
@@ -42,13 +44,30 @@ export default function Container({ config }: ContainerProps) {
   const communityConfig = new CommunityConfig(config);
 
   const isScrolled = useIsScrolled();
-
+  
   const [state, actions] = useAccount(config);
   const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
   const [voucherState, voucherActions] = useVoucher(config);
-
+  const walletKit = WalletKitService.getWalletKit();
   const hash = useHash();
+
+  const handleWalletConnect = useCallback(
+    async (uri: string) => {
+      if (!walletKit) {
+        console.warn("wallet kit not found");
+        return;
+      }
+      try {
+        await walletKit.pair({ uri: uri });
+      } catch (error) {
+        console.error("wallet connect pairing error", error);
+      }
+    },
+    [walletKit]
+  );
+
+  console.log('wallet kit', walletKit?.name)
 
   const handleScan = useCallback(
     async (data: string) => {
@@ -63,9 +82,8 @@ export default function Container({ config }: ContainerProps) {
             profilesActions.loadProfile(voucher.creator);
           }
           return;
-        case QRFormat.walletConnectAuthentication:
-          // handle wallet connect authentication
-          console.log("wallet connect authentication");
+        case QRFormat.walletConnectPairing:
+          await handleWalletConnect(data);
           return;
         default:
           // something we can try to receive from
@@ -78,7 +96,7 @@ export default function Container({ config }: ContainerProps) {
           return;
       }
     },
-    [sendActions, voucherActions, profilesActions]
+    [sendActions, voucherActions, profilesActions, handleWalletConnect ]
   );
 
   useThemeUpdater(community);
@@ -192,6 +210,7 @@ export default function Container({ config }: ContainerProps) {
       <VoucherModal config={config} actions={voucherActions} />
 
       <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
+      <WalletConnect account={account} />
     </main>
   );
 }

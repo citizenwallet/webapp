@@ -141,7 +141,7 @@ export default function Container({ config }: ContainerProps) {
     if (account) {
       profilesActions.loadProfile(account);
       actions.fetchBalance();
-      // unsubscribe = actions.listen(account); // TODO: uncomment this
+      unsubscribe = actions.listen(account);
     }
 
     return () => {
@@ -227,7 +227,7 @@ export default function Container({ config }: ContainerProps) {
       <VoucherModal config={config} actions={voucherActions} />
 
       <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
-      <WalletConnect account={account} />
+      <WalletConnect account={account} wallet={actions.account} />
     </main>
   );
 }

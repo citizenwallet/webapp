@@ -4,7 +4,6 @@ import * as React from "react";
 import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { WalletKitTypes } from "@reown/walletkit";
 import { ProposalTypes } from "@walletconnect/types";
-import WalletKitService from "@/services/walletkit";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +15,9 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { ExternalLinkIcon } from "lucide-react";
 import { getSdkError } from "@walletconnect/utils";
+import WalletKitService from "@/services/walletkit";
 import { useWalletKit } from "@/state/wallet_kit/actions";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SessionProposalModal {
   open: boolean;
@@ -95,6 +96,8 @@ function SessionProposalModal({
   const { params } = modal;
   const walletKit = WalletKitService.getWalletKit();
   const [_, actions] = useWalletKit();
+  const { toast } = useToast();
+  const [isConnecting, setIsConnecting] = React.useState(false);
 
   if (!params || !walletKit) return null;
 
@@ -110,6 +113,7 @@ function SessionProposalModal({
   const onApproveSession = async () => {
     const namespaces = WalletKitService.buildNamespaces(params, account);
 
+    setIsConnecting(true);
     try {
       await walletKit.approveSession({
         id: params.id,
@@ -117,13 +121,22 @@ function SessionProposalModal({
       });
 
       const sessions = walletKit.getActiveSessions();
-
-      console.log("active sessions", Object.keys(sessions));
-
       actions.setActiveSessions(sessions);
+
+      toast({
+        title: "Connected successfully",
+        description: "Your wallet is now connected",
+        variant: "success",
+      });
     } catch (error) {
       console.error("Error approving session", error);
+      toast({
+        title: "Connection failed",
+        description: "Unable to connect to wallet",
+        variant: "destructive",
+      });
     } finally {
+      setIsConnecting(false);
       setModal({
         open: false,
         params: null,
@@ -136,6 +149,11 @@ function SessionProposalModal({
       await walletKit.rejectSession({
         id: params.id,
         reason: getSdkError("USER_REJECTED"),
+      });
+      toast({
+        title: "Connection rejected",
+        description: "You have rejected the connection request",
+        variant: "default",
       });
     } catch (error) {
       console.error("Error rejecting session", error);
@@ -152,10 +170,10 @@ function SessionProposalModal({
       open={modal.open}
       onOpenChange={() => setModal({ open: false, params: null })}
     >
-      <DialogHeader>
-        <DialogTitle>Connect to {name}</DialogTitle>
-      </DialogHeader>
-      <DialogContent className="p-0 border-0 sm:max-w-md w-full">
+      <DialogContent className="p-5 border-0 sm:max-w-md w-full">
+        <DialogHeader>
+          <DialogTitle>Connect to {name}</DialogTitle>
+        </DialogHeader>
         <Card className="border-0 shadow-none">
           <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
             <div className="flex flex-col items-center text-center space-y-1">
@@ -182,14 +200,23 @@ function SessionProposalModal({
                 variant="secondary"
                 className="w-full rounded-xl"
                 onClick={onRejectSession}
+                disabled={isConnecting}
               >
                 Cancel
               </Button>
               <Button
                 className="w-full bg-blue-500 hover:bg-blue-600 rounded-xl"
                 onClick={onApproveSession}
+                disabled={isConnecting}
               >
-                Confirm
+                {isConnecting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Connecting...
+                  </div>
+                ) : (
+                  "Confirm"
+                )}
               </Button>
             </div>
           </CardContent>

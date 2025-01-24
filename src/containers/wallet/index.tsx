@@ -34,6 +34,7 @@ import { getAvatarUrl } from "@/lib/utils";
 import { useThemeUpdater } from "@/hooks/theme";
 import WalletKitService from "@/services/walletkit";
 import WalletConnect from "@/containers/wallet_connect";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ContainerProps {
   config: Config;
@@ -44,7 +45,7 @@ export default function Container({ config }: ContainerProps) {
   const communityConfig = new CommunityConfig(config);
 
   const isScrolled = useIsScrolled();
-  
+
   const [state, actions] = useAccount(config);
   const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
@@ -52,22 +53,38 @@ export default function Container({ config }: ContainerProps) {
   const walletKit = WalletKitService.getWalletKit();
   const hash = useHash();
 
+  const { toast } = useToast();
+
   const handleWalletConnect = useCallback(
     async (uri: string) => {
       if (!walletKit) {
-        console.warn("wallet kit not found");
+        console.warn("WalletKit service not initialized");
+        toast({
+          title: "Connection unavailable",
+          description: "Wallet service is not ready",
+          variant: "warning",
+        });
         return;
       }
+
       try {
-        await walletKit.pair({ uri: uri });
+        await walletKit.pair({ uri });
+        toast({
+          title: "Connected successfully",
+          description: "Your wallet is now connected",
+          variant: "success",
+        });
       } catch (error) {
-        console.error("wallet connect pairing error", error);
+        console.error("WalletConnect pairing failed:", error);
+        toast({
+          title: "Connection failed",
+          description: "Unable to connect to wallet",
+          variant: "destructive",
+        });
       }
     },
-    [walletKit]
+    [walletKit, toast]
   );
-
-  console.log('wallet kit', walletKit?.name)
 
   const handleScan = useCallback(
     async (data: string) => {
@@ -96,7 +113,7 @@ export default function Container({ config }: ContainerProps) {
           return;
       }
     },
-    [sendActions, voucherActions, profilesActions, handleWalletConnect ]
+    [sendActions, voucherActions, profilesActions, handleWalletConnect]
   );
 
   useThemeUpdater(community);
@@ -124,7 +141,7 @@ export default function Container({ config }: ContainerProps) {
     if (account) {
       profilesActions.loadProfile(account);
       actions.fetchBalance();
-      unsubscribe = actions.listen(account);
+      // unsubscribe = actions.listen(account); // TODO: uncomment this
     }
 
     return () => {

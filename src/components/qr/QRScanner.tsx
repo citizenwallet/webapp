@@ -15,10 +15,12 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ isActive, onScan }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const onScanSuccess: QrcodeSuccessCallback = (decodedText, result) => {
-    stopScanner();
-    onScan(decodedText.trim());
+  const onScanSuccess: QrcodeSuccessCallback = async (decodedText, result) => {
+    await stopScanner().then(() => {
+      onScan(decodedText);
+    });
   };
 
   const onScanFailure: QrcodeErrorCallback = (errorMessage, error) => {
@@ -27,15 +29,18 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ isActive, onScan }) => {
   };
 
   const stopScanner = useCallback(async () => {
-    if (!isScanning || !scannerRef.current) return;
+    if (!isScanning || !scannerRef.current || isTransitioning) return;
 
     try {
+      setIsTransitioning(true);
       await scannerRef.current.stop();
       setIsScanning(false);
     } catch (err) {
       console.error("Failed to stop scanner:", err);
+    } finally {
+      setIsTransitioning(false);
     }
-  }, [isScanning]);
+  }, [isScanning, isTransitioning]);
 
   useSafeEffect(() => {
     if (!containerRef.current) return;
@@ -72,7 +77,7 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ isActive, onScan }) => {
 
     // Cleanup
     return () => {
-      if (isScanning && scannerRef.current) {
+      if (isScanning && scannerRef.current && !isTransitioning) {
         scannerRef.current
           .stop()
           .then(() => {
@@ -81,10 +86,13 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ isActive, onScan }) => {
               scannerRef.current = null;
             }
           })
-          .catch((err) => console.error("Cleanup error:", err));
+          .catch((err) => console.error("Cleanup error:", err))
+          .finally(() => {
+            setIsTransitioning(false);
+          });
       }
     };
-  }, [isActive, isScanning, stopScanner]);
+  }, [isActive, isScanning, stopScanner, isTransitioning]);
 
   return (
     <div className="h-full w-full">

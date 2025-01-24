@@ -29,6 +29,7 @@
     "debounce": "^2.1.0",
     "ethers": "^6.13.0",
     "fflate": "^0.8.2",
+    "html5-qrcode": "^2.3.8",
     "javascript-time-ago": "^2.5.10",
     "lucide-react": "^0.395.0",
     "next": "14.2.4",

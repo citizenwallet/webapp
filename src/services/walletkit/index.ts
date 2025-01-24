@@ -47,8 +47,6 @@ class WalletKitService {
         core,
         metadata: walletMetadata,
       });
-
-      console.log("wallet kit", WalletKitService.walletKit?.name);
     } catch (e) {
       console.error("Error creating WalletKitService instance", e);
     }

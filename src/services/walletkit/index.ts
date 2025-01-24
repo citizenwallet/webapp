@@ -1,8 +1,16 @@
 import { Core } from "@walletconnect/core";
 import { WalletKit, IWalletKit } from "@reown/walletkit";
 import { CommunityConfig, Config } from "@citizenwallet/sdk";
-import { buildApprovedNamespaces } from "@walletconnect/utils";
-import { ProposalTypes, SessionTypes, CoreTypes } from "@walletconnect/types";
+import {
+  buildApprovedNamespaces,
+  populateAuthPayload as WC_populateAuthPayload,
+} from "@walletconnect/utils";
+import {
+  ProposalTypes,
+  SessionTypes,
+  CoreTypes,
+  AuthTypes,
+} from "@walletconnect/types";
 
 export const SUPPORTED_METHODS = ["eth_sendTransaction", "personal_sign"];
 export const SUPPORTED_EVENTS = ["accountsChanged", "chainChanged"];
@@ -75,6 +83,30 @@ class WalletKitService {
     });
 
     return approvedNamespaces;
+  }
+
+  static populateAuthPayload(
+    payloadParams: AuthTypes.PayloadParams,
+    account: string
+  ) {
+    if (!WalletKitService.walletKit) return;
+    const chainId = WalletKitService.communityConfig.primaryToken.chain_id;
+    const supportedChains = [`eip155:${chainId}`];
+
+    const authPayload = WC_populateAuthPayload({
+      authPayload: payloadParams,
+      chains: supportedChains,
+      methods: SUPPORTED_METHODS,
+    });
+
+    const iss = `eip155:${chainId}:${account}`;
+
+    const message = WalletKitService.walletKit.formatAuthMessage({
+      request: authPayload,
+      iss,
+    });
+
+    return message;
   }
 }
 

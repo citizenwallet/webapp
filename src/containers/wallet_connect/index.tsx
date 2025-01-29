@@ -7,19 +7,29 @@ import { ProposalTypes } from "@walletconnect/types";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { ExternalLinkIcon } from "lucide-react";
+import {
+  ExternalLinkIcon,
+  ShieldAlert,
+  ShieldCheck,
+  ShieldQuestion,
+} from "lucide-react";
 import { getSdkError } from "@walletconnect/utils";
 import WalletKitService from "@/services/walletkit";
 import { useWalletKit } from "@/state/wallet_kit/actions";
 import { useToast } from "@/components/ui/use-toast";
 import { CWAccount } from "@/services/account";
 import { toUtf8String } from "ethers";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SessionProposalModal {
   open: boolean;
@@ -258,7 +268,7 @@ function SessionProposalModal({
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-blue-500 hover:text-blue-700 transition-colors cursor-pointer bg-blue-100 hover:bg-gray-200 px-3 py-1 rounded-full"
+                className="flex items-center gap-1 text-blue-500 hover:text-blue-700 transition-colors cursor-pointer bg-blue-100 hover:bg-gray-200 px-3 py-1 rounded-md"
               >
                 <p>{url}</p>
                 <ExternalLinkIcon size={16} />
@@ -316,9 +326,16 @@ function PersonalSignModal({
   if (!event || !walletKit) return null;
 
   const messageHex = event.params.request.params[0];
+  const message = toUtf8String(messageHex);
+
+  const account = event.params.request.params[1]; // an hex address
+
   const id = event.id;
   const topic = event.topic;
-  const message = toUtf8String(messageHex);
+
+  const isScam = event.verifyContext.verified.isScam ?? true;
+  const url = event.verifyContext.verified.origin;
+  const validation = event.verifyContext.verified.validation;
 
   const onApproveSign = async () => {
     setIsSigning(true);
@@ -366,47 +383,123 @@ function PersonalSignModal({
     }
   };
 
+  const getStatusConfig = (status: { isScam: boolean; validation: string }) => {
+    if (status.isScam) {
+      return {
+        icon: ShieldAlert,
+        title: "Security Threat Detected",
+        description:
+          "This domain has been flagged as malicious and potentially harmful.",
+        variant: "destructive" as const,
+        badge: "THREAT",
+      };
+    }
+
+    switch (status.validation) {
+      case "VALID":
+        return {
+          icon: ShieldCheck,
+          title: "Domain Verified",
+          description:
+            "The domain has been verified as this application's domain.",
+          variant: "success" as const,
+          badge: "VALID",
+        };
+      case "INVALID":
+        return {
+          icon: ShieldAlert,
+          title: "Domain Mismatch",
+          description:
+            "The application's domain doesn't match the sender of this request.",
+          variant: "destructive" as const,
+          badge: "INVALID",
+        };
+      case "UNKNOWN":
+      default:
+        return {
+          icon: ShieldQuestion,
+          title: "Domain Unverified",
+          description: "The domain sending the request cannot be verified.",
+          variant: "warning" as const,
+          badge: "UNKNOWN",
+        };
+    }
+  };
+
+  const config = getStatusConfig({ isScam, validation });
+
   return (
     <Dialog
       open={modal.open}
       onOpenChange={() => setModal({ open: false, event: null })}
     >
-      <DialogContent className="p-5 border-0 sm:max-w-md w-full">
-        <DialogHeader>
-          <DialogTitle>Personal sign request</DialogTitle>
+      <DialogContent className="h-[70vh] sm:h-auto sm:min-h-[300px] max-h-[80vh] flex flex-col p-0 border-0 sm:max-w-md w-full">
+        <DialogHeader className="bg-background px-4 sm:px-6 py-4 border-b">
+          <DialogTitle className="text-lg sm:text-xl">
+            Personal sign request
+          </DialogTitle>
         </DialogHeader>
-        <Card className="border-0 shadow-none">
-          <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-            <div className="flex flex-col items-center text-center space-y-1">
-              <p className="text-gray-500">{message}</p>
+
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-center text-sm font-medium text-muted-foreground">
+                Origin
+              </span>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-blue-500 hover:text-blue-700 transition-colors bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md text-sm"
+              >
+                <span>{url}</span>
+                <ExternalLinkIcon size={14} />
+              </a>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="secondary"
-                className="w-full rounded-xl"
-                onClick={onRejectSign}
-                disabled={isSigning}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="w-full bg-blue-500 hover:bg-blue-600 rounded-xl"
-                onClick={onApproveSign}
-                disabled={isSigning}
-              >
-                {isSigning ? (
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    Signing...
-                  </div>
-                ) : (
-                  "Sign"
-                )}
-              </Button>
+            <Alert variant={config.variant}>
+              <config.icon className="h-4 w-4" />
+              <AlertTitle>{config.title}</AlertTitle>
+              <AlertDescription>{config.description}</AlertDescription>
+            </Alert>
+
+            <div className="grid gap-1.5">
+              <Label htmlFor="message">Message</Label>
+              <Textarea
+                className="shadow-none bg-gray-50"
+                value={message}
+                readOnly
+                id="message"
+              />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+        <DialogFooter className="bg-background px-4 sm:px-6 py-4 border-t">
+          <div className="grid grid-cols-2 gap-3 w-full">
+            <Button
+              variant="secondary"
+              className="w-full rounded-xl text-sm"
+              onClick={onRejectSign}
+              disabled={isSigning}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="w-full bg-blue-500 hover:bg-blue-600 rounded-xl text-sm"
+              onClick={onApproveSign}
+              disabled={isSigning}
+            >
+              {isSigning ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <span>Signing...</span>
+                </div>
+              ) : (
+                "Sign"
+              )}
+            </Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

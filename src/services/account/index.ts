@@ -123,6 +123,17 @@ export class CWAccount {
     return hash;
   }
 
+  async call(to: string, data: string) {
+
+    const hash = await this.bundler.call(
+      this.signer,
+      to,
+      this.account,
+      data
+    );
+
+    return hash;
+  }
   async waitForTransactionSuccess(txHash: string) {
     const receipt = await this.provider.waitForTransaction(txHash);
     if (receipt && receipt.status === 1) {

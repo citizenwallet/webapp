@@ -43,11 +43,27 @@ export const SUPPORTED_EVENTS = [
   "connect",
 ];
 
+export interface ContractData {
+  SourceCode: string;
+  ABI: string;
+  ContractName: string;
+  CompilerVersion: string;
+  OptimizationUsed: string;
+  Runs: string;
+  ConstructorArguments: string;
+  EVMVersion: string;
+  Library: string;
+  LicenseType: string;
+  Proxy: string;
+  Implementation: string;
+  SwarmSource: string;
+}
+
 class WalletKitService {
   private static instance: WalletKitService | null = null;
   private static walletKit: IWalletKit | null = null;
   private static config: Config;
-  private static communityConfig: CommunityConfig;
+  static communityConfig: CommunityConfig;
 
   static async createInstance(config: Config): Promise<void> {
     if (WalletKitService.instance) return;
@@ -135,6 +151,46 @@ class WalletKitService {
     });
 
     return message;
+  }
+
+  static async getContractDetails(
+    address: string
+  ): Promise<null | ContractData> {
+
+    const explorerApi = "https://api.gnosisscan.io/api"; // TODO: add to community.json file
+
+    const response = await fetch(
+      `${explorerApi}?module=contract&action=getsourcecode&address=${address}&apikey=${process.env.NEXT_PUBLIC_GNOSIS_SCAN_API_KEY}`
+    );
+    const data = await response.json();
+
+    if (
+      data.status !== "1" ||
+      data.message !== "OK" ||
+      data.result.length === 0 ||
+      !data.result[0].ContractName
+    ) {
+      console.error("Failed to fetch contract details:", data.message);
+      return null;
+    }
+
+    const result = data.result[0];
+
+    return {
+      SourceCode: result.SourceCode,
+      ABI: result.ABI,
+      ContractName: result.ContractName,
+      CompilerVersion: result.CompilerVersion,
+      OptimizationUsed: result.OptimizationUsed,
+      Runs: result.Runs,
+      ConstructorArguments: result.ConstructorArguments,
+      EVMVersion: result.EVMVersion,
+      Library: result.Library,
+      LicenseType: result.LicenseType,
+      Proxy: result.Proxy,
+      Implementation: result.Implementation,
+      SwarmSource: result.SwarmSource,
+    };
   }
 }
 

@@ -21,7 +21,7 @@ import {
   ShieldQuestion,
 } from "lucide-react";
 import { getSdkError } from "@walletconnect/utils";
-import WalletKitService from "@/services/walletkit";
+import WalletKitService, { ContractData } from "@/services/walletkit";
 import { useWalletKit } from "@/state/wallet_kit/actions";
 import { useToast } from "@/components/ui/use-toast";
 import { CWAccount } from "@/services/account";
@@ -502,6 +502,11 @@ interface EncodedTransaction {
   gas: string;
 }
 
+interface ContractState {
+  data: ContractData | null;
+  isLoading: boolean;
+}
+
 function TransactionSignModal({
   modal,
   setModal,
@@ -509,21 +514,61 @@ function TransactionSignModal({
 }: TransactionSignModalProps) {
   const { event } = modal;
   const walletKit = WalletKitService.getWalletKit();
-  const [isSigning, setIsSigning] = React.useState(false);
   const { toast } = useToast();
+
+  const [isSigning, setIsSigning] = React.useState(false);
+  const [contractState, setContractState] = React.useState<ContractState>({
+    data: null,
+    isLoading: true,
+  });
+
+  const fetchContractDetails = React.useCallback(
+    async (address: string, data: string) => {
+      try {
+        const contract = await WalletKitService.getContractDetails(address);
+
+        setContractState({
+          data: contract,
+          isLoading: false,
+        });
+      } catch (error) {
+        console.error("Error fetching contract details:", error);
+        setContractState({
+          data: null,
+          isLoading: false,
+        });
+      }
+    },
+    []
+  );
+
+  useSafeEffect(() => {
+    if (
+      !event?.params?.request?.params[0]?.to ||
+      !event.params.request.params[0].data
+    )
+      return;
+    setContractState((state) => ({ ...state, isLoading: true }));
+
+    fetchContractDetails(
+      event.params.request.params[0].to,
+      event.params.request.params[0].data
+    );
+  }, [event?.params?.request?.params, fetchContractDetails]);
 
   if (!event || !walletKit) return null;
 
   const encodedTransaction = event.params.request
     .params[0] as EncodedTransaction;
-  const functionSignature = encodedTransaction.data.slice(0, 10);
-
-  const id = event.id;
-  const topic = event.topic;
-
-  const isScam = event.verifyContext.verified.isScam ?? false;
-  const url = event.verifyContext.verified.origin;
-  const validation = event.verifyContext.verified.validation;
+  const functionSelector = encodedTransaction.data.slice(0, 10);
+  const exploreContractUrl = `${WalletKitService.communityConfig.scan.url}/address/${encodedTransaction.to}`;
+  const { id, topic } = event;
+  const {
+    isScam = false,
+    origin: url,
+    validation,
+  } = event.verifyContext.verified;
+  const config = getStatusConfig({ isScam, validation });
 
   const onApproveSign = async () => {
     setIsSigning(true);
@@ -575,8 +620,6 @@ function TransactionSignModal({
     }
   };
 
-  const config = getStatusConfig({ isScam, validation });
-
   return (
     <Dialog
       open={modal.open}
@@ -612,31 +655,89 @@ function TransactionSignModal({
               <AlertDescription>{config.description}</AlertDescription>
             </Alert>
 
-            <div className="grid grid-cols-2 gap-4">
-              <dt className="col-span-1 text-sm font-medium text-muted-foreground">
-                Function signature
-              </dt>
-              <dd className="col-span-1 text-sm break-all">
-                {functionSignature}
-              </dd>
+            <div className="mt-4">
+              <h3 className="text-sm font-semibold mb-2">Function</h3>
+              <div className="bg-muted rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <tbody>
+                    <tr className="border-b border-muted-foreground/20">
+                      <td className="py-2 px-4 font-medium text-muted-foreground">
+                        Selector
+                      </td>
+                      <td className="py-2 px-4">{functionSelector}</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-4 font-medium text-muted-foreground">
+                        Name
+                      </td>
+                      <td className="py-2 px-4">
+                        {contractState.isLoading ? (
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                        ) : contractState.data?.ContractName ? (
+                          contractState.data.ContractName
+                        ) : (
+                          <span className="text-red-500">Unknown Contract</span>
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <dt className="col-span-1 text-sm font-medium text-muted-foreground truncate">
-                To
-              </dt>
-              <dd className="col-span-1 text-sm break-all">
-                {formatAddress(encodedTransaction.to)}
-              </dd>
+            <div className="mt-4">
+              <h3 className="text-sm font-semibold mb-2">Contract</h3>
+              <div className="bg-muted rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <tbody>
+                    <tr className="border-b border-muted-foreground/20">
+                      <td className="py-2 px-4 font-medium text-muted-foreground">
+                        View
+                      </td>
+                      <td className="py-2 px-4">
+                        <a
+                          href={exploreContractUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-blue-500 hover:text-blue-700 transition-colors bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md text-sm"
+                        >
+                          <span>{formatAddress(encodedTransaction.to)}</span>
+                          <ExternalLinkIcon size={14} />
+                        </a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-4 font-medium text-muted-foreground">
+                        Name
+                      </td>
+                      <td className="py-2 px-4">
+                        {contractState.isLoading ? (
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                        ) : contractState.data?.ContractName ? (
+                          contractState.data.ContractName
+                        ) : (
+                          <span className="text-red-500">Unknown Contract</span>
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <dt className="col-span-1 text-sm font-medium text-muted-foreground truncate">
-                From
-              </dt>
-              <dd className="col-span-1 text-sm break-all">
-                {formatAddress(encodedTransaction.from)}
-              </dd>
+            <div className="mt-4">
+              <h3 className="text-sm font-semibold mb-2">Data</h3>
+              <div className="bg-muted rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                  <tbody>
+                    <tr className="border-b border-muted-foreground/20">
+                      <td className="py-2 px-4 break-all whitespace-normal">
+                        {encodedTransaction.data}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

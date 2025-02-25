@@ -1,5 +1,6 @@
-import { Config } from "@citizenwallet/sdk";
+import { Config, parseAliasFromDomain } from "@citizenwallet/sdk";
 import { existsSync, readFileSync } from "fs";
+import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import path from "path";
 
 const getCommunityPath = () =>
@@ -32,4 +33,17 @@ export const readCommunityFile = (
 export const communityFileExists = (): boolean => {
   const filePath = path.join(process.cwd(), getCommunityPath());
   return existsSync(filePath);
+};
+
+export const getCommunityFromHeaders = async (
+  headersList: ReadonlyHeaders
+): Promise<Config | undefined> => {
+  const domain = headersList.get("host") || "";
+
+  const alias = parseAliasFromDomain(
+    domain,
+    process.env.DOMAIN_BASE_PATH || ""
+  );
+
+  return readCommunityFile(alias);
 };

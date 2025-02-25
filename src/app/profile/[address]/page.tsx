@@ -1,6 +1,6 @@
 import Profile from "@/containers/profile";
 import Transaction404 from "@/containers/404/Transaction";
-import { readCommunityFile } from "@/services/config";
+import { getCommunityFromHeaders, readCommunityFile } from "@/services/config";
 import { getEmptyProfile, getMinterProfile } from "@/state/profiles/state";
 import {
   getProfileFromAddress,
@@ -9,6 +9,7 @@ import {
 } from "@citizenwallet/sdk";
 import { Suspense } from "react";
 import { ZeroAddress } from "ethers";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +24,9 @@ export default async function Page(props: PageProps) {
 
   const { address } = params;
 
-  const config = readCommunityFile();
+  const headersList = await headers();
 
+  const config = await getCommunityFromHeaders(headersList);
   if (!config) {
     return <div>Community not found</div>;
   }

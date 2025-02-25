@@ -7,7 +7,6 @@ import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
-import { readCommunityFile } from "@/services/config";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -24,8 +23,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const config = readCommunityFile();
-
   return (
     <html lang="en">
       <body

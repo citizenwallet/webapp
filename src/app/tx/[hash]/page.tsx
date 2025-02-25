@@ -13,12 +13,18 @@ import { ZeroAddress } from "ethers";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     hash: string;
-  };
+  }>;
 }
 
-export default async function Page({ params: { hash } }: PageProps) {
+export default async function Page(props: PageProps) {
+  const params = await props.params;
+
+  const {
+    hash
+  } = params;
+
   const config = readCommunityFile();
 
   if (!config) {
@@ -44,13 +50,13 @@ export default async function Page({ params: { hash } }: PageProps) {
     const txFrom = logData['from'];
     const txTo = logData['to'];
 
-    let fromProfile = await getProfileFromAddress(communityConfig.ipfs.url, communityConfig, txFrom) ?? getEmptyProfile(txFrom);
+    let fromProfile = (await getProfileFromAddress(communityConfig.ipfs.url, communityConfig, txFrom)) ?? getEmptyProfile(txFrom);
     
     if (ZeroAddress === txFrom) {
       fromProfile = getMinterProfile(txFrom, config.community);
     }
 
-    let toProfile = await getProfileFromAddress(communityConfig.ipfs.url, communityConfig, txTo) ?? getEmptyProfile(txTo);
+    let toProfile = (await getProfileFromAddress(communityConfig.ipfs.url, communityConfig, txTo)) ?? getEmptyProfile(txTo);
   
     if (ZeroAddress === txTo) {
       toProfile = getBurnerProfile(txTo, config.community);

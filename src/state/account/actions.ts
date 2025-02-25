@@ -8,12 +8,12 @@ import {
   ResponsePaginationMetadata as LogsPaginationMetadata,
   QRFormat,
   parseQRFormat,
-  tokenTransferEventTopic
+  tokenTransferEventTopic,
 } from "@citizenwallet/sdk";
 import { StorageService } from "@/services/storage";
 import { CWAccount } from "@/services/account";
 import { generateWalletHash } from "@/services/account/urlAccount";
-import { SigningKey, Wallet, formatUnits } from "ethers";
+import { formatUnits } from "ethers";
 import { generateAccountHashPath } from "@/utils/hash";
 
 export class AccountLogic {
@@ -52,6 +52,7 @@ export class AccountLogic {
     }
 
     try {
+      // TODO: can be dynamic
       const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
       if (!baseUrl) {
         throw new Error("Base URL not set");
@@ -146,20 +147,19 @@ export class AccountLogic {
       }
 
       this.listenerInterval = setInterval(async () => {
-
-          const data = {
-            from: account,
-          };
-          const orData = {
-            to: account,
-          };
+        const data = {
+          from: account,
+        };
+        const orData = {
+          to: account,
+        };
 
         const params = {
           fromDate: this.listenMaxDate.toISOString(),
           limit: this.listenerFetchLimit,
           offset: 0,
           data,
-          orData
+          orData,
         };
 
         const { array: logs = [] } = await this.logsService.getNewLogs(
@@ -233,10 +233,7 @@ export class AccountLogic {
         this.fetchedOffsets = [];
       }
 
-      if (
-        this.logsPagination &&
-        this.previousFetchLength < this.fetchLimit
-      ) {
+      if (this.logsPagination && this.previousFetchLength < this.fetchLimit) {
         // nothing more to fetch
         return false;
       }
@@ -261,7 +258,7 @@ export class AccountLogic {
         limit: this.fetchLimit,
         offset: nextOffset,
         data,
-        orData
+        orData,
       };
 
       const logs = await this.logsService.getLogs(

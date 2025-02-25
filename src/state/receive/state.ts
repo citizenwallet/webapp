@@ -10,7 +10,7 @@ export interface ReceiveState {
 }
 
 const initialState = () => ({
-  baseUrl: process.env.NEXT_PUBLIC_APP_BASE_URL || "",
+  baseUrl: `https://${process.env.NEXT_PUBLIC_DEEPLINK_DOMAIN || ""}`,
   amount: "",
   description: "",
 });

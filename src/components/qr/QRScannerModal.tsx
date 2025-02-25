@@ -50,7 +50,7 @@ export default function QRScannerModal({
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="h-4/6 sm:max-w-[425px]">
+        <DialogContent className="h-30 sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
@@ -77,7 +77,7 @@ export default function QRScannerModal({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <QRScannerContent
-          className="h-full px-4"
+          className="h-80 px-4"
           onScan={handleScan}
           open={open}
         />

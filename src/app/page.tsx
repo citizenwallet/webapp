@@ -1,8 +1,12 @@
 import Wallet from "@/containers/wallet";
-import { parseAliasFromDomain } from "@citizenwallet/sdk";
+import { Config, CommunityConfig } from "@citizenwallet/sdk";
 import { getCommunityFromHeaders } from "@/services/config";
 import { headers } from "next/headers";
 import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Text } from "@radix-ui/themes";
+import { QrCodeIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -15,8 +19,45 @@ export default async function Home() {
   }
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<FallBack config={config} />}>
       <Wallet config={config} />
     </Suspense>
+  );
+}
+
+function FallBack({ config }: { config: Config }) {
+  const communityConfig = new CommunityConfig(config);
+  const primaryToken = communityConfig.primaryToken;
+
+  return (
+    <div className="relative flex min-h-screen w-full flex-col align-center p-4 max-w-xl">
+      <div className="flex justify-between">
+        <Skeleton className="h-11 w-11 rounded-full" />
+        <Skeleton className="h-11 w-11 rounded-full" />
+      </div>
+      <div className="fixed top-0 w-full max-w-xl items-center justify-between text-sm pr-4">
+        <div className="flex justify-center align-center w-full pt-4 pr-4 gap-2">
+          <Skeleton className="h-28 w-28 rounded-full" />
+        </div>
+        <div className="flex justify-center align-center w-full pt-4 pr-4 gap-2">
+          <Skeleton className="h-8 w-44" />
+        </div>
+        <div className="flex justify-center align-center w-full pt-4 pr-4 gap-2">
+          <Skeleton className="h-10 w-24" />
+          <Text size="6" weight="bold" className="text-muted-strong">
+            {primaryToken.symbol}
+          </Text>
+        </div>
+      </div>
+
+      <div className="flex justify-center align-center z-20 fixed right-0 bottom-0 w-full mb-6 gap-2">
+        <Button
+          variant="ghost"
+          className="h-20 w-20 rounded-full border-primary border-4 m-4 shadow-lg bg-white"
+        >
+          <QrCodeIcon size={40} className="text-primary" />
+        </Button>
+      </div>
+    </div>
   );
 }

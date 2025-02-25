@@ -18,13 +18,11 @@ import {
   QRFormat,
   parseQRFormat,
 } from "@citizenwallet/sdk";
-import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { useFocusEffect } from "@/hooks/useFocusEffect";
 import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import VoucherModal from "./VoucherModal";
-import { generateAccountHashPath } from "@/utils/hash";
 import { getFullUrl } from "@/utils/deeplink";
 import { useIsScrolled } from "@/hooks/scroll";
 import Link from "next/link";

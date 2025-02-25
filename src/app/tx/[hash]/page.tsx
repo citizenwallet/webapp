@@ -1,6 +1,6 @@
 import Tx from "@/containers/tx";
 import Transaction404 from "@/containers/404/Transaction";
-import { readCommunityFile } from "@/services/config";
+import { getCommunityFromHeaders, readCommunityFile } from "@/services/config";
 import {
   getBurnerProfile,
   getEmptyProfile,
@@ -8,11 +8,13 @@ import {
 } from "@/state/profiles/state";
 import {
   CommunityConfig,
+  Config,
   LogsService,
   getProfileFromAddress,
 } from "@citizenwallet/sdk";
 import { Suspense } from "react";
 import { ZeroAddress } from "ethers";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -23,24 +25,25 @@ interface PageProps {
 }
 
 export default async function Page(props: PageProps) {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AsyncPage {...props} />
-    </Suspense>
-  );
-}
+  const headersList = await headers();
 
-async function AsyncPage(props: PageProps) {
-  const params = await props.params;
-
-  const { hash } = params;
-
-  const config = readCommunityFile();
-
+  const config = await getCommunityFromHeaders(headersList);
   if (!config) {
     return <div>Community not found</div>;
   }
 
+  const params = await props.params;
+
+  const { hash } = params;
+
+  return (
+    <Suspense fallback={<Tx config={config} />}>
+      <AsyncPage config={config} hash={hash} />
+    </Suspense>
+  );
+}
+
+async function AsyncPage({ config, hash }: { config: Config; hash: string }) {
   const communityConfig = new CommunityConfig(config);
   const logsService = new LogsService(communityConfig);
 

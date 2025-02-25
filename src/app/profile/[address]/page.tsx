@@ -6,6 +6,7 @@ import {
   getProfileFromAddress,
   generateReceiveLink,
   CommunityConfig,
+  Config,
 } from "@citizenwallet/sdk";
 import { Suspense } from "react";
 import { ZeroAddress } from "ethers";
@@ -31,6 +32,20 @@ export default async function Page(props: PageProps) {
     return <div>Community not found</div>;
   }
 
+  return (
+    <Suspense fallback={<Profile config={config} />}>
+      <AsyncPage config={config} address={address} />
+    </Suspense>
+  );
+}
+
+async function AsyncPage({
+  config,
+  address,
+}: {
+  config: Config;
+  address: string;
+}) {
   const baseUrl = process.env.NEXT_PUBLIC_DEEPLINK_DOMAIN;
   if (!baseUrl) {
     throw new Error("Base URL not set");

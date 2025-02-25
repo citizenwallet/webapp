@@ -11,29 +11,14 @@ import {
   CoreTypes,
   AuthTypes,
 } from "@walletconnect/types";
+import { keccak256 } from "ethers/crypto";
+import { toUtf8Bytes } from "ethers";
 
 export const SUPPORTED_METHODS = [
-  "eth_accounts",
-  "eth_requestAccounts",
-  "eth_sendRawTransaction",
   "eth_sign",
   "eth_signTransaction",
-  "eth_signTypedData",
-  "eth_signTypedData_v3",
-  "eth_signTypedData_v4",
   "eth_sendTransaction",
   "personal_sign",
-  "wallet_switchEthereumChain",
-  "wallet_addEthereumChain",
-  "wallet_getPermissions",
-  "wallet_requestPermissions",
-  "wallet_registerOnboarding",
-  "wallet_watchAsset",
-  "wallet_scanQRCode",
-  "wallet_sendCalls",
-  "wallet_getCallsStatus",
-  "wallet_showCallsStatus",
-  "wallet_getCapabilities",
 ];
 export const SUPPORTED_EVENTS = [
   "chainChanged",
@@ -42,6 +27,35 @@ export const SUPPORTED_EVENTS = [
   "disconnect",
   "connect",
 ];
+
+// Define a new type that extends Abi with an 'id' property
+// export type ExtendedAbiFunction = Abi & {Abi id: string }[];
+export type AbiInput = {
+  internalType: string;
+  name: string;
+  type: string;
+};
+
+export type AbiOutput = {
+  internalType?: string;
+  name?: string;
+  type: string;
+};
+
+export type AbiItem = {
+  inputs: AbiInput[];
+  outputs: AbiOutput[];
+  name: string;
+  stateMutability: "pure" | "view" | "nonpayable" | "payable";
+  type: "function" | "constructor" | "event" | "fallback" | "receive";
+};
+
+export type Abi = AbiItem[];
+
+export type ExtendedAbiItem = AbiItem & {
+  id: string;
+  signature: string;
+};
 
 export interface ContractData {
   SourceCode: string;
@@ -154,15 +168,15 @@ class WalletKitService {
   }
 
   static async getContractDetails(
+    community: CommunityConfig,
     address: string
   ): Promise<null | ContractData> {
-
     const explorerApi = "https://api.gnosisscan.io/api"; // TODO: add to community.json file
 
-    const response = await fetch(
+    let response = await fetch(
       `${explorerApi}?module=contract&action=getsourcecode&address=${address}&apikey=${process.env.NEXT_PUBLIC_GNOSIS_SCAN_API_KEY}`
     );
-    const data = await response.json();
+    let data = await response.json();
 
     if (
       data.status !== "1" ||
@@ -174,7 +188,27 @@ class WalletKitService {
       return null;
     }
 
-    const result = data.result[0];
+    let result = data.result[0];
+
+    const implementation = result.Implementation;
+    if (implementation) {
+      response = await fetch(
+        `${explorerApi}?module=contract&action=getsourcecode&address=${implementation}&apikey=${process.env.NEXT_PUBLIC_GNOSIS_SCAN_API_KEY}`
+      );
+      data = await response.json();
+
+      if (
+        data.status !== "1" ||
+        data.message !== "OK" ||
+        data.result.length === 0 ||
+        !data.result[0].ContractName
+      ) {
+        console.error("Failed to fetch contract details:", data.message);
+        return null;
+      }
+
+      result = data.result[0];
+    }
 
     return {
       SourceCode: result.SourceCode,
@@ -191,6 +225,33 @@ class WalletKitService {
       Implementation: result.Implementation,
       SwarmSource: result.SwarmSource,
     };
+  }
+
+  static parseAbi(rawAbi: string): ExtendedAbiItem[] {
+    const abi: AbiItem[] = JSON.parse(rawAbi);
+
+    return abi
+      .filter((v) => v.type === "function")
+      .map((v) => ({
+        ...v,
+        id: `${v.name}(${v.inputs.reduce(
+          (acc, input, i) =>
+            i === 0
+              ? `${acc}${input.name} ${input.type}`
+              : `${acc},${input.name} ${input.type}`,
+          ""
+        )})`,
+        signature: keccak256(
+          toUtf8Bytes(
+            `${v.name}(${v.inputs.reduce(
+              (acc, input, i) =>
+                i === 0 ? `${acc}${input.type}` : `${acc},${input.type}`,
+              ""
+            )})`
+          )
+        ).slice(0, 10),
+        selected: false,
+      }));
   }
 }
 

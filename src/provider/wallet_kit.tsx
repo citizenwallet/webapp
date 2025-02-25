@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import WalletKitService from "@/services/walletkit";
 import { Config } from "@citizenwallet/sdk";
 
@@ -13,11 +13,19 @@ export default function WalletKitProvider({
   config,
   children,
 }: WalletKitProviderProps) {
+  const [ready, setReady] = useState(false);
+
   useEffect(() => {
     if (config) {
-      WalletKitService.createInstance(config);
+      WalletKitService.createInstance(config).finally(() => {
+        setReady(true);
+      });
     }
   }, [config]);
+
+  if (!ready) {
+    return null;
+  }
 
   return children;
 }

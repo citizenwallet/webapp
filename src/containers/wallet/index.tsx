@@ -35,6 +35,7 @@ import { useThemeUpdater } from "@/hooks/theme";
 import WalletKitService from "@/services/walletkit";
 import WalletConnect from "@/containers/wallet_connect";
 import { useToast } from "@/components/ui/use-toast";
+import WalletKitProvider from "@/provider/wallet_kit";
 
 interface ContainerProps {
   config: Config;
@@ -50,13 +51,13 @@ export default function Container({ config }: ContainerProps) {
   const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
   const [voucherState, voucherActions] = useVoucher(config);
-  const walletKit = WalletKitService.getWalletKit();
   const hash = useHash();
 
   const { toast } = useToast();
 
   const handleWalletConnect = useCallback(
     async (uri: string) => {
+      const walletKit = WalletKitService.getWalletKit();
       if (!walletKit) {
         console.warn("WalletKit service not initialized");
         toast({
@@ -70,8 +71,7 @@ export default function Container({ config }: ContainerProps) {
       try {
         await walletKit.pair({ uri });
         toast({
-          title: "Connected successfully",
-          description: "Your wallet is now connected",
+          title: "Connected",
           variant: "success",
         });
       } catch (error) {
@@ -83,7 +83,7 @@ export default function Container({ config }: ContainerProps) {
         });
       }
     },
-    [walletKit, toast]
+    [toast]
   );
 
   const handleScan = useCallback(
@@ -226,8 +226,14 @@ export default function Container({ config }: ContainerProps) {
 
       <VoucherModal config={config} actions={voucherActions} />
 
-      <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
-      <WalletConnect account={account} wallet={actions.account} />
+      <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10"></Box>
+      <WalletKitProvider config={config}>
+        <WalletConnect
+          config={config}
+          account={account}
+          wallet={actions.account}
+        />
+      </WalletKitProvider>
     </main>
   );
 }

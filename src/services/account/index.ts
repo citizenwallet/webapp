@@ -5,12 +5,7 @@ import {
   getAccountBalance,
   getAccountAddress,
 } from "@citizenwallet/sdk";
-import {
-  HDNodeWallet,
-  JsonRpcProvider,
-  Wallet,
-  toUtf8Bytes,
-} from "ethers";
+import { HDNodeWallet, JsonRpcProvider, Wallet } from "ethers";
 import {
   parseLegacyWalletFromHash,
   parsePrivateKeyFromHash,
@@ -47,7 +42,7 @@ export class CWAccount {
 
     const account = await getAccountAddress(
       communityConfig,
-      connectedWallet.address 
+      connectedWallet.address
     );
 
     if (!account) {
@@ -94,7 +89,8 @@ export class CWAccount {
       }
 
       const communityConfig = new CommunityConfig(config);
-      account = await getAccountAddress(communityConfig, signer.address) || undefined;
+      account =
+        (await getAccountAddress(communityConfig, signer.address)) || undefined;
     }
 
     if (!account || !signer) {
@@ -112,7 +108,7 @@ export class CWAccount {
     const primaryToken = this.communityConfig.primaryToken;
 
     const hash = await this.bundler.sendERC20Token(
-      this.signer, 
+      this.signer,
       primaryToken.address,
       this.account,
       to,
@@ -123,13 +119,18 @@ export class CWAccount {
     return hash;
   }
 
-  async call(to: string, data: string) {
+  async call(to: string, data: string, value?: string) {
+    // Convert hex string to Uint8Array
+    const dataBytes = data.startsWith("0x")
+      ? new Uint8Array(Buffer.from(data.slice(2), "hex"))
+      : new Uint8Array(Buffer.from(data, "hex"));
 
     const hash = await this.bundler.call(
       this.signer,
       to,
       this.account,
-      data
+      dataBytes,
+      BigInt(value ?? 0)
     );
 
     return hash;

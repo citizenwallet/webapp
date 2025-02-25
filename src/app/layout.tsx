@@ -7,7 +7,6 @@ import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
-import WalletKitProvider from "@/provider/wallet_kit";
 import { readCommunityFile } from "@/services/config";
 
 const fontSans = FontSans({
@@ -36,10 +35,8 @@ export default function RootLayout({
         )}
       >
         <Theme>
-          <WalletKitProvider config={config}>
-            <div className="flex flex-col items-center">{children}</div>
-            <Toaster />
-          </WalletKitProvider>
+          <div className="flex flex-col items-center">{children}</div>
+          <Toaster />
         </Theme>
       </body>
     </html>

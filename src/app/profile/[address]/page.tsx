@@ -13,19 +13,23 @@ import { ZeroAddress } from "ethers";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     address: string;
-  };
+  }>;
 }
 
-export default async function Page({ params: { address } }: PageProps) {
+export default async function Page(props: PageProps) {
+  const params = await props.params;
+
+  const { address } = params;
+
   const config = readCommunityFile();
 
   if (!config) {
     return <div>Community not found</div>;
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_DEEPLINK_DOMAIN;
   if (!baseUrl) {
     throw new Error("Base URL not set");
   }

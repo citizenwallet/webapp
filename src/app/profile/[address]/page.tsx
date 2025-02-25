@@ -37,12 +37,11 @@ export default async function Page(props: PageProps) {
   const communityConfig = new CommunityConfig(config);
 
   try {
+    const ipfsDomain = communityConfig.ipfs.url.replace("https://", "");
+
     let profile =
-      (await getProfileFromAddress(
-        communityConfig.ipfs.url,
-        communityConfig,
-        address
-      )) ?? getEmptyProfile(address);
+      (await getProfileFromAddress(ipfsDomain, communityConfig, address)) ??
+      getEmptyProfile(address);
     if (ZeroAddress === address) {
       profile = getMinterProfile(address, config.community);
     }

@@ -8,7 +8,7 @@ import {
   Voucher,
   parseVoucher,
   getProfileFromAddress,
-  getAccountBalance
+  getAccountBalance,
 } from "@citizenwallet/sdk";
 import { BaseWallet, JsonRpcProvider, SigningKey, formatUnits } from "ethers";
 import { formatAddress } from "@/utils/formatting";
@@ -43,9 +43,12 @@ export class VoucherActions {
 
       const { voucher, signer } = parseVoucher(data);
 
-      const balance = await getAccountBalance(this.communityConfig, voucher.account) ?? 0n;
+      const balance =
+        (await getAccountBalance(this.communityConfig, voucher.account)) ?? 0n;
 
-      this.state.setBalance(formatUnits(balance, this.communityConfig.primaryToken.decimals));
+      this.state.setBalance(
+        formatUnits(balance, this.communityConfig.primaryToken.decimals)
+      );
 
       this.state.voucherLoaded(voucher);
 
@@ -68,10 +71,16 @@ export class VoucherActions {
 
       this.state.setClaiming(true);
 
+      const balance =
+        (await getAccountBalance(this.communityConfig, voucher.account)) ?? 0n;
 
-      const balance = await getAccountBalance(this.communityConfig, voucher.account) ?? 0n;
+      const ipfsDomain = this.communityConfig.ipfs.url.replace("https://", "");
 
-      const profile = await getProfileFromAddress(this.config.ipfs.url, this.communityConfig, voucher.creator );
+      const profile = await getProfileFromAddress(
+        ipfsDomain,
+        this.communityConfig,
+        voucher.creator
+      );
 
       let description = `Claimed voucher from ${formatAddress(
         voucher.creator

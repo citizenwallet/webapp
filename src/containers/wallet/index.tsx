@@ -22,7 +22,7 @@ import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { useFocusEffect } from "@/hooks/useFocusEffect";
 import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import VoucherModal from "./VoucherModal";
 import { generateAccountHashPath } from "@/utils/hash";
 import { getFullUrl } from "@/utils/deeplink";
@@ -118,9 +118,12 @@ export default function Container({ config }: ContainerProps) {
 
   useThemeUpdater(community);
 
-  useSafeEffect(() => {
+  useEffect(() => {
     // read the url first
     const href = getFullUrl();
+
+    console.log("hash", hash);
+    console.log("href", href);
 
     actions.openAccount(hash, (hashPath: string) => {
       history.replaceState(null, "", hashPath);

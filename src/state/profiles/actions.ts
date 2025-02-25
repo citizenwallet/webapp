@@ -2,7 +2,12 @@ import { useMemo } from "react";
 import debounce from "debounce";
 import { ProfilesState, useProfilesStore } from "./state";
 import { StoreApi, UseBoundStore } from "zustand";
-import { Config, CommunityConfig, getProfileFromAddress, getProfileFromUsername } from "@citizenwallet/sdk";
+import {
+  Config,
+  CommunityConfig,
+  getProfileFromAddress,
+  getProfileFromUsername,
+} from "@citizenwallet/sdk";
 
 const RELOAD_INTERVAL = 30000;
 
@@ -30,8 +35,10 @@ export class ProfilesActions {
       }
       this.lastLoadedProfile[account] = new Date().getTime();
 
+      const ipfsDomain = this.communityConfig.ipfs.url.replace("https://", "");
+
       const profile = await getProfileFromAddress(
-        this.communityConfig.ipfs.url,
+        ipfsDomain,
         this.communityConfig,
         account
       );
@@ -52,8 +59,10 @@ export class ProfilesActions {
     try {
       this.state.startLoading();
 
+      const ipfsDomain = this.communityConfig.ipfs.url.replace("https://", "");
+
       const profile = await getProfileFromUsername(
-        this.communityConfig.ipfs.url,
+        ipfsDomain,
         this.communityConfig,
         username
       );

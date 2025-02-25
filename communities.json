@@ -363,8 +363,8 @@
             "100": {
                 "id": 100,
                 "node": {
-                    "url": "http://localhost:3001",
-                    "ws_url": "ws://localhost:3001"
+                    "url": "https://100.engine.citizenwallet.xyz",
+                    "ws_url": "wss://100.engine.citizenwallet.xyz"
                 }
             }
         },

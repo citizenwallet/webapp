@@ -6,7 +6,11 @@ import {
   getEmptyProfile,
   getMinterProfile,
 } from "@/state/profiles/state";
-import { CommunityConfig, LogsService, getProfileFromAddress } from "@citizenwallet/sdk";
+import {
+  CommunityConfig,
+  LogsService,
+  getProfileFromAddress,
+} from "@citizenwallet/sdk";
 import { Suspense } from "react";
 import { ZeroAddress } from "ethers";
 
@@ -19,11 +23,17 @@ interface PageProps {
 }
 
 export default async function Page(props: PageProps) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AsyncPage {...props} />
+    </Suspense>
+  );
+}
+
+async function AsyncPage(props: PageProps) {
   const params = await props.params;
 
-  const {
-    hash
-  } = params;
+  const { hash } = params;
 
   const config = readCommunityFile();
 
@@ -33,7 +43,6 @@ export default async function Page(props: PageProps) {
 
   const communityConfig = new CommunityConfig(config);
   const logsService = new LogsService(communityConfig);
-
 
   try {
     const { object } = await logsService.getLog(
@@ -47,30 +56,34 @@ export default async function Page(props: PageProps) {
       throw new Error("Log data not found");
     }
 
-    const txFrom = logData['from'];
-    const txTo = logData['to'];
+    const txFrom = logData["from"];
+    const txTo = logData["to"];
 
-    let fromProfile = (await getProfileFromAddress(communityConfig.ipfs.url, communityConfig, txFrom)) ?? getEmptyProfile(txFrom);
-    
+    const ipfsDomain = communityConfig.ipfs.url.replace("https://", "");
+
+    let fromProfile =
+      (await getProfileFromAddress(ipfsDomain, communityConfig, txFrom)) ??
+      getEmptyProfile(txFrom);
+
     if (ZeroAddress === txFrom) {
       fromProfile = getMinterProfile(txFrom, config.community);
     }
 
-    let toProfile = (await getProfileFromAddress(communityConfig.ipfs.url, communityConfig, txTo)) ?? getEmptyProfile(txTo);
-  
+    let toProfile =
+      (await getProfileFromAddress(ipfsDomain, communityConfig, txTo)) ??
+      getEmptyProfile(txTo);
+
     if (ZeroAddress === txTo) {
       toProfile = getBurnerProfile(txTo, config.community);
     }
 
     return (
-      <Suspense fallback={<div>Loading...</div>}>
-        <Tx
-          tx={object}
-          fromProfile={fromProfile}
-          toProfile={toProfile}
-          config={config}
-        />
-      </Suspense>
+      <Tx
+        tx={object}
+        fromProfile={fromProfile}
+        toProfile={toProfile}
+        config={config}
+      />
     );
   } catch (error) {}
 

@@ -40,6 +40,7 @@ export class AccountLogic {
     hash: string,
     createAccountCallback: (hashPath: string) => void
   ) {
+    console.log("openAccount", hash);
     const format = parseQRFormat(hash);
 
     let accountHash: string | null = hash;

@@ -34,7 +34,7 @@ import WalletKitService from "@/services/walletkit";
 import WalletConnect from "@/containers/wallet_connect";
 import { useToast } from "@/components/ui/use-toast";
 import WalletKitProvider from "@/provider/wallet_kit";
-
+import { getBaseUrl } from "@/utils/deeplink";
 interface ContainerProps {
   config: Config;
 }
@@ -45,7 +45,9 @@ export default function Container({ config }: ContainerProps) {
 
   const isScrolled = useIsScrolled();
 
-  const [state, actions] = useAccount(config);
+  const baseUrl = getBaseUrl();
+
+  const [state, actions] = useAccount(baseUrl, config);
   const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
   const [voucherState, voucherActions] = useVoucher(config);

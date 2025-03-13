@@ -17,6 +17,7 @@ import { formatUnits } from "ethers";
 import { generateAccountHashPath } from "@/utils/hash";
 
 export class AccountLogic {
+  baseUrl: string;
   state: AccountState;
   config: Config;
   communityConfig: CommunityConfig;
@@ -26,7 +27,8 @@ export class AccountLogic {
   logsService: LogsService;
 
   account?: CWAccount;
-  constructor(state: AccountState, config: Config) {
+  constructor(baseUrl: string, state: AccountState, config: Config) {
+    this.baseUrl = baseUrl;
     this.state = state;
     this.config = config;
     this.communityConfig = new CommunityConfig(config);
@@ -53,19 +55,13 @@ export class AccountLogic {
     }
 
     try {
-      // TODO: can be dynamic
-      const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
-      if (!baseUrl) {
-        throw new Error("Base URL not set");
-      }
-
       const walletPassword = process.env.NEXT_PUBLIC_WEB_BURNER_PASSWORD;
       if (!walletPassword) {
         throw new Error("Wallet password not set");
       }
 
       this.account = await CWAccount.fromHash(
-        baseUrl,
+        this.baseUrl,
         accountHash,
         walletPassword,
         this.config
@@ -309,13 +305,14 @@ export class AccountLogic {
 }
 
 export const useAccount = (
+  baseUrl: string,
   config: Config
 ): [UseBoundStore<StoreApi<AccountState>>, AccountLogic] => {
   const sendStore = useAccountStore;
 
   const actions = useMemo(
-    () => new AccountLogic(sendStore.getState(), config),
-    [sendStore, config]
+    () => new AccountLogic(baseUrl, sendStore.getState(), config),
+    [baseUrl, sendStore, config]
   );
 
   return [sendStore, actions];

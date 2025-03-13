@@ -1,23 +1,46 @@
-import { Config } from "@citizenwallet/sdk";
-import { existsSync, readFileSync } from "fs";
-import path from "path";
+import { Config, parseAliasFromDomain } from "@citizenwallet/sdk";
+import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 
-const getCommunityPath = () =>
-  process.env.COMMUNITY_JSON_PATH || "community.json";
+import CommunitiesJson from "./communities.json";
+import LocalCommunitiesJson from "./communities.local.json";
 
-export const readCommunityFile = (): Config | undefined => {
-  if (!communityFileExists()) {
+const getCommunityFile = async (): Promise<Config[]> => {
+  if (process.env.NODE_ENV === "production") {
+    return CommunitiesJson as unknown as Config[];
+  }
+
+  return LocalCommunitiesJson as unknown as Config[];
+};
+
+export const readCommunityFile = async (
+  _alias = process.env.FALLBACK_COMMUNITY_ALIAS ?? ""
+): Promise<Config | undefined> => {
+  let alias = _alias;
+  if (process.env.NODE_ENV === "development") {
+    alias = process.env.FALLBACK_COMMUNITY_ALIAS ?? "";
+  }
+
+  const configs = await getCommunityFile();
+  if (!configs) {
     return undefined;
   }
 
-  // read community.json file
-  const filePath = path.join(process.cwd(), getCommunityPath());
-  const fileContents = readFileSync(filePath, "utf8");
-  const config = JSON.parse(fileContents) as Config;
-  return config;
+  if (configs.length === 0) {
+    return undefined;
+  }
+
+  return configs.find((c) => c.community.alias === alias);
 };
 
-export const communityFileExists = (): boolean => {
-  const filePath = path.join(process.cwd(), getCommunityPath());
-  return existsSync(filePath);
+export const getCommunityFromHeaders = async (
+  headersList: ReadonlyHeaders
+): Promise<Config | undefined> => {
+  const domain = headersList.get("host") || "";
+
+  const alias = parseAliasFromDomain(
+    domain,
+    process.env.DOMAIN_BASE_PATH || ""
+  );
+
+  return readCommunityFile(alias);
 };

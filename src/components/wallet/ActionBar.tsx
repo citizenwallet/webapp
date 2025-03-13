@@ -1,6 +1,6 @@
 import { Box, Flex, Text } from "@radix-ui/themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Config } from "@citizenwallet/sdk";
+import { Config, CommunityConfig } from "@citizenwallet/sdk";
 import WalletAction from "./Action";
 import { ArrowDownIcon, ArrowUpIcon, EllipsisIcon } from "lucide-react";
 import SendModal from "@/containers/wallet/SendModal";
@@ -24,7 +24,9 @@ export default function ActionBar({
   config,
   accountActions,
 }: ActionBarProps) {
-  const { community, token, plugins = [] } = config;
+  const { community, plugins = [] } = config;
+  const communityConfig = new CommunityConfig(config);
+  const primaryToken = communityConfig.primaryToken;
 
   return (
     <Flex
@@ -40,7 +42,7 @@ export default function ActionBar({
         >
           <Avatar className="h-28 w-28">
             <AvatarImage src={community.logo} alt="community logo" />
-            <AvatarFallback>{token.symbol}</AvatarFallback>
+            <AvatarFallback>{primaryToken.symbol}</AvatarFallback>
           </Avatar>
         </Flex>
       )}
@@ -69,7 +71,7 @@ export default function ActionBar({
             {balance}
           </Text>
           <Text size="6" weight="bold">
-            {token.symbol}
+            {primaryToken.symbol}
           </Text>
         </Flex>
       )}
@@ -83,13 +85,13 @@ export default function ActionBar({
         >
           <Avatar className="h-14 w-14">
             <AvatarImage src={community.logo} alt="community logo" />
-            <AvatarFallback>{token.symbol}</AvatarFallback>
+            <AvatarFallback>{primaryToken.symbol}</AvatarFallback>
           </Avatar>
           <Text size="8" weight="bold">
             {balance}
           </Text>
           <Text size="6" weight="bold">
-            {token.symbol}
+            {primaryToken.symbol}
           </Text>
         </Flex>
       )}
@@ -110,7 +112,7 @@ export default function ActionBar({
           />
         </SendModal>
 
-        <ReceiveModal token={token} community={community}>
+        <ReceiveModal token={primaryToken} communityConfig={communityConfig}>
           <WalletAction
             compact={small}
             icon={<ArrowDownIcon size={small ? 30 : 40} />}

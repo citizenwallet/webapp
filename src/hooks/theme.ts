@@ -1,4 +1,5 @@
-import { ConfigCommunity, useSafeEffect } from "@citizenwallet/sdk";
+import { ConfigCommunity } from "@citizenwallet/sdk";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
 
 export const useThemeUpdater = (community?: ConfigCommunity) => {
   useSafeEffect(() => {

@@ -1,60 +1,92 @@
 import Tx from "@/containers/tx";
 import Transaction404 from "@/containers/404/Transaction";
-import { readCommunityFile } from "@/services/config";
+import { getCommunityFromHeaders, readCommunityFile } from "@/services/config";
 import {
   getBurnerProfile,
   getEmptyProfile,
   getMinterProfile,
 } from "@/state/profiles/state";
-import { IndexerService, ProfileService } from "@citizenwallet/sdk";
+import {
+  CommunityConfig,
+  Config,
+  LogsService,
+  getProfileFromAddress,
+} from "@citizenwallet/sdk";
 import { Suspense } from "react";
 import { ZeroAddress } from "ethers";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     hash: string;
-  };
+  }>;
 }
 
-export default async function Page({ params: { hash } }: PageProps) {
-  const config = readCommunityFile();
+export default async function Page(props: PageProps) {
+  const headersList = await headers();
 
+  const config = await getCommunityFromHeaders(headersList);
   if (!config) {
     return <div>Community not found</div>;
   }
 
-  const indexer = new IndexerService(config.indexer);
+  const params = await props.params;
+
+  const { hash } = params;
+
+  return (
+    <Suspense fallback={<Tx config={config} />}>
+      <AsyncPage config={config} hash={hash} />
+    </Suspense>
+  );
+}
+
+async function AsyncPage({ config, hash }: { config: Config; hash: string }) {
+  const communityConfig = new CommunityConfig(config);
+  const logsService = new LogsService(communityConfig);
 
   try {
-    const { object: tx } = await indexer.getTransfer(
-      config.token.address,
+    const { object } = await logsService.getLog(
+      communityConfig.primaryToken.address,
       hash
     );
 
-    const profiles = new ProfileService(config);
+    const logData = object.data;
+
+    if (!logData) {
+      throw new Error("Log data not found");
+    }
+
+    const txFrom = logData["from"];
+    const txTo = logData["to"];
+
+    const ipfsDomain = communityConfig.ipfs.url.replace("https://", "");
 
     let fromProfile =
-      (await profiles.getProfile(tx.from)) ?? getEmptyProfile(tx.from);
-    if (ZeroAddress === tx.from) {
-      fromProfile = getMinterProfile(tx.from, config.community);
+      (await getProfileFromAddress(ipfsDomain, communityConfig, txFrom)) ??
+      getEmptyProfile(txFrom);
+
+    if (ZeroAddress === txFrom) {
+      fromProfile = getMinterProfile(txFrom, config.community);
     }
+
     let toProfile =
-      (await profiles.getProfile(tx.to)) ?? getEmptyProfile(tx.to);
-    if (ZeroAddress === tx.to) {
-      toProfile = getBurnerProfile(tx.to, config.community);
+      (await getProfileFromAddress(ipfsDomain, communityConfig, txTo)) ??
+      getEmptyProfile(txTo);
+
+    if (ZeroAddress === txTo) {
+      toProfile = getBurnerProfile(txTo, config.community);
     }
 
     return (
-      <Suspense fallback={<div>Loading...</div>}>
-        <Tx
-          tx={tx}
-          fromProfile={fromProfile}
-          toProfile={toProfile}
-          config={config}
-        />
-      </Suspense>
+      <Tx
+        tx={object}
+        fromProfile={fromProfile}
+        toProfile={toProfile}
+        config={config}
+      />
     );
   } catch (error) {}
 

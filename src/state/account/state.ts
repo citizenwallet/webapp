@@ -1,18 +1,18 @@
-import { Transfer } from "@citizenwallet/sdk";
+import { Log } from "@citizenwallet/sdk";
 import { create } from "zustand";
 export interface AccountState {
   account: string;
   owner: boolean;
   balance: string;
-  transfers: Transfer[];
+  logs: Log[];
   sending: boolean;
   sendError: string | null;
   setAccount: (account: string) => void;
   setOwner: (owner: boolean) => void;
   setBalance: (balance: string) => void;
-  replaceTransfers: (transfers: Transfer[]) => void;
-  appendTransfers: (transfers: Transfer[]) => void;
-  putTransfers: (transfers: Transfer[]) => void;
+  replaceLogs: (logs: Log[]) => void;
+  appendLogs: (logs: Log[]) => void;
+  putLogs: (logs: Log[]) => void;
   sendRequest: () => void;
   sendSuccess: () => void;
   sendFailure: (error: string) => void;
@@ -23,7 +23,7 @@ const initialState = () => ({
   account: "",
   owner: false,
   balance: "0.00",
-  transfers: [],
+  logs: [],
   sending: false,
   sendError: null,
 });
@@ -33,40 +33,40 @@ export const useAccountStore = create<AccountState>((set) => ({
   setAccount: (account) => set((state) => ({ account })),
   setOwner: (owner) => set((state) => ({ owner })),
   setBalance: (balance) => set((state) => ({ balance })),
-  replaceTransfers: (transfers) => set((state) => ({ transfers })),
-  appendTransfers: (transfers) =>
+  replaceLogs: (logs) => set((state) => ({ logs })),
+  appendLogs: (logs) =>
     set((state) => {
-      const existingTransfers = [...state.transfers];
+      const existingLogs = [...state.logs];
 
-      transfers.forEach((transfer) => {
-        const existingTransfer = existingTransfers.find(
-          (t) => t.hash === transfer.hash
+      logs.forEach((log) => {
+        const existingLog = existingLogs.find(
+          (t) => t.hash === log.hash
         );
 
-        if (!existingTransfer) {
-          existingTransfers.unshift(transfer);
+        if (!existingLog) {
+          existingLogs.unshift(log);
         }
       });
 
-      return { transfers: existingTransfers };
+      return { logs: existingLogs };
     }),
-  putTransfers: (transfers) =>
+  putLogs: (logs) =>
     set((state) => {
-      const existingTransfers = [...state.transfers];
+      const existingLogs = [...state.logs];
 
-      transfers.forEach((transfer) => {
-        const index = existingTransfers.findIndex(
-          (t) => t.hash === transfer.hash
+      logs.forEach((log) => {
+        const index = existingLogs.findIndex(
+          (t) => t.hash === log.hash
         );
 
         if (index === -1) {
-          existingTransfers.push(transfer);
+          existingLogs.push(log);
         } else {
-          existingTransfers[index] = transfer;
+          existingLogs[index] = log;
         }
       });
 
-      return { transfers: existingTransfers };
+      return { logs: existingLogs };
     }),
   sendRequest: () => set((state) => ({ sending: true })),
   sendSuccess: () => set((state) => ({ sending: false })),

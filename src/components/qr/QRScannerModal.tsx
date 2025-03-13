@@ -50,11 +50,15 @@ export default function QRScannerModal({
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="h-4/6 sm:max-w-[425px]">
+        <DialogContent className="h-30 sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
-          <QRScannerContent className="h-full" onScan={handleScan} />
+          <QRScannerContent
+            className="h-full"
+            onScan={handleScan}
+            open={open}
+          />
           <DialogFooter className="pt-2">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
@@ -72,7 +76,11 @@ export default function QRScannerModal({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <QRScannerContent className="h-full px-4" onScan={handleScan} />
+        <QRScannerContent
+          className="h-80 px-4"
+          onScan={handleScan}
+          open={open}
+        />
         <DialogFooter className="pt-2">
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -86,16 +94,21 @@ export default function QRScannerModal({
 interface QRScannerContentProps {
   className?: string;
   onScan: (data: string) => void;
+  open: boolean;
 }
 
-const QRScannerContent = ({ className, onScan }: QRScannerContentProps) => {
+const QRScannerContent = ({
+  className,
+  onScan,
+  open,
+}: QRScannerContentProps) => {
   return (
     <Flex
       direction="column"
       className={cn("w-full items-start gap-4 overflow-hidden", className)}
     >
       <Box className="h-full w-full overflow-hidden rounded-lg">
-        <QRScanner onScan={onScan} />
+        <QRScanner isActive={open} onScan={onScan} />
       </Box>
     </Flex>
   );

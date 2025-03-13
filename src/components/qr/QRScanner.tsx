@@ -1,46 +1,104 @@
-"use client";
+import React, { useRef, useState, useCallback } from "react";
+import {
+  Html5Qrcode,
+  QrcodeErrorCallback,
+  QrcodeSuccessCallback,
+} from "html5-qrcode";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
 
-import { useCallback, useRef } from "react";
-import QrScanner from "qr-scanner";
-import { useSafeEffect } from "@citizenwallet/sdk";
-
-interface QRScannerProps {
+interface QrCodeScannerProps {
+  isActive: boolean;
   onScan: (data: string) => void;
 }
 
-export default function QRScanner({ onScan }: QRScannerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const qrScannerRef = useRef<QrScanner>();
+const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ isActive, onScan }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const hasScannedRef = useRef(false);
+  const onScanSuccess: QrcodeSuccessCallback = async (decodedText, result) => {
+    await stopScanner().then(() => {
+      onScan(decodedText);
+    });
+  };
 
-  const handleScan = useCallback(
-    (result: QrScanner.ScanResult) => {
-      if (!result?.data || hasScannedRef.current) {
-        return;
-      }
-      hasScannedRef.current = true;
-      onScan(result.data);
-    },
-    [onScan]
-  );
+  const onScanFailure: QrcodeErrorCallback = (errorMessage, error) => {
+    if (errorMessage.includes("NotFoundException")) return;
+    console.error("QR code scan failed:", errorMessage);
+  };
+
+  const stopScanner = useCallback(async () => {
+    if (!isScanning || !scannerRef.current || isTransitioning) return;
+
+    try {
+      setIsTransitioning(true);
+      await scannerRef.current.stop();
+      setIsScanning(false);
+    } catch (err) {
+      console.error("Failed to stop scanner:", err);
+    } finally {
+      setIsTransitioning(false);
+    }
+  }, [isScanning, isTransitioning]);
 
   useSafeEffect(() => {
-    qrScannerRef.current = new QrScanner(videoRef.current!, handleScan, {
-      maxScansPerSecond: 4,
-      highlightScanRegion: true,
-      highlightCodeOutline: true,
-    });
-    qrScannerRef.current.start();
+    if (!containerRef.current) return;
+
+    async function startScanner() {
+      if (isScanning || !isActive) return;
+
+      try {
+        const scanner = new Html5Qrcode("qr-reader");
+        scannerRef.current = scanner;
+
+        await scanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0,
+          },
+          onScanSuccess,
+          onScanFailure
+        );
+        setIsScanning(true);
+      } catch (err) {
+        console.error("Failed to start scanner:", err);
+        setIsScanning(false);
+      }
+    }
+
+    if (isActive) {
+      startScanner();
+    } else {
+      stopScanner();
+    }
+
+    // Cleanup
     return () => {
-      qrScannerRef.current!.stop();
+      if (isScanning && scannerRef.current && !isTransitioning) {
+        scannerRef.current
+          .stop()
+          .then(() => {
+            setIsScanning(false);
+            if (scannerRef.current) {
+              scannerRef.current = null;
+            }
+          })
+          .catch((err) => console.error("Cleanup error:", err))
+          .finally(() => {
+            setIsTransitioning(false);
+          });
+      }
     };
-  }, [handleScan]);
+  }, [isActive, isScanning, stopScanner, isTransitioning]);
 
   return (
-    <video
-      ref={videoRef}
-      className="h-full w-full object-cover animate-fade-in-slow bg-gray-500"
-    ></video>
+    <div className="h-full w-full">
+      <div id="qr-reader" ref={containerRef} className="h-full w-full" />
+    </div>
   );
-}
+};
+
+export default QrCodeScanner;

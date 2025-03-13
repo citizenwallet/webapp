@@ -37,10 +37,14 @@ export const getCommunityFromHeaders = async (
 ): Promise<Config | undefined> => {
   const domain = headersList.get("host") || "";
 
+  console.log("domain", domain);
+
   const alias = parseAliasFromDomain(
     domain,
     process.env.DOMAIN_BASE_PATH || ""
   );
+
+  console.log("alias", alias);
 
   return readCommunityFile(alias);
 };

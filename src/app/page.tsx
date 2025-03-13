@@ -7,8 +7,42 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const metadata: Metadata = {
+    title: "Citizen Wallet",
+    description: "The open source wallet for your community.",
+    icons: {
+      icon: "/favicon.ico",
+    },
+    openGraph: {
+      title: "Citizen Wallet",
+      description: "The open source wallet for your community.",
+      images: ["/logo.png"],
+    },
+  };
+
+  const headersList = await headers();
+
+  const config = await getCommunityFromHeaders(headersList);
+  if (!config) {
+    return metadata;
+  }
+
+  metadata.title = config.community.name;
+  metadata.description = config.community.description;
+  metadata.openGraph = {
+    title: config.community.name,
+    description: config.community.description,
+    images: [config.community.logo],
+    type: "article",
+  };
+
+  return metadata;
+}
 
 export default async function Home() {
   const headersList = await headers();

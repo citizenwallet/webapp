@@ -5,3 +5,11 @@ export const getFullUrl = () => {
 
   return window.location.href;
 };
+
+export const getBaseUrl = () => {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return window.location.origin;
+};

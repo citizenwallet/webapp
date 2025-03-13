@@ -8,22 +8,21 @@ import TxRow from "@/components/wallet/TxRow";
 import { useHash } from "@/hooks/hash";
 import { useScrollableWindowFetcher } from "@/hooks/useScrollableWindow";
 import { useAccount } from "@/state/account/actions";
-import { selectOrderedTransfers } from "@/state/account/selectors";
+import { selectOrderedLogs } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
 import { useSend } from "@/state/send/actions";
 import { useVoucher } from "@/state/voucher/actions";
 import {
   Config,
+  CommunityConfig,
   QRFormat,
   parseQRFormat,
-  useSafeEffect,
-  useFocusEffect,
 } from "@citizenwallet/sdk";
+import { useFocusEffect } from "@/hooks/useFocusEffect";
 import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import VoucherModal from "./VoucherModal";
-import { generateAccountHashPath } from "@/utils/hash";
 import { getFullUrl } from "@/utils/deeplink";
 import { useIsScrolled } from "@/hooks/scroll";
 import Link from "next/link";
@@ -31,22 +30,61 @@ import BackupModal from "./BackupModal";
 import { getWindow } from "@/utils/window";
 import { getAvatarUrl } from "@/lib/utils";
 import { useThemeUpdater } from "@/hooks/theme";
-
+import WalletKitService from "@/services/walletkit";
+import WalletConnect from "@/containers/wallet_connect";
+import { useToast } from "@/components/ui/use-toast";
+import WalletKitProvider from "@/provider/wallet_kit";
+import { getBaseUrl } from "@/utils/deeplink";
 interface ContainerProps {
   config: Config;
 }
 
 export default function Container({ config }: ContainerProps) {
-  const { community, token } = config;
+  const { community } = config;
+  const communityConfig = new CommunityConfig(config);
 
   const isScrolled = useIsScrolled();
 
-  const [state, actions] = useAccount(config);
+  const baseUrl = getBaseUrl();
+
+  const [state, actions] = useAccount(baseUrl, config);
   const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
   const [voucherState, voucherActions] = useVoucher(config);
-
   const hash = useHash();
+
+  const { toast } = useToast();
+
+  const handleWalletConnect = useCallback(
+    async (uri: string) => {
+      const walletKit = WalletKitService.getWalletKit();
+      if (!walletKit) {
+        console.warn("WalletKit service not initialized");
+        toast({
+          title: "Connection unavailable",
+          description: "Wallet service is not ready",
+          variant: "warning",
+        });
+        return;
+      }
+
+      try {
+        await walletKit.pair({ uri });
+        toast({
+          title: "Connected",
+          variant: "success",
+        });
+      } catch (error) {
+        console.error("WalletConnect pairing failed:", error);
+        toast({
+          title: "Connection failed",
+          description: "Unable to connect to wallet",
+          variant: "destructive",
+        });
+      }
+    },
+    [toast]
+  );
 
   const handleScan = useCallback(
     async (data: string) => {
@@ -61,6 +99,9 @@ export default function Container({ config }: ContainerProps) {
             profilesActions.loadProfile(voucher.creator);
           }
           return;
+        case QRFormat.walletConnectPairing:
+          await handleWalletConnect(data);
+          return;
         default:
           // something we can try to receive from
           sendActions.setModalOpen(true);
@@ -72,14 +113,17 @@ export default function Container({ config }: ContainerProps) {
           return;
       }
     },
-    [sendActions, voucherActions, profilesActions]
+    [sendActions, voucherActions, profilesActions, handleWalletConnect]
   );
 
   useThemeUpdater(community);
 
-  useSafeEffect(() => {
+  useEffect(() => {
     // read the url first
     const href = getFullUrl();
+
+    console.log("hash", hash);
+    console.log("href", href);
 
     actions.openAccount(hash, (hashPath: string) => {
       history.replaceState(null, "", hashPath);
@@ -116,7 +160,7 @@ export default function Container({ config }: ContainerProps) {
   const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
 
   const balance = state((state) => state.balance);
-  const transfers = state(selectOrderedTransfers);
+  const logs = state(selectOrderedLogs);
   const profile = profilesState((state) => state.profiles[account]);
   const profiles = profilesState((state) => state.profiles);
 
@@ -170,10 +214,10 @@ export default function Container({ config }: ContainerProps) {
       />
 
       <Flex direction="column" className="w-full pt-[420px]" gap="3">
-        {transfers.map((tx) => (
+        {logs.map((tx) => (
           <TxRow
             key={tx.hash}
-            token={token}
+            token={communityConfig.primaryToken}
             community={community}
             account={account}
             tx={tx}
@@ -185,7 +229,14 @@ export default function Container({ config }: ContainerProps) {
 
       <VoucherModal config={config} actions={voucherActions} />
 
-      <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10 w-full"></Box>
+      <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10"></Box>
+      <WalletKitProvider config={config}>
+        <WalletConnect
+          config={config}
+          account={account}
+          wallet={actions.account}
+        />
+      </WalletKitProvider>
     </main>
   );
 }

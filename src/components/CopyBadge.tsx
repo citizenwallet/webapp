@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { copyToClipboard } from "@/utils/clipboard";
-import { useSafeEffect } from "@citizenwallet/sdk";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { useRef, useState } from "react";
 

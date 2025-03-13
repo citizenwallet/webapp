@@ -1,44 +1,72 @@
 import Profile from "@/containers/profile";
 import Transaction404 from "@/containers/404/Transaction";
-import { readCommunityFile } from "@/services/config";
+import { getCommunityFromHeaders, readCommunityFile } from "@/services/config";
 import { getEmptyProfile, getMinterProfile } from "@/state/profiles/state";
-import { ProfileService, generateReceiveLink } from "@citizenwallet/sdk";
+import {
+  getProfileFromAddress,
+  generateReceiveLink,
+  CommunityConfig,
+  Config,
+} from "@citizenwallet/sdk";
 import { Suspense } from "react";
 import { ZeroAddress } from "ethers";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     address: string;
-  };
+  }>;
 }
 
-export default async function Page({ params: { address } }: PageProps) {
-  const config = readCommunityFile();
+export default async function Page(props: PageProps) {
+  const params = await props.params;
 
+  const { address } = params;
+
+  const headersList = await headers();
+
+  const config = await getCommunityFromHeaders(headersList);
   if (!config) {
     return <div>Community not found</div>;
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
+  return (
+    <Suspense fallback={<Profile config={config} />}>
+      <AsyncPage config={config} address={address} />
+    </Suspense>
+  );
+}
+
+async function AsyncPage({
+  config,
+  address,
+}: {
+  config: Config;
+  address: string;
+}) {
+  const baseUrl = process.env.NEXT_PUBLIC_DEEPLINK_DOMAIN;
   if (!baseUrl) {
     throw new Error("Base URL not set");
   }
 
+  const communityConfig = new CommunityConfig(config);
+
   try {
-    const profiles = new ProfileService(config);
+    const ipfsDomain = communityConfig.ipfs.url.replace("https://", "");
 
     let profile =
-      (await profiles.getProfile(address)) ?? getEmptyProfile(address);
+      (await getProfileFromAddress(ipfsDomain, communityConfig, address)) ??
+      getEmptyProfile(address);
     if (ZeroAddress === address) {
       profile = getMinterProfile(address, config.community);
     }
 
     const receiveLink = generateReceiveLink(
       baseUrl,
-      profile.account,
-      config.community.alias
+      communityConfig,
+      profile.account
     );
 
     return (

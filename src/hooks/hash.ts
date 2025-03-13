@@ -1,6 +1,7 @@
 import { getWindow } from "@/utils/window";
-import { useSafeEffect } from "@citizenwallet/sdk";
+
 import { useState } from "react";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
 
 export const getHash = () => getWindow()?.location.hash ?? "";
 

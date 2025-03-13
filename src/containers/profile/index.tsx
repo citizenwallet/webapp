@@ -7,17 +7,19 @@ import { Button } from "@/components/ui/button";
 import { formatAddress, formatUrl } from "@/utils/formatting";
 import { canGoBack } from "@/utils/history";
 import { getWindow } from "@/utils/window";
-import { Config, Profile, useSafeEffect } from "@citizenwallet/sdk";
+import { Config, Profile } from "@citizenwallet/sdk";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { Box, Flex, Text } from "@radix-ui/themes";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { getAvatarUrl } from "@/lib/utils";
 import { useThemeUpdater } from "@/hooks/theme";
+import { Skeleton } from "@/components/ui/skeleton";
 interface ContainerProps {
   config: Config;
-  profile: Profile;
-  receiveLink: string;
+  profile?: Profile;
+  receiveLink?: string;
 }
 
 export default function Container({
@@ -67,36 +69,60 @@ export default function Container({
       </Flex>
       <Flex justify="center" align="center" gap="4">
         <Flex direction="column" justify="center" align="center">
-          <Avatar className="h-32 w-32 border-2 border-primary">
-            <AvatarImage
-              src={getAvatarUrl(profile?.image, profile?.account)}
-              alt="user profile photo"
-              className="object-cover"
-            />
-            <AvatarFallback>{profile.username ?? "USER"}</AvatarFallback>
-          </Avatar>
-          <Text size="4" weight="bold">
-            {profile.name}
-          </Text>
-          <Text size="2">{profile.username}</Text>
+          {profile ? (
+            <Avatar className="h-32 w-32 border-2 border-primary">
+              <AvatarImage
+                src={getAvatarUrl(profile?.image, profile?.account)}
+                alt="user profile photo"
+                className="object-cover"
+              />
+              <AvatarFallback>{profile.username ?? "USER"}</AvatarFallback>
+            </Avatar>
+          ) : (
+            <Skeleton className="h-32 w-32 rounded-full" />
+          )}
+          {profile ? (
+            <Text size="4" weight="bold">
+              {profile.name}
+            </Text>
+          ) : (
+            <Skeleton className="h-8 w-24" />
+          )}
+          {profile ? (
+            <Text size="2">{profile.username}</Text>
+          ) : (
+            <Skeleton className="h-4 w-24" />
+          )}
         </Flex>
       </Flex>
 
       <Flex direction="column" justify="center" align="center" gap="4">
         <Box className="p-4 border-2 rounded-2xl border-primary">
-          <QRCode size={size} qrCode={receiveLink} />
+          {receiveLink ? (
+            <QRCode size={size} qrCode={receiveLink} />
+          ) : (
+            <Skeleton className="h-32 w-32" />
+          )}
         </Box>
         <Flex justify="center">
-          <CopyBadge label={formatUrl(receiveLink)} value={receiveLink} />
+          {receiveLink ? (
+            <CopyBadge label={formatUrl(receiveLink)} value={receiveLink} />
+          ) : (
+            <Skeleton className="h-8 w-24" />
+          )}
         </Flex>
         <Flex justify="center">
-          <Button
-            variant="link"
-            className="gap-2"
-            onClick={() => handleOpenExplorer(profile.account)}
-          >
-            View on {scan.name} <ArrowUpRight height={14} width={14} />
-          </Button>
+          {profile ? (
+            <Button
+              variant="link"
+              className="gap-2"
+              onClick={() => handleOpenExplorer(profile.account)}
+            >
+              View on {scan.name} <ArrowUpRight height={14} width={14} />
+            </Button>
+          ) : (
+            <Skeleton className="h-8 w-24" />
+          )}
         </Flex>
       </Flex>
     </main>

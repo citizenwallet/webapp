@@ -1,6 +1,6 @@
 import { MutableRefObject, useCallback, useRef } from "react";
 import { delay } from "../utils/delay";
-import { useSafeEffect } from "@citizenwallet/sdk";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { getWindow } from "@/utils/window";
 
 const FETCHER_THRESHOLD = 100;

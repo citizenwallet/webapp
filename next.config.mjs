@@ -14,10 +14,8 @@ const nextConfig = {
 
     return config;
   },
-  experimental: {
-    outputFileTracingExcludes: {
-      "/*": [".community"],
-    },
+  outputFileTracingExcludes: {
+    "/*": [".community"],
   },
 };
 

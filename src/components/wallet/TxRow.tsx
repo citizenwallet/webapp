@@ -4,9 +4,9 @@ import {
   ConfigCommunity,
   ConfigToken,
   Profile,
-  Transfer,
-  useSafeEffect,
+  Log
 } from "@citizenwallet/sdk";
+import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { AGO_THRESHOLD, ago } from "@/utils/ago";
 import { formatAddress } from "@/utils/formatting";
 import { ProfilesActions } from "@/state/profiles/actions";
@@ -19,7 +19,7 @@ interface TxRowProps {
   token: ConfigToken;
   community: ConfigCommunity;
   account: string;
-  tx: Transfer;
+  tx: Log;
   actions: ProfilesActions;
   profiles: {
     [key: string]: Profile;
@@ -34,11 +34,21 @@ export default function TxRow({
   actions,
   profiles,
 }: TxRowProps) {
-  const self = tx.from === account;
-  const other = self ? tx.to : tx.from;
 
-  const isMinting = ZeroAddress === tx.from;
-  const isBurning = ZeroAddress === tx.to;
+  const from = tx.data?.from ?? "";
+  const to = tx.data?.to ?? "";
+
+  let description = '';
+  if (tx.extra_data) {
+    const extraData = tx.extra_data as { [key: string]: string };
+    description = 'description' in extraData ? extraData.description : '';
+  }
+
+  const self = from === account;
+  const other = self ? to : from;
+
+  const isMinting = ZeroAddress === from;
+  const isBurning = ZeroAddress === to;
 
   useSafeEffect(() => {
     actions.loadProfile(other);
@@ -86,17 +96,17 @@ export default function TxRow({
             {profile?.name ?? "Anonymous"}
           </Text>
           <Text size="3">{profile?.username ?? formatAddress(other)}</Text>
-          {tx.data?.description && (
+          {description !== "" && (
             <Flex className="w-full h-6 overflow-hidden overflow-ellipsis">
               <Text size="3" className="text-muted-strong">
-                {tx.data?.description}
+                {description}
               </Text>
             </Flex>
           )}
         </Flex>
         <Flex direction="column" justify="end" align="end">
           <Text size="4" weight="bold" className="text-primary">
-            {self ? "-" : "+"} {formatUnits(`${tx.value}`, token.decimals)}
+            {self ? "-" : "+"} {formatUnits(`${tx.data?.value}`, token.decimals)}
           </Text>
           {status === "success" && <Text size="2">{formattedDate}</Text>}
           {status !== "success" && (

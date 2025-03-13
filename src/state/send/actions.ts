@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { SendState, useSendStore } from "./state";
 import { StoreApi, UseBoundStore } from "zustand";
 import {
-  QRFormat,
+  QRFormat, // TODO: move over from v1 (folder: qr)
   parseAliasFromReceiveLink,
   parseMessageFromReceiveLink,
   parseQRCode,

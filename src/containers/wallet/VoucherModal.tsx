@@ -28,6 +28,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import Spinner from "@/components/Spinner";
 import { useAccountStore } from "@/state/account/state";
+import { CommunityConfig } from "@citizenwallet/sdk";
+
 
 interface VoucherModalProps {
   config: Config;
@@ -174,6 +176,9 @@ const VoucherContent = ({
   hasBalance = true,
   className,
 }: VoucherContentProps) => {
+  const communityConfig = new CommunityConfig(config);
+  const primaryToken = communityConfig.primaryToken;
+
   const balance = useVoucherStore((state) => state.balance);
 
   const profile = useProfilesStore(
@@ -194,7 +199,7 @@ const VoucherContent = ({
 
       {hasBalance ? (
         <Text size="6" weight="bold" className="text-center">
-          {balance} {config.token.symbol}
+          {balance} {primaryToken.symbol}
         </Text>
       ) : (
         <Text size="6" weight="bold" className="text-center">

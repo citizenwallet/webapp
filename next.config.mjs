@@ -17,6 +17,25 @@ const nextConfig = {
   outputFileTracingExcludes: {
     "/*": [".community"],
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "api.multiavatar.com",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "ipfs.internal.citizenwallet.xyz",
+        port: "",
+      },
+      {
+        protocol: "https",
+        hostname: "assets.citizenwallet.xyz",
+        port: "",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

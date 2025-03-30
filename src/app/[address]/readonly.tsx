@@ -12,7 +12,7 @@ import { useFocusEffect } from "@/hooks/useFocusEffect";
 import { useScrollableWindowFetcher } from "@/hooks/useScrollableWindow";
 import { cn, getAvatarUrl } from "@/lib/utils";
 import WalletKitService from "@/services/walletkit";
-import { useAccount } from "@/state/account/actions";
+import { AccountLogic, useAccount } from "@/state/account/actions";
 import { selectOrderedLogs } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
 import { useSend } from "@/state/send/actions";
@@ -21,6 +21,7 @@ import { getBaseUrl, getFullUrl } from "@/utils/deeplink";
 import { getWindow } from "@/utils/window";
 import {
     CommunityConfig, Config, QRFormat,
+    getAccountBalance,
     parseQRFormat
 } from "@citizenwallet/sdk";
 import { Box, Flex, Text } from "@radix-ui/themes";
@@ -29,9 +30,10 @@ import Link from "next/link";
 import { useCallback, useEffect } from "react";
 interface ContainerProps {
     config: Config;
+    accountAddress: string;
 }
 
-export default function ReadOnly({ config }: ContainerProps) {
+export default function ReadOnly({ config, accountAddress }: ContainerProps) {
     const { community } = config;
 
     const communityConfig = new CommunityConfig(config);
@@ -48,88 +50,17 @@ export default function ReadOnly({ config }: ContainerProps) {
 
     const { toast } = useToast();
 
-    const handleWalletConnect = useCallback(
-        async (uri: string) => {
-            const walletKit = WalletKitService.getWalletKit();
-            if (!walletKit) {
-                console.warn("WalletKit service not initialized");
-                toast({
-                    title: "Connection unavailable",
-                    description: "Wallet service is not ready",
-                    variant: "warning",
-                });
-                return;
-            }
-
-            try {
-                await walletKit.pair({ uri });
-                toast({
-                    title: "Connected",
-                    variant: "success",
-                });
-            } catch (error) {
-                console.error("WalletConnect pairing failed:", error);
-                toast({
-                    title: "Connection failed",
-                    description: "Unable to connect to wallet",
-                    variant: "destructive",
-                });
-            }
-        },
-        [toast]
-    );
-
-    const handleScan = useCallback(
-        async (data: string) => {
-            switch (parseQRFormat(data)) {
-                case QRFormat.unsupported:
-                    return;
-                case QRFormat.voucher:
-                    // handle vouchers
-                    const voucher = await voucherActions.readVoucher(data);
-
-                    if (voucher) {
-                        profilesActions.loadProfile(voucher.creator);
-                    }
-                    return;
-                case QRFormat.walletConnectPairing:
-                    await handleWalletConnect(data);
-                    return;
-                default:
-                    // something we can try to receive from
-                    sendActions.setModalOpen(true);
-
-                    const to = sendActions.parseQRCode(data);
-                    if (to) {
-                        profilesActions.loadProfile(to);
-                    }
-                    return;
-            }
-        },
-        [sendActions, voucherActions, profilesActions, handleWalletConnect]
-    );
 
     useThemeUpdater(community);
 
+
     useEffect(() => {
-        // read the url first
-        const href = getFullUrl();
+        actions.getAccount(accountAddress);
 
-        console.log("hash", hash);
-        console.log("href", href);
-
-        actions.openAccount(hash, (hashPath: string) => {
-            history.replaceState(null, "", hashPath);
-            const w = getWindow();
-            if (w) {
-                w.location.hash = hashPath;
-            }
-
-            handleScan(href);
-        });
-    }, [actions, hash, profilesActions, community, handleScan]);
+    }, [accountAddress, actions]);
 
     const account = state((state) => state.account);
+
 
     useFocusEffect(() => {
         let unsubscribe: () => void | undefined;

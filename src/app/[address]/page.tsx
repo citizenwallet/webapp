@@ -19,11 +19,11 @@ export default async function Page(props: PageProps) {
     }
 
 
-    const params = await props.params;
+    const { address } = await props.params;
 
     return (
         <>
-            <ReadOnly config={config} />
+            <ReadOnly config={config} accountAddress={address} />
         </>
     )
 }

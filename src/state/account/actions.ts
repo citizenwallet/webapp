@@ -38,6 +38,11 @@ export class AccountLogic {
     this.logsService = new LogsService(this.communityConfig);
   }
 
+  async getAccount(accountAddress: string) {
+    this.state.setAccount(accountAddress);
+    this.account = new CWAccount(this.config, accountAddress);
+  }
+
   async openAccount(
     hash: string,
     createAccountCallback: (hashPath: string) => void
@@ -89,6 +94,10 @@ export class AccountLogic {
       }
 
       this.account = await CWAccount.random(this.config);
+
+      if (!this.account.signer) {
+        throw new Error("Signer not found");
+      }
 
       const hash = await generateWalletHash(
         this.account.account,

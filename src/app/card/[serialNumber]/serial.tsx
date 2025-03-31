@@ -21,7 +21,7 @@ import { Box, Flex, Text } from "@radix-ui/themes";
 import { id } from 'ethers';
 import { ArrowDownIcon } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 interface ContainerProps {
     config: Config;
@@ -33,7 +33,7 @@ export default function SerialPage(props: ContainerProps) {
 
     const { community } = config;
 
-    const communityConfig = new CommunityConfig(config);
+    const communityConfig = useMemo(() => new CommunityConfig(config), [config]);
 
     const isScrolled = useIsScrolled();
 
@@ -48,21 +48,19 @@ export default function SerialPage(props: ContainerProps) {
     useEffect(() => {
         const fetchAddress = async () => {
             try {
-                const communityConfig = new CommunityConfig(config);
                 const address = await getCardAddress(communityConfig, id(serialNumber));
-
-                console.log("address", address);
                 if (address) {
-                    actions.getAccount(address);
+                    await actions.getAccount(address);
                 } else {
-                    console.log("No address found");
+                    console.error("No address found");
                 }
+
             } catch (error) {
                 console.error(error);
             }
         };
         fetchAddress();
-    }, [config, serialNumber, actions]);
+    }, [config, serialNumber, actions, communityConfig]);
 
     const account = state((state) => state.account);
 

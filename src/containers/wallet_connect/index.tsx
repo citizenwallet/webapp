@@ -383,6 +383,16 @@ function PersonalSignModal({
 
   const onApproveSign = async () => {
     setIsSigning(true);
+
+    if (!wallet.signer) {
+      toast({
+        title: "Signing failed",
+        description: "Unable to sign message",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const signedMessage = await wallet.signer.signMessage(message);
       const response = { id, result: signedMessage, jsonrpc: "2.0" };

@@ -3,6 +3,11 @@ import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/he
 
 import CommunitiesJson from "./communities.json";
 import LocalCommunitiesJson from "./communities.local.json";
+import ManualMappingJson from "./manualMapping.json";
+
+// Define type for manual mapping to allow string indexing
+type ManualMapping = { [key: string]: string };
+const typedManualMapping = ManualMappingJson as ManualMapping;
 
 const getCommunityFile = async (): Promise<Config[]> => {
   if (process.env.NODE_ENV === "production") {
@@ -38,11 +43,12 @@ export const getCommunityFromHeaders = async (
   const domain = headersList.get("host") || "";
 
   console.log("domain", domain);
-
-  const alias = parseAliasFromDomain(
-    domain,
-    process.env.DOMAIN_BASE_PATH || ""
-  );
+  let alias = domain;
+  if (typedManualMapping[domain]) {
+    alias = typedManualMapping[domain];
+  } else {
+    alias = parseAliasFromDomain(domain, process.env.DOMAIN_BASE_PATH || "");
+  }
 
   console.log("alias", alias);
 

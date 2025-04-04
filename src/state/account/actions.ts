@@ -133,7 +133,9 @@ export class AccountLogic {
 
       let formattedBalance = formatUnits(balance, primaryToken.decimals);
       if (primaryToken.decimals === 0) {
-        formattedBalance = parseInt(formattedBalance).toString();
+        formattedBalance = parseInt(formattedBalance).toFixed(0);
+      } else {
+        formattedBalance = parseFloat(formattedBalance).toFixed(2);
       }
 
       this.state.setBalance(formattedBalance);

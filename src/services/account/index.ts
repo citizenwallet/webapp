@@ -18,9 +18,9 @@ export class CWAccount {
   config: Config;
   communityConfig: CommunityConfig;
   account: string;
-  signer: Wallet | HDNodeWallet;
+  signer?: Wallet | HDNodeWallet;
 
-  constructor(config: Config, account: string, signer: Wallet | HDNodeWallet) {
+  constructor(config: Config, account: string, signer?: Wallet | HDNodeWallet) {
     this.communityConfig = new CommunityConfig(config);
 
     this.provider = new JsonRpcProvider(this.communityConfig.primaryRPCUrl);
@@ -107,6 +107,10 @@ export class CWAccount {
   async send(to: string, amount: string, description?: string) {
     const primaryToken = this.communityConfig.primaryToken;
 
+    if (!this.signer) {
+      throw new Error("Signer not found");
+    }
+
     const hash = await this.bundler.sendERC20Token(
       this.signer,
       primaryToken.address,
@@ -124,6 +128,10 @@ export class CWAccount {
     const dataBytes = data.startsWith("0x")
       ? new Uint8Array(Buffer.from(data.slice(2), "hex"))
       : new Uint8Array(Buffer.from(data, "hex"));
+
+    if (!this.signer) {
+      throw new Error("Signer not found");
+    }
 
     const hash = await this.bundler.call(
       this.signer,

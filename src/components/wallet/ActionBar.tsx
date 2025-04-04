@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import PluginsSheet from "./PluginsSheet";
 
 interface ActionBarProps {
+  readonly?: boolean;
   account: string;
   balance: string;
   small?: boolean;
@@ -18,6 +19,7 @@ interface ActionBarProps {
 }
 
 export default function ActionBar({
+  readonly = false,
   account,
   balance,
   small,
@@ -104,13 +106,15 @@ export default function ActionBar({
           small ? "pt-2 pb-4 pr-4" : "pt-4 pr-4"
         )}
       >
-        <SendModal config={config} accountActions={accountActions}>
-          <WalletAction
-            compact={small}
-            icon={<ArrowUpIcon size={small ? 30 : 40} />}
-            label="Send"
-          />
-        </SendModal>
+        {!readonly && (
+          <SendModal config={config} accountActions={accountActions}>
+            <WalletAction
+              compact={small}
+              icon={<ArrowUpIcon size={small ? 30 : 40} />}
+              label="Send"
+            />
+          </SendModal>
+        )}
 
         <ReceiveModal token={primaryToken} communityConfig={communityConfig}>
           <WalletAction

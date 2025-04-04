@@ -1,34 +1,18 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/components/ui/use-toast";
-import WalletAction from "@/components/wallet/Action";
 import ActionBar from "@/components/wallet/ActionBar";
 import TxRow from "@/components/wallet/TxRow";
-import ReceiveModal from "@/containers/wallet/ReceiveModal";
-import { useHash } from "@/hooks/hash";
-import { useIsScrolled } from "@/hooks/scroll";
 import { useThemeUpdater } from "@/hooks/theme";
 import { useFocusEffect } from "@/hooks/useFocusEffect";
 import { useScrollableWindowFetcher } from "@/hooks/useScrollableWindow";
-import { cn, getAvatarUrl } from "@/lib/utils";
-import WalletKitService from "@/services/walletkit";
-import { AccountLogic, useAccount } from "@/state/account/actions";
+import { getAvatarUrl } from "@/lib/utils";
+import { useAccount } from "@/state/account/actions";
 import { selectOrderedLogs } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
-import { useSend } from "@/state/send/actions";
-import { useVoucher } from "@/state/voucher/actions";
-import { getBaseUrl, getFullUrl } from "@/utils/deeplink";
-import { getWindow } from "@/utils/window";
-import {
-  CommunityConfig,
-  Config,
-  QRFormat,
-  getAccountBalance,
-  parseQRFormat,
-} from "@citizenwallet/sdk";
-import { Box, Flex, Text } from "@radix-ui/themes";
-import { ArrowDownIcon } from "lucide-react";
+import { getBaseUrl } from "@/utils/deeplink";
+import { CommunityConfig, Config } from "@citizenwallet/sdk";
+import { Flex } from "@radix-ui/themes";
 import Link from "next/link";
 import { useCallback, useEffect } from "react";
 interface ContainerProps {
@@ -41,17 +25,10 @@ export default function ReadOnly({ config, accountAddress }: ContainerProps) {
 
   const communityConfig = new CommunityConfig(config);
 
-  const isScrolled = useIsScrolled();
-
   const baseUrl = getBaseUrl();
 
   const [state, actions] = useAccount(baseUrl, config);
-  const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
-  const [voucherState, voucherActions] = useVoucher(config);
-  const hash = useHash();
-
-  const { toast } = useToast();
 
   useThemeUpdater(community);
 

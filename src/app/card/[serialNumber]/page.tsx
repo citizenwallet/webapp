@@ -1,27 +1,35 @@
 import { getCommunityFromHeaders } from "@/services/config";
 import { headers } from "next/headers";
-import SerialPage from "./serial";
+import ReadOnly from "@/containers/wallet/readonly";
+import { CommunityConfig, getCardAddress } from "@citizenwallet/sdk";
+import { id } from "ethers";
 
 interface PageProps {
-    params: Promise<{
-        serialNumber: string;
-    }>;
+  params: Promise<{
+    serialNumber: string;
+  }>;
 }
 
 export default async function Page(props: PageProps) {
+  const headersList = await headers();
 
-    const headersList = await headers();
+  const config = await getCommunityFromHeaders(headersList);
+  if (!config) {
+    return <div>Community not found</div>;
+  }
 
-    const config = await getCommunityFromHeaders(headersList);
-    if (!config) {
-        return <div>Community not found</div>;
-    }
+  const communityConfig = new CommunityConfig(config);
 
-    const { serialNumber } = await props.params;
+  const { serialNumber } = await props.params;
 
-    return (
-        <>
-            <SerialPage config={config} serialNumber={serialNumber} />
-        </>
-    )
+  const address = await getCardAddress(communityConfig, id(serialNumber));
+  if (!address) {
+    return <div>Card not found</div>;
+  }
+
+  return (
+    <>
+      <ReadOnly config={config} accountAddress={address} />
+    </>
+  );
 }

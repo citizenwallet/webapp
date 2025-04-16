@@ -19,6 +19,7 @@ import { Mail } from "lucide-react";
 import { Config } from "@citizenwallet/sdk";
 import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { submitEmailFormAction } from "@/app/signin/email/actions";
 
 interface EmailFormProps {
   config: Config;
@@ -32,16 +33,18 @@ export default function EmailForm({ config }: EmailFormProps) {
     resolver: zodResolver(emailFormSchema),
     defaultValues: {
       email: "",
+      type: "email",
     },
   });
 
   async function onSubmit(values: z.infer<typeof emailFormSchema>) {
     startSubmission(async () => {
       try {
-        // TODO: submit email form
+        await submitEmailFormAction({
+          formData: values,
+          config,
+        });
       } catch (error) {
-        console.error("Form submission error:", error);
-
         // Handle specific error types
         if (error instanceof Error) {
           if (error.message === "Invalid form data") {

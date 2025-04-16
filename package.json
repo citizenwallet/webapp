@@ -13,7 +13,7 @@
     "enable-provider": "tsx scripts/enable-provider.ts"
   },
   "dependencies": {
-    "@citizenwallet/sdk": "^2.0.75",
+    "@citizenwallet/sdk": "^2.0.83",
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.1.2",

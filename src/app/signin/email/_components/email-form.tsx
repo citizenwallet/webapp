@@ -19,7 +19,11 @@ import { Mail } from "lucide-react";
 import { Config } from "@citizenwallet/sdk";
 import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { submitEmailFormAction } from "@/app/signin/email/actions";
+import {
+  submitEmailFormAction,
+  waitForTxSuccess,
+} from "@/app/signin/email/actions";
+import { useRouter } from "next/navigation";
 
 interface EmailFormProps {
   config: Config;
@@ -28,7 +32,7 @@ interface EmailFormProps {
 export default function EmailForm({ config }: EmailFormProps) {
   const [isSubmitting, startSubmission] = useTransition();
   const { toast } = useToast();
-
+  const router = useRouter();
   const form = useForm<z.infer<typeof emailFormSchema>>({
     resolver: zodResolver(emailFormSchema),
     defaultValues: {
@@ -40,10 +44,24 @@ export default function EmailForm({ config }: EmailFormProps) {
   async function onSubmit(values: z.infer<typeof emailFormSchema>) {
     startSubmission(async () => {
       try {
-        await submitEmailFormAction({
+        const result = await submitEmailFormAction({
           formData: values,
           config,
         });
+
+        const successReceipt = await waitForTxSuccess({
+          config,
+          txHash: result.sessionRequestTxHash,
+        });
+
+        if (!successReceipt) {
+          throw new Error("Failed to confirm transaction");
+        }
+        
+        router.push("/signin/email/otp");
+
+
+        
       } catch (error) {
         // Handle specific error types
         if (error instanceof Error) {
@@ -55,8 +73,28 @@ export default function EmailForm({ config }: EmailFormProps) {
             return;
           }
 
+          if (error.message.includes("HTTP error")) {
+            toast({
+              variant: "destructive",
+
+              description: `Failed to send login code to ${values.email}`,
+            });
+            return;
+          }
+
+          if (error.message.includes("Failed to confirm transaction")) {
+            toast({
+              variant: "destructive",
+              title: "Transaction Failed",
+              description:
+                "The verification transaction failed. Please try again.",
+            });
+            return;
+          }
+
           toast({
             variant: "destructive",
+
             description: error.message,
           });
         } else {

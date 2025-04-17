@@ -8,4 +8,10 @@ export const otpFormSchema = z.object({
     .min(6, {
       message: "Your login code must be 6 characters.",
     }),
+  sessionRequestHash: z.string({
+    required_error: "Session request hash is required",
+  }),
+  privateKey: z.string({
+    required_error: "Private key is required",
+  }),
 });

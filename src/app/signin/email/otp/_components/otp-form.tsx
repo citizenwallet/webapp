@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { Config } from "@citizenwallet/sdk";
+import { CommunityConfig, Config, waitForTxSuccess } from "@citizenwallet/sdk";
 import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,9 @@ import {
   InputOTPGroup,
 } from "@/components/ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { useSessionStore } from "@/state/session/state";
+import { SessionLogic } from "@/state/session/action";
+import { submitOtpFormAction } from "@/app/signin/email/otp/actions";
 
 interface OtpFormProps {
   config: Config;
@@ -31,21 +34,85 @@ export default function OtpForm({ config }: OtpFormProps) {
   const [isSubmitting, startSubmission] = useTransition();
   const { toast } = useToast();
   const router = useRouter();
+  const communityConfig = new CommunityConfig(config);
+
+  const sessionStore = useSessionStore();
+  const sessionLogic = new SessionLogic(
+    () => useSessionStore.getState(), // Pass getter function instead of state
+    config
+  );
 
   const form = useForm<z.infer<typeof otpFormSchema>>({
     resolver: zodResolver(otpFormSchema),
     defaultValues: {
       code: "",
+      sessionRequestHash: sessionStore.hash ?? "",
+      privateKey: sessionStore.privateKey ?? "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof otpFormSchema>) {
-    toast({
-      title: "Verifying login code...",
-      description: "Please wait while we verify your login code.",
-    });
     startSubmission(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      try {
+        const result = await submitOtpFormAction({
+          formData: values,
+          config,
+        });
+
+        const successReceipt = await waitForTxSuccess(
+          communityConfig,
+          result.sessionRequestTxHash
+        );
+
+        if (!successReceipt) {
+          throw new Error("Failed to confirm transaction");
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          // Handle validation error
+          if (error.message === "Invalid form data") {
+            form.setError("code", {
+              type: "validation",
+              message: "Please enter a valid 6-digit code",
+            });
+            return;
+          }
+
+          if (error.message.includes("Failed to confirm transaction")) {
+            toast({
+              variant: "destructive",
+              title: "Transaction Failed",
+              description:
+                "The verification transaction failed. Please try again.",
+            });
+            return;
+          }
+
+          // Handle HTTP errors
+          if (error.message.includes("HTTP error")) {
+            toast({
+              variant: "destructive",
+              title: "Verification Failed",
+              description: "Invalid login code. Please try again.",
+            });
+            return;
+          }
+
+          // Handle any other errors
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: error.message,
+          });
+        } else {
+          // Handle unknown errors
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "An unexpected error occurred. Please try again.",
+          });
+        }
+      }
     });
   }
 

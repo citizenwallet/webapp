@@ -16,11 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
-import {
-  Config,
-  CommunityConfig,
-  waitForTxSuccess,
-} from "@citizenwallet/sdk";
+import { Config, CommunityConfig, waitForTxSuccess } from "@citizenwallet/sdk";
 import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { submitEmailFormAction } from "@/app/signin/email/actions";
@@ -38,7 +34,10 @@ export default function EmailForm({ config }: EmailFormProps) {
   const router = useRouter();
 
   const sessionStore = useSessionStore();
-  const sessionLogic = new SessionLogic(sessionStore, config);
+  const sessionLogic = new SessionLogic(
+    () => useSessionStore.getState(), // Pass getter function instead of state
+    config
+  );
 
   const communityConfig = new CommunityConfig(config);
 
@@ -77,8 +76,6 @@ export default function EmailForm({ config }: EmailFormProps) {
         if (!accountAddress) {
           throw new Error("Failed to create account");
         }
-
-        console.log("accountAddress", accountAddress);
 
         router.push("/signin/email/otp");
       } catch (error) {

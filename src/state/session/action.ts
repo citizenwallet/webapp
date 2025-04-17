@@ -4,51 +4,49 @@ import { StorageService } from "@/services/storage";
 import { generateSessionSalt } from "@/services/session";
 
 export class SessionLogic {
-  state: SessionState;
+  getState: () => SessionState;
   communityConfig: cwSKD.CommunityConfig;
   storage: StorageService;
 
-  constructor(state: SessionState, config: cwSKD.Config) {
-    this.state = state;
+  constructor(getState: () => SessionState, config: cwSKD.Config) {
+  
+    this.getState = getState;
     this.communityConfig = new cwSKD.CommunityConfig(config);
     this.storage = new StorageService(this.communityConfig.community.alias);
   }
 
   storePrivateKey(privateKey: string) {
     this.storage.setKey("SESSION_PRIVATE_KEY", privateKey);
-    this.state.setPrivateKey(privateKey);
+    this.getState().setPrivateKey(privateKey);
   }
 
   storeSessionHash(hash: string) {
     this.storage.setKey("SESSION_HASH", hash);
-    this.state.setHash(hash);
+    this.getState().setHash(hash);
   }
 
   storeSourceValue(sourceValue: string) {
     this.storage.setKey("SESSION_SOURCE_VALUE", sourceValue);
-    this.state.setSourceValue(sourceValue);
+    this.getState().setSourceValue(sourceValue);
   }
 
   storeSourceType(sourceType: string) {
     this.storage.setKey("SESSION_SOURCE_TYPE", sourceType);
-    this.state.setSourceType(sourceType);
+    this.getState().setSourceType(sourceType);
   }
 
   async getAccountAddress() {
-    const sourceValue =
-      this.state.sourceValue || this.storage.getKey("SESSION_SOURCE_VALUE");
+    const sourceValue = this.getState().sourceValue;
 
     if (!sourceValue) {
       throw new Error("Source value not found");
     }
 
-    const sourceType =
-      this.state.sourceType || this.storage.getKey("SESSION_SOURCE_TYPE");
+    const sourceType = this.getState().sourceType;
 
     if (!sourceType) {
       throw new Error("Source type not found");
-    } 
-
+    }
 
     const provider = this.communityConfig.primarySessionConfig.provider_address;
 
@@ -61,10 +59,9 @@ export class SessionLogic {
     );
 
     return accountAddress;
-
   }
 
   clear() {
-    this.state.clear();
+    this.getState().clear();
   }
 }

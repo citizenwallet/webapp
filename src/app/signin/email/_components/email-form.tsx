@@ -16,14 +16,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
-import { Config } from "@citizenwallet/sdk";
+import {
+  Config,
+  CommunityConfig,
+  waitForTxSuccess,
+} from "@citizenwallet/sdk";
 import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  submitEmailFormAction,
-  waitForTxSuccess,
-} from "@/app/signin/email/actions";
+import { submitEmailFormAction } from "@/app/signin/email/actions";
 import { useRouter } from "next/navigation";
+import { useSessionStore } from "@/state/session/state";
+import { SessionLogic } from "@/state/session/action";
 
 interface EmailFormProps {
   config: Config;
@@ -33,6 +36,12 @@ export default function EmailForm({ config }: EmailFormProps) {
   const [isSubmitting, startSubmission] = useTransition();
   const { toast } = useToast();
   const router = useRouter();
+
+  const sessionStore = useSessionStore();
+  const sessionLogic = new SessionLogic(sessionStore, config);
+
+  const communityConfig = new CommunityConfig(config);
+
   const form = useForm<z.infer<typeof emailFormSchema>>({
     resolver: zodResolver(emailFormSchema),
     defaultValues: {
@@ -49,17 +58,35 @@ export default function EmailForm({ config }: EmailFormProps) {
           config,
         });
 
-        const successReceipt = await waitForTxSuccess({
-          config,
-          txHash: result.sessionRequestTxHash,
-        });
+        const successReceipt = await waitForTxSuccess(
+          communityConfig,
+          result.sessionRequestTxHash
+        );
 
         if (!successReceipt) {
           throw new Error("Failed to confirm transaction");
         }
 
+        sessionLogic.storePrivateKey(result.privateKey);
+        sessionLogic.storeSessionHash(result.hash);
+        sessionLogic.storeSourceValue(values.email);
+        sessionLogic.storeSourceType(values.type);
+
+        const accountAddress = await sessionLogic.getAccountAddress();
+
+        if (!accountAddress) {
+          throw new Error("Failed to create account");
+        }
+
+        console.log("accountAddress", accountAddress);
+
         router.push("/signin/email/otp");
       } catch (error) {
+        sessionStore.resetSourceValue();
+        sessionStore.resetSourceType();
+        sessionStore.resetPrivateKey();
+        sessionStore.resetHash();
+
         // Handle specific error types
         if (error instanceof Error) {
           if (error.message === "Invalid form data") {
@@ -85,6 +112,26 @@ export default function EmailForm({ config }: EmailFormProps) {
               title: "Transaction Failed",
               description:
                 "The verification transaction failed. Please try again.",
+            });
+            return;
+          }
+
+          if (error.message.includes("Failed to create account")) {
+            toast({
+              variant: "destructive",
+              title: "Account Creation Failed",
+              description: "The account creation failed. Please try again.",
+            });
+            return;
+          }
+
+          if (
+            error.message.includes("Source value not found") ||
+            error.message.includes("Source type not found")
+          ) {
+            toast({
+              variant: "destructive",
+              description: "Email not found",
             });
             return;
           }

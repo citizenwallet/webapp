@@ -25,9 +25,9 @@ export default function QRCode({
     .map((row: boolean[], rowIndex: number) =>
       row
         .map((cell, cellIndex) =>
-          !cell ? `M ${cellIndex} ${rowIndex} l 1 0 0 1 -1 0 Z` : ""
+          !cell ? `M ${cellIndex} ${rowIndex} l 1 0 0 1 -1 0 Z` : "",
         )
-        .join(" ")
+        .join(" "),
     )
     .join(" ");
 
@@ -35,9 +35,9 @@ export default function QRCode({
     .map((row: boolean[], rowIndex: number) =>
       row
         .map((cell, cellIndex) =>
-          cell ? `M ${cellIndex} ${rowIndex} l 1 0 0 1 -1 0 Z` : ""
+          cell ? `M ${cellIndex} ${rowIndex} l 1 0 0 1 -1 0 Z` : "",
         )
-        .join(" ")
+        .join(" "),
     )
     .join(" ");
 

@@ -30,7 +30,6 @@ import Spinner from "@/components/Spinner";
 import { useAccountStore } from "@/state/account/state";
 import { CommunityConfig } from "@citizenwallet/sdk";
 
-
 interface VoucherModalProps {
   config: Config;
   actions: VoucherActions;
@@ -182,7 +181,7 @@ const VoucherContent = ({
   const balance = useVoucherStore((state) => state.balance);
 
   const profile = useProfilesStore(
-    (state) => voucher && state.profiles[voucher.creator]
+    (state) => voucher && state.profiles[voucher.creator],
   );
 
   return (
@@ -192,7 +191,7 @@ const VoucherContent = ({
       align="center"
       className={cn(
         "relative w-full items-start gap-4 overflow-hidden",
-        className
+        className,
       )}
     >
       {profile && <ProfileRow profile={profile} fullWidth={false} />}

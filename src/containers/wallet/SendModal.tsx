@@ -82,7 +82,7 @@ export default function SendModal({
   const handleSend = async (
     sendTo: string,
     sendAmount: string,
-    sendDescription?: string
+    sendDescription?: string,
   ) => {
     if (!resolvedTo) return;
     const tx = await accountActions.send(sendTo, sendAmount, sendDescription);
@@ -128,7 +128,7 @@ export default function SendModal({
       <DialogContent
         className={cn(
           "h-full flex flex-col",
-          isDesktop ? "sm:max-w-[425px] max-h-[750px]" : ""
+          isDesktop ? "sm:max-w-[425px] max-h-[750px]" : "",
         )}
       >
         <DialogHeader>
@@ -310,7 +310,7 @@ const SendForm = ({ config, className }: SendFormProps) => {
       direction="column"
       className={cn(
         "relative h-full flex flex-col items-start overflow-y-auto gap-4",
-        className
+        className,
       )}
     >
       {modalContent}

@@ -29,7 +29,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         "border",
         "h-11 px-4 py-2",
         "gap-2.5",
-        "hover:bg-opacity-20"
+        "hover:bg-opacity-20",
       )}
     >
       <Mail className="h-4 w-4" />

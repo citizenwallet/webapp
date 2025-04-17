@@ -42,7 +42,7 @@ export default function CopyButton({ label, value, onClick }: CopyButtonProps) {
       variant="outline"
       className={cn(
         "text-lg gap-2 transition-colors duration-200",
-        clicked ? "cursor-default border-success" : "cursor-pointer"
+        clicked ? "cursor-default border-success" : "cursor-pointer",
       )}
     >
       {badgeLabel} {!clicked && <CopyIcon size="18" />}

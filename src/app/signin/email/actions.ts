@@ -109,10 +109,8 @@ export async function waitForTxSuccess({
       const delay = baseDelay * Math.pow(2, attempt);
       await new Promise((resolve) => setTimeout(resolve, delay));
       continue;
-    } 
+    }
   }
-
-  
 
   return successReceipt;
 }

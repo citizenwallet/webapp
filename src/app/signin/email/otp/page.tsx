@@ -79,17 +79,10 @@ export default async function Page() {
           Enter Login Code
         </CardTitle>
       </CardHeader>
-          <CardContent className="space-y-4">
-              <OtpForm config={config} />
+      <CardContent className="space-y-4">
+        <OtpForm config={config} />
 
-
-              {/* TODO: go back to enter email */}
-              
-
-
-
-
-
+        {/* TODO: go back to enter email */}
       </CardContent>
     </Card>
   );

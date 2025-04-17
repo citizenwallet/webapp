@@ -83,7 +83,7 @@ export default function Container({ config }: ContainerProps) {
         });
       }
     },
-    [toast]
+    [toast],
   );
 
   const handleScan = useCallback(
@@ -113,7 +113,7 @@ export default function Container({ config }: ContainerProps) {
           return;
       }
     },
-    [sendActions, voucherActions, profilesActions, handleWalletConnect]
+    [sendActions, voucherActions, profilesActions, handleWalletConnect],
   );
 
   useThemeUpdater(community);

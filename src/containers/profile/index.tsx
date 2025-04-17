@@ -31,7 +31,7 @@ export default function Container({
 
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState(
-    (ref.current ? ref.current.clientWidth : 200) * 0.8
+    (ref.current ? ref.current.clientWidth : 200) * 0.8,
   );
 
   useThemeUpdater(config.community);

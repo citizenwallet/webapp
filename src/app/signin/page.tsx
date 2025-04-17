@@ -48,12 +48,12 @@ export default async function Page() {
   if (!config) {
     return <div>Community not found</div>;
   }
-    
-    const communityConfig = new CommunityConfig(config);
 
-    const logoUrl = communityConfig.community.logo
-    const communityName = communityConfig.community.name
-    const tokenSymbol = communityConfig.primaryToken.symbol;
+  const communityConfig = new CommunityConfig(config);
+
+  const logoUrl = communityConfig.community.logo;
+  const communityName = communityConfig.community.name;
+  const tokenSymbol = communityConfig.primaryToken.symbol;
 
   return (
     <Card className="w-full">

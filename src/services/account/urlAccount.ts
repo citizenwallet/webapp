@@ -4,7 +4,7 @@ import { getAccount, getDecryptKdfParams, getPassword } from "./ethers";
 export const parsePrivateKeyFromHash = async (
   baseUrl: string,
   hash: string,
-  walletPassword: string
+  walletPassword: string,
 ): Promise<[string, HDNodeWallet | Wallet] | [undefined, undefined]> => {
   const encodedURL = new URL(`${baseUrl}/${hash.replace("#/", "")}`);
   const encoded = encodedURL.pathname.replace("/wallet/", "");
@@ -15,7 +15,7 @@ export const parsePrivateKeyFromHash = async (
     }
 
     const decoded = Buffer.from(encoded.replace("v3-", ""), "base64").toString(
-      "utf-8"
+      "utf-8",
     );
 
     const [account, encryptedPrivateKey] = decoded.split("|");
@@ -56,7 +56,7 @@ export const parsePrivateKeyFromHash = async (
 export const parseLegacyWalletFromHash = async (
   baseUrl: string,
   hash: string,
-  walletPassword: string
+  walletPassword: string,
 ): Promise<HDNodeWallet | Wallet | undefined> => {
   const encodedURL = new URL(`${baseUrl}/${hash.replace("#/", "")}`);
   const encoded = encodedURL.pathname.replace("/wallet/", "");
@@ -70,7 +70,7 @@ export const parseLegacyWalletFromHash = async (
 
     const wallet = await Wallet.fromEncryptedJson(
       encryptedPrivateKey,
-      walletPassword
+      walletPassword,
     );
 
     return wallet;
@@ -82,7 +82,7 @@ export const parseLegacyWalletFromHash = async (
 export const generateWalletHash = async (
   account: string,
   wallet: HDNodeWallet | Wallet,
-  walletPassword: string
+  walletPassword: string,
 ): Promise<string> => {
   const encryptedPrivateKey = await wallet.encrypt(walletPassword);
 

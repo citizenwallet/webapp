@@ -47,7 +47,7 @@ export class VoucherActions {
         (await getAccountBalance(this.communityConfig, voucher.account)) ?? 0n;
 
       this.state.setBalance(
-        formatUnits(balance, this.communityConfig.primaryToken.decimals)
+        formatUnits(balance, this.communityConfig.primaryToken.decimals),
       );
 
       this.state.voucherLoaded(voucher);
@@ -79,11 +79,11 @@ export class VoucherActions {
       const profile = await getProfileFromAddress(
         ipfsDomain,
         this.communityConfig,
-        voucher.creator
+        voucher.creator,
       );
 
       let description = `Claimed voucher from ${formatAddress(
-        voucher.creator
+        voucher.creator,
       )}`;
       if (profile) {
         description = `Claimed voucher from ${profile.username}`;
@@ -97,7 +97,7 @@ export class VoucherActions {
         voucher.account,
         to,
         formatUnits(balance, primaryToken.decimals),
-        description
+        description,
       );
 
       this.state.setClaiming(false);
@@ -118,12 +118,12 @@ export class VoucherActions {
 }
 
 export const useVoucher = (
-  config: Config
+  config: Config,
 ): [UseBoundStore<StoreApi<VoucherState>>, VoucherActions] => {
   const store = useVoucherStore;
   const actions = useMemo(
     () => new VoucherActions(store.getState(), config),
-    [store, config]
+    [store, config],
   );
   return [store, actions];
 };

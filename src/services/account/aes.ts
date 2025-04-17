@@ -609,7 +609,7 @@ function convertToInt32(bytes: Uint8Array): Array<number> {
       (bytes[i] << 24) |
         (bytes[i + 1] << 16) |
         (bytes[i + 2] << 8) |
-        bytes[i + 3]
+        bytes[i + 3],
     );
   }
   return result;

@@ -11,10 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Box, Flex, Text } from "@radix-ui/themes";
-import {
-  CommunityConfig,
-  ConfigToken,
-} from "@citizenwallet/sdk";
+import { CommunityConfig, ConfigToken } from "@citizenwallet/sdk";
 import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { useRef, useState } from "react";
 import QRCode from "@/components/qr/QRCode";
@@ -45,7 +42,7 @@ export default function ReceiveModal({
 
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState(
-    (ref.current ? ref.current.clientWidth : 200) * 0.8
+    (ref.current ? ref.current.clientWidth : 200) * 0.8,
   );
 
   useSafeEffect(() => {
@@ -71,7 +68,7 @@ export default function ReceiveModal({
   }, [actions]);
 
   const link = useReceiveStore(
-    generateSelectReceiveDeepLink(account, communityConfig)
+    generateSelectReceiveDeepLink(account, communityConfig),
   );
   const amount = receiveStore((state) => state.amount);
   const description = receiveStore((state) => state.description);
@@ -92,7 +89,7 @@ export default function ReceiveModal({
       <DialogContent
         className={cn(
           "h-full flex flex-col",
-          isDesktop ? "sm:max-w-[425px] max-h-[750px]" : ""
+          isDesktop ? "sm:max-w-[425px] max-h-[750px]" : "",
         )}
       >
         <DialogHeader className="h-10 pb-4 justify-center">

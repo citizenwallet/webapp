@@ -25,7 +25,7 @@ export default function ProfileRow({
       className={cn(
         "px-4 py-4 cursor-pointer",
         fullWidth ? "w-full" : "",
-        selected ? "bg-gray-100" : "hover:bg-gray-100"
+        selected ? "bg-gray-100" : "hover:bg-gray-100",
       )}
       onClick={onSelect ? () => onSelect(profile) : undefined}
       {...props}

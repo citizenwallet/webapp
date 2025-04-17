@@ -18,7 +18,7 @@ const getCommunityFile = async (): Promise<Config[]> => {
 };
 
 export const readCommunityFile = async (
-  _alias = process.env.FALLBACK_COMMUNITY_ALIAS ?? ""
+  _alias = process.env.FALLBACK_COMMUNITY_ALIAS ?? "",
 ): Promise<Config | undefined> => {
   let alias = _alias;
   if (process.env.NODE_ENV === "development") {
@@ -38,7 +38,7 @@ export const readCommunityFile = async (
 };
 
 export const getCommunityFromHeaders = async (
-  headersList: ReadonlyHeaders
+  headersList: ReadonlyHeaders,
 ): Promise<Config | undefined> => {
   const domain = headersList.get("host") || "";
 

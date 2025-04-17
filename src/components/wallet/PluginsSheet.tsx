@@ -25,7 +25,7 @@ export default function PluginsSheet({
   const handlePluginClick = (url: string) => {
     const baseUrl = new URL(window.location.href).origin;
     const fullUrl = `${url}?account=${account}&redirectUrl=${encodeURIComponent(
-      baseUrl
+      baseUrl,
     )}`;
     window.open(fullUrl, "_blank", "noopener,noreferrer");
   };

@@ -100,7 +100,7 @@ async function AsyncPage({
     const receiveLink = generateReceiveLink(
       baseUrl,
       communityConfig,
-      profile.account
+      profile.account,
     );
 
     return (

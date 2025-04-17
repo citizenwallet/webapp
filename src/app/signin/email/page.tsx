@@ -76,12 +76,12 @@ export default async function Page() {
       </div>
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">
-          Sign In with Email
+          Sign in with Email
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-              <EmailForm config={config} />
-              
+        <EmailForm config={config} />
+
         <div className="px-6 pb-6 pt-2 text-center">
           <Back />
         </div>

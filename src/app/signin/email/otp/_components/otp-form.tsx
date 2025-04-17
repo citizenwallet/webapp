@@ -67,6 +67,14 @@ export default function OtpForm({ config }: OtpFormProps) {
         if (!successReceipt) {
           throw new Error("Failed to confirm transaction");
         }
+
+        const accountAddress = await sessionLogic.getAccountAddress();
+
+        if (!accountAddress) {
+          throw new Error("Failed to create account");
+        }
+
+        router.push(`/${accountAddress}`);
       } catch (error) {
         if (error instanceof Error) {
           // Handle validation error
@@ -94,6 +102,15 @@ export default function OtpForm({ config }: OtpFormProps) {
               variant: "destructive",
               title: "Verification Failed",
               description: "Invalid login code. Please try again.",
+            });
+            return;
+          }
+
+          if (error.message.includes("Failed to create account")) {
+            toast({
+              variant: "destructive",
+              title: "Account Creation Failed",
+              description: "Failed to create account. Please try again.",
             });
             return;
           }

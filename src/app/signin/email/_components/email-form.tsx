@@ -71,12 +71,6 @@ export default function EmailForm({ config }: EmailFormProps) {
         sessionLogic.storeSourceValue(values.email);
         sessionLogic.storeSourceType(values.type);
 
-        const accountAddress = await sessionLogic.getAccountAddress();
-
-        if (!accountAddress) {
-          throw new Error("Failed to create account");
-        }
-
         router.push("/signin/email/otp");
       } catch (error) {
         sessionStore.resetSourceValue();

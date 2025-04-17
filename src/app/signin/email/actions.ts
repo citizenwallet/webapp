@@ -2,7 +2,7 @@
 
 import { emailFormSchema } from "@/app/signin/email/_components/email-form-schema";
 import { z } from "zod";
-import { Wallet, getBytes, JsonRpcProvider, TransactionReceipt } from "ethers";
+import { Wallet, getBytes } from "ethers";
 import {
   generateSessionRequestHash,
   generateSessionSalt,
@@ -75,42 +75,7 @@ export async function submitEmailFormAction({
 
   return {
     sessionRequestTxHash: responseBody.sessionRequestTxHash,
-    hashInBytes,
+    hash,
+    privateKey: signer.privateKey,
   };
-}
-
-export async function waitForTxSuccess({
-  config,
-  txHash,
-  maxRetries = 20,
-  baseDelay = 1000, // 1 second base delay
-}: {
-  config: Config;
-  txHash: string;
-  maxRetries?: number;
-  baseDelay?: number;
-}) {
-  const communityConfig = new CommunityConfig(config);
-  const primaryRPCUrl = communityConfig.primaryRPCUrl;
-  const provider = new JsonRpcProvider(primaryRPCUrl);
-  let successReceipt: TransactionReceipt | null = null;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const receipt = await provider.waitForTransaction(txHash);
-
-    if (receipt && receipt.status === 1) {
-      successReceipt = receipt;
-      break;
-    }
-
-    // If transaction not found and not last attempt, wait and retry
-    if (attempt < maxRetries - 1) {
-      // Calculate delay with exponential backoff: 1s, 2s, 4s...
-      const delay = baseDelay * Math.pow(2, attempt);
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      continue;
-    }
-  }
-
-  return successReceipt;
 }

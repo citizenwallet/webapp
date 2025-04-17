@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import OtpForm from "./_components/otp-form";
+import Back from "./_components/back";
 
 export const dynamic = "force-dynamic";
 
@@ -82,7 +83,9 @@ export default async function Page() {
       <CardContent className="space-y-4">
         <OtpForm config={config} />
 
-        {/* TODO: go back to enter email */}
+        <div className="px-6 pb-6 pt-2 text-center">
+          <Back />
+        </div>
       </CardContent>
     </Card>
   );

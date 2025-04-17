@@ -57,11 +57,8 @@ export default function EmailForm({ config }: EmailFormProps) {
         if (!successReceipt) {
           throw new Error("Failed to confirm transaction");
         }
-        
+
         router.push("/signin/email/otp");
-
-
-        
       } catch (error) {
         // Handle specific error types
         if (error instanceof Error) {
@@ -122,7 +119,6 @@ export default function EmailForm({ config }: EmailFormProps) {
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    
                     id="email"
                     placeholder="name@example.com"
                     type="email"

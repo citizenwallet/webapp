@@ -3,6 +3,8 @@ import { getCommunityFromHeaders } from "@/services/config";
 import Wallet from "@/containers/wallet";
 import ReadOnly from "../../containers/wallet/readonly";
 
+// TODO: logout functionality
+
 interface PageProps {
   params: Promise<{
     address: string;
@@ -21,6 +23,7 @@ export default async function Page(props: PageProps) {
 
   return (
     <>
+      {/* TODO: replace with Wallet component */}
       <ReadOnly config={config} accountAddress={address} />
     </>
   );

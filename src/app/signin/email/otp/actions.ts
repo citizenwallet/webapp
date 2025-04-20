@@ -27,7 +27,7 @@ export async function submitOtpFormAction({
 
   const sessionHash = generateSessionHash(
     formData.sessionRequestHash,
-    parseInt(formData.code)
+    parseInt(formData.code),
   );
 
   const sessionHashInBytes = getBytes(sessionHash);
@@ -40,7 +40,7 @@ export async function submitOtpFormAction({
     sessionHash: sessionHash,
     signedSessionHash: signature,
   };
-    
+
   const alias = config.community.alias;
   const url = `${process.env.NEXT_PUBLIC_CW_SESSION_API_BASE_URL}/app/${alias}/session`;
 

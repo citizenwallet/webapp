@@ -36,13 +36,16 @@ export class SessionLogic {
   }
 
   async getAccountAddress() {
-    const sourceValue = this.getState().sourceValue || this.storage.getKey("SESSION_SOURCE_VALUE");
+    const sourceValue =
+      this.getState().sourceValue ||
+      this.storage.getKey("SESSION_SOURCE_VALUE");
 
     if (!sourceValue) {
       throw new Error("Source value not found");
     }
 
-    const sourceType = this.getState().sourceType || this.storage.getKey("SESSION_SOURCE_TYPE");
+    const sourceType =
+      this.getState().sourceType || this.storage.getKey("SESSION_SOURCE_TYPE");
 
     if (!sourceType) {
       throw new Error("Source type not found");
@@ -55,7 +58,7 @@ export class SessionLogic {
     const accountAddress = await cwSDK.getAccountAddress(
       this.communityConfig,
       provider,
-      BigInt(salt)
+      BigInt(salt),
     );
 
     return accountAddress;
@@ -68,7 +71,8 @@ export class SessionLogic {
       throw new Error("Account address not found");
     }
 
-    const privateKey = this.getState().privateKey || this.storage.getKey("SESSION_PRIVATE_KEY");
+    const privateKey =
+      this.getState().privateKey || this.storage.getKey("SESSION_PRIVATE_KEY");
 
     if (!privateKey) {
       throw new Error("Private key not found");

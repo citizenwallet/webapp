@@ -3,7 +3,6 @@ import { devtools } from "zustand/middleware";
 
 // TODO: remove devtools later
 
-
 export interface SessionState {
   sourceValue: string | null;
   sourceType: string | null;
@@ -12,13 +11,13 @@ export interface SessionState {
 
   setSourceValue: (sourceValue: string) => void;
   resetSourceValue: () => void;
-  
+
   setSourceType: (sourceType: string) => void;
   resetSourceType: () => void;
 
   setPrivateKey: (privateKey: string) => void;
   resetPrivateKey: () => void;
-  
+
   setHash: (hash: string) => void;
   resetHash: () => void;
 
@@ -35,19 +34,19 @@ const initialState = () => ({
 export const useSessionStore = create<SessionState>()(
   devtools((set) => ({
     ...initialState(),
-    
-  setSourceValue: (sourceValue) => set({ sourceValue }),
-  resetSourceValue: () => set({ sourceValue: null }),
-  
-  setSourceType: (sourceType) => set({ sourceType }),
-  resetSourceType: () => set({ sourceType: null }),
-  
-  setPrivateKey: (privateKey) => set({ privateKey }),
-  resetPrivateKey: () => set({ privateKey: null }),
-  
+
+    setSourceValue: (sourceValue) => set({ sourceValue }),
+    resetSourceValue: () => set({ sourceValue: null }),
+
+    setSourceType: (sourceType) => set({ sourceType }),
+    resetSourceType: () => set({ sourceType: null }),
+
+    setPrivateKey: (privateKey) => set({ privateKey }),
+    resetPrivateKey: () => set({ privateKey: null }),
+
     setHash: (hash) => set({ hash }),
     resetHash: () => set({ hash: null }),
 
     clear: () => set(initialState()),
-  }))
+  })),
 );

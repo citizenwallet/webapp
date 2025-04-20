@@ -36,7 +36,7 @@ export default function EmailForm({ config }: EmailFormProps) {
   const sessionStore = useSessionStore();
   const sessionLogic = new SessionLogic(
     () => useSessionStore.getState(), // Pass getter function instead of state
-    config
+    config,
   );
 
   const communityConfig = new CommunityConfig(config);
@@ -59,7 +59,7 @@ export default function EmailForm({ config }: EmailFormProps) {
 
         const successReceipt = await waitForTxSuccess(
           communityConfig,
-          result.sessionRequestTxHash
+          result.sessionRequestTxHash,
         );
 
         if (!successReceipt) {

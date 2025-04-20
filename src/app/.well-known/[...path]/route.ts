@@ -5,7 +5,7 @@ import path from "path";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
+  { params }: { params: Promise<{ path: string[] }> },
 ) {
   const { path: pathSegments } = await params;
 
@@ -25,7 +25,7 @@ export async function GET(
     "app",
     ".well-known",
     alias,
-    ...pathSegments
+    ...pathSegments,
   );
 
   console.log("filePath", filePath);

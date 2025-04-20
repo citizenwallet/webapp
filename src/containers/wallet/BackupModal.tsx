@@ -33,7 +33,7 @@ export default function BackupModal({
     const emailSubject = `${community.name} Account: ${account}`;
     const emailBody = `Click this link again to access your account: ${url}`;
     const mailtoLink = `mailto:?subject=${encodeURIComponent(
-      emailSubject
+      emailSubject,
     )}&body=${encodeURIComponent(emailBody)}`;
 
     getWindow()?.open(mailtoLink, "_blank");
@@ -46,7 +46,7 @@ export default function BackupModal({
           variant="outline"
           className={cn(
             "h-11 w-11 rounded-full p-2 m-4 gap-2 border-primary",
-            className
+            className,
           )}
         >
           <SaveIcon size="28" />

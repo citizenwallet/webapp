@@ -39,9 +39,7 @@ export const useAccountStore = create<AccountState>((set) => ({
       const existingLogs = [...state.logs];
 
       logs.forEach((log) => {
-        const existingLog = existingLogs.find(
-          (t) => t.hash === log.hash
-        );
+        const existingLog = existingLogs.find((t) => t.hash === log.hash);
 
         if (!existingLog) {
           existingLogs.unshift(log);
@@ -55,9 +53,7 @@ export const useAccountStore = create<AccountState>((set) => ({
       const existingLogs = [...state.logs];
 
       logs.forEach((log) => {
-        const index = existingLogs.findIndex(
-          (t) => t.hash === log.hash
-        );
+        const index = existingLogs.findIndex((t) => t.hash === log.hash);
 
         if (index === -1) {
           existingLogs.push(log);

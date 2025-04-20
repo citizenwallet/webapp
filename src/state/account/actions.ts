@@ -45,14 +45,14 @@ export class AccountLogic {
 
   async openAccount(
     hash: string,
-    createAccountCallback: (hashPath: string) => void
+    createAccountCallback: (hashPath: string) => void,
   ) {
     console.log("openAccount", hash);
     const format = parseQRFormat(hash);
 
     let accountHash: string | null = hash;
     if (!accountHash || format !== QRFormat.unsupported) {
-      accountHash = this.storage.getKey("hash");
+      accountHash = this.storage.getKey("HASH");
       if (!accountHash) {
         this.createAccount(createAccountCallback);
         return;
@@ -69,13 +69,13 @@ export class AccountLogic {
         this.baseUrl,
         accountHash,
         walletPassword,
-        this.config
+        this.config,
       );
       if (!this.account) {
         throw new Error("Invalid wallet format");
       }
 
-      this.storage.setKey("hash", accountHash);
+      this.storage.setKey("HASH", accountHash);
 
       this.state.setAccount(this.account.account);
       this.state.setOwner(true);
@@ -102,15 +102,15 @@ export class AccountLogic {
       const hash = await generateWalletHash(
         this.account.account,
         this.account.signer,
-        walletPassword
+        walletPassword,
       );
 
       const hashPath = generateAccountHashPath(
         hash,
-        this.config.community.alias
+        this.config.community.alias,
       );
 
-      this.storage.setKey("hash", hashPath);
+      this.storage.setKey("HASH", hashPath);
 
       this.state.setAccount(this.account.account);
       this.state.setOwner(true);
@@ -173,7 +173,7 @@ export class AccountLogic {
         const { array: logs = [] } = await this.logsService.getNewLogs(
           primaryToken.address,
           tokenTransferEventTopic,
-          params
+          params,
         );
 
         if (logs.length > 0) {
@@ -211,7 +211,7 @@ export class AccountLogic {
       const { array: logs } = await this.logsService.getLogs(
         primaryToken.address,
         account,
-        params
+        params,
       );
 
       this.state.putLogs(logs);
@@ -272,7 +272,7 @@ export class AccountLogic {
       const logs = await this.logsService.getLogs(
         primaryToken.address,
         tokenTransferEventTopic,
-        params
+        params,
       );
 
       this.logsPagination = logs.meta;
@@ -293,7 +293,7 @@ export class AccountLogic {
   async send(
     to: string,
     amount: string,
-    description?: string
+    description?: string,
   ): Promise<string | null> {
     try {
       if (!this.account) {
@@ -317,13 +317,13 @@ export class AccountLogic {
 
 export const useAccount = (
   baseUrl: string,
-  config: Config
+  config: Config,
 ): [UseBoundStore<StoreApi<AccountState>>, AccountLogic] => {
   const sendStore = useAccountStore;
 
   const actions = useMemo(
     () => new AccountLogic(baseUrl, sendStore.getState(), config),
-    [baseUrl, sendStore, config]
+    [baseUrl, sendStore, config],
   );
 
   return [sendStore, actions];

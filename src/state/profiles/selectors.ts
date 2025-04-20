@@ -12,6 +12,6 @@ export const selectFilteredProfiles =
       (profile) =>
         profile.name.toLowerCase().trim().includes(lowerCaseInput) ||
         profile.username.toLowerCase().trim().includes(lowerCaseInput) ||
-        profile.account.toLowerCase().trim().includes(lowerCaseInput)
+        profile.account.toLowerCase().trim().includes(lowerCaseInput),
     );
   };

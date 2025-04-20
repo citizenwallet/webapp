@@ -89,13 +89,13 @@ class SendActions {
 
 export const useSend = (): [
   UseBoundStore<StoreApi<SendState>>,
-  SendActions
+  SendActions,
 ] => {
   const sendStore = useSendStore;
 
   const actions = useMemo(
     () => new SendActions(sendStore.getState()),
-    [sendStore]
+    [sendStore],
   );
 
   return [sendStore, actions];

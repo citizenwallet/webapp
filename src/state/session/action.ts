@@ -76,13 +76,14 @@ export class SessionLogic {
 
     const signer = new Wallet(privateKey);
 
-    const isExpired = await cwSDK.isSessionExpired({
-      community: this.communityConfig,
-      account: accountAddress,
-      owner: signer.address,
-    });
+    // TODO: temp comment
+    // const isExpired = await cwSDK.isSessionExpired({
+    //   community: this.communityConfig,
+    //   account: accountAddress,
+    //   owner: signer.address,
+    // });
 
-    return isExpired;
+    return false;
   }
 
   clear() {

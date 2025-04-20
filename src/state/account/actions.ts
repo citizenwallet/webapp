@@ -52,7 +52,7 @@ export class AccountLogic {
 
     let accountHash: string | null = hash;
     if (!accountHash || format !== QRFormat.unsupported) {
-      accountHash = this.storage.getKey("hash");
+      accountHash = this.storage.getKey('HASH');
       if (!accountHash) {
         this.createAccount(createAccountCallback);
         return;
@@ -75,7 +75,7 @@ export class AccountLogic {
         throw new Error("Invalid wallet format");
       }
 
-      this.storage.setKey("hash", accountHash);
+      this.storage.setKey('HASH', accountHash);
 
       this.state.setAccount(this.account.account);
       this.state.setOwner(true);
@@ -110,7 +110,7 @@ export class AccountLogic {
         this.config.community.alias,
       );
 
-      this.storage.setKey("hash", hashPath);
+      this.storage.setKey('HASH', hashPath);
 
       this.state.setAccount(this.account.account);
       this.state.setOwner(true);

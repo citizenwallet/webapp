@@ -3,6 +3,7 @@ import { SessionState } from "./state";
 import { StorageService } from "@/services/storage";
 import { generateSessionSalt } from "@/services/session";
 import { Wallet } from "ethers";
+import { WebAuthnCredential } from "@simplewebauthn/server";
 
 export class SessionLogic {
   getState: () => SessionState;
@@ -35,6 +36,17 @@ export class SessionLogic {
     this.getState().setSourceType(sourceType);
   }
 
+  storePasskey(passkey: WebAuthnCredential) {
+    this.storage.savePasskey(passkey);
+    this.getState().appendPasskey(passkey);
+  }
+
+  getPasskeys(): WebAuthnCredential[] {
+    const passkeys = this.storage.getAllPasskeys();
+
+    return passkeys;
+  }
+
   async getAccountAddress() {
     const sourceValue =
       this.getState().sourceValue ||
@@ -58,7 +70,7 @@ export class SessionLogic {
     const accountAddress = await cwSDK.getAccountAddress(
       this.communityConfig,
       provider,
-      BigInt(salt),
+      BigInt(salt)
     );
 
     return accountAddress;

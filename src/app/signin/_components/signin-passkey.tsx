@@ -37,7 +37,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
   const sessionStore = useSessionStore();
   const sessionLogic = new SessionLogic(
     () => useSessionStore.getState(), // Pass getter function instead of state
-    config
+    config,
   );
 
   const primaryColor = config.community.theme?.primary ?? "#000000";
@@ -85,7 +85,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         const registrationResponseJSON = await simpleWebAuthn.startRegistration(
           {
             optionsJSON: registrationOptionsJSON,
-          }
+          },
         );
 
         if (!registrationResponseJSON) {
@@ -193,7 +193,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         }
 
         const selectedCredential = passkeys.find(
-          (passkey) => passkey.id === authenticationResponseJSON.id
+          (passkey) => passkey.id === authenticationResponseJSON.id,
         );
 
         if (!selectedCredential) {
@@ -285,7 +285,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
 
         const sessionRequestSuccessReceipt = await waitForTxSuccess(
           new CommunityConfig(config),
-          result.sessionRequestTxHash
+          result.sessionRequestTxHash,
         );
 
         if (!sessionRequestSuccessReceipt) {
@@ -298,7 +298,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         sessionLogic.storeSourceType("passkey");
         sessionLogic.storePasskeyChallenge(
           result.challengeHash,
-          result.challengeExpiry
+          result.challengeExpiry,
         );
 
         const sessionConfirmResult = await confirmSessionAction({
@@ -311,107 +311,106 @@ export default function SignInEmail({ config }: SignInEmailProps) {
 
         const sessionConfirmSuccessReceipt = await waitForTxSuccess(
           new CommunityConfig(config),
-          sessionConfirmResult.sessionRequestTxHash
+          sessionConfirmResult.sessionRequestTxHash,
         );
 
-         if (!sessionConfirmSuccessReceipt) {
-           throw new Error("Failed to confirm transaction");
-         }
-        
-         const accountAddress = await sessionLogic.getAccountAddress();
+        if (!sessionConfirmSuccessReceipt) {
+          throw new Error("Failed to confirm transaction");
+        }
 
-         if (!accountAddress) {
-           throw new Error("Failed to create account");
-         }
-        
+        const accountAddress = await sessionLogic.getAccountAddress();
+
+        if (!accountAddress) {
+          throw new Error("Failed to create account");
+        }
+
         router.push(`/${accountAddress}`);
-
       } catch (error) {
-         console.error("Session request error:", error);
-         if (error instanceof Error) {
-           // Handle environment variable errors
-           if (error.message.includes("environment variable is missing")) {
-             toast({
-               variant: "destructive",
-               title: "Server configuration error",
-               description: "Please contact support.",
-             });
-             return;
-           }
+        console.error("Session request error:", error);
+        if (error instanceof Error) {
+          // Handle environment variable errors
+          if (error.message.includes("environment variable is missing")) {
+            toast({
+              variant: "destructive",
+              title: "Server configuration error",
+              description: "Please contact support.",
+            });
+            return;
+          }
 
-           // Handle connection request errors
-           if (error.message.includes("Invalid connection request")) {
-             toast({
-               variant: "destructive",
-               title: "Invalid session request",
-               description: "Missing required parameters. Please try again.",
-             });
-             return;
-           }
+          // Handle connection request errors
+          if (error.message.includes("Invalid connection request")) {
+            toast({
+              variant: "destructive",
+              title: "Invalid session request",
+              description: "Missing required parameters. Please try again.",
+            });
+            return;
+          }
 
-           if (error.message.includes("Connection request expired")) {
-             toast({
-               variant: "destructive",
-               title: "Session expired",
-               description: "Please try signing in again.",
-             });
-             return;
-           }
+          if (error.message.includes("Connection request expired")) {
+            toast({
+              variant: "destructive",
+              title: "Session expired",
+              description: "Please try signing in again.",
+            });
+            return;
+          }
 
-           // Handle transaction confirmation errors
-           if (error.message.includes("Failed to confirm session request")) {
-             toast({
-               variant: "destructive",
-               title: "Session creation failed",
-               description: "Could not create session. Please try again.",
-             });
-             return;
-           }
+          // Handle transaction confirmation errors
+          if (error.message.includes("Failed to confirm session request")) {
+            toast({
+              variant: "destructive",
+              title: "Session creation failed",
+              description: "Could not create session. Please try again.",
+            });
+            return;
+          }
 
-           if (error.message.includes("Failed to confirm transaction")) {
-             toast({
-               variant: "destructive",
-               title: "Transaction failed",
-               description: "Could not confirm session. Please try again.",
-             });
-             return;
-           }
+          if (error.message.includes("Failed to confirm transaction")) {
+            toast({
+              variant: "destructive",
+              title: "Transaction failed",
+              description: "Could not confirm session. Please try again.",
+            });
+            return;
+          }
 
-           // Handle account creation errors
-           if (error.message.includes("Failed to create account")) {
-             toast({
-               variant: "destructive",
-               title: "Account creation failed",
-               description: "Could not create your account. Please try again.",
-             });
-             return;
-           }
+          // Handle account creation errors
+          if (error.message.includes("Failed to create account")) {
+            toast({
+              variant: "destructive",
+              title: "Account creation failed",
+              description: "Could not create your account. Please try again.",
+            });
+            return;
+          }
 
-           // Handle HTTP errors
-           if (error.message.includes("HTTP error!")) {
-             toast({
-               variant: "destructive",
-               title: "Network error",
-               description:
-                 "Could not connect to the server. Please try again later.",
-             });
-             return;
-           }
+          // Handle HTTP errors
+          if (error.message.includes("HTTP error!")) {
+            toast({
+              variant: "destructive",
+              title: "Network error",
+              description:
+                "Could not connect to the server. Please try again later.",
+            });
+            return;
+          }
 
-           // Default error message
-           toast({
-             variant: "destructive",
-             title: "Failed to create session",
-             description: "Please try again later.",
-           });
-         } else {
-           // Handle unknown errors
-           toast({
-             variant: "destructive",
-             title: "An unexpected error occurred",
-             description: "Please try again.",
-           });
-         }
+          // Default error message
+          toast({
+            variant: "destructive",
+            title: "Failed to create session",
+            description: "Please try again later.",
+          });
+        } else {
+          // Handle unknown errors
+          toast({
+            variant: "destructive",
+            title: "An unexpected error occurred",
+            description: "Please try again.",
+          });
+        }
       }
     });
   };
@@ -435,7 +434,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         "border",
         "h-11 px-4 py-2",
         "gap-2.5",
-        "hover:bg-opacity-20"
+        "hover:bg-opacity-20",
       )}
     >
       {isRegisteringPasskey || isSigningInPasskey || isRequestingSession ? (

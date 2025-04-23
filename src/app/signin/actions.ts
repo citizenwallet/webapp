@@ -23,7 +23,7 @@ import { getBytes, Wallet } from "ethers";
 import {
   generateSessionRequestHash,
   generateSessionSalt,
-generateSessionHash
+  generateSessionHash,
 } from "@/services/session/index";
 
 const relyingPartyName = process.env.RELYING_PARTY_NAME;
@@ -35,12 +35,12 @@ export async function generatePasskeyRegistrationOptionsAction(args: {
 }): Promise<PublicKeyCredentialCreationOptionsJSON> {
   if (!relyingPartyName) {
     throw new Error(
-      "The 'RELYING_PARTY_NAME' environment variable is missing. Please define it."
+      "The 'RELYING_PARTY_NAME' environment variable is missing. Please define it.",
     );
   }
   if (!relyingPartyId) {
     throw new Error(
-      "The 'RELYING_PARTY_ID' environment variable is missing. Please define it."
+      "The 'RELYING_PARTY_ID' environment variable is missing. Please define it.",
     );
   }
   const { existingPasskeys } = args;
@@ -88,12 +88,12 @@ export async function verifyPasskeyRegistrationAction(args: {
   try {
     if (!relyingPartyId) {
       throw new Error(
-        "The 'RELYING_PARTY_ID' environment variable is missing. Please define it."
+        "The 'RELYING_PARTY_ID' environment variable is missing. Please define it.",
       );
     }
     if (!relyingPartyOrigin) {
       throw new Error(
-        "The 'RELYING_PARTY_ORIGIN' environment variable is missing. Please define it."
+        "The 'RELYING_PARTY_ORIGIN' environment variable is missing. Please define it.",
       );
     }
 
@@ -119,12 +119,12 @@ export async function generatePasskeyAuthenticationOptionsAction(args: {
 
   if (!relyingPartyName) {
     throw new Error(
-      "The 'RELYING_PARTY_NAME' environment variable is missing. Please define it."
+      "The 'RELYING_PARTY_NAME' environment variable is missing. Please define it.",
     );
   }
   if (!relyingPartyId) {
     throw new Error(
-      "The 'RELYING_PARTY_ID' environment variable is missing. Please define it."
+      "The 'RELYING_PARTY_ID' environment variable is missing. Please define it.",
     );
   }
 
@@ -156,12 +156,12 @@ export async function verifyPasskeyAuthenticationAction(args: {
   try {
     if (!relyingPartyId) {
       throw new Error(
-        "The 'RELYING_PARTY_ID' environment variable is missing. Please define it."
+        "The 'RELYING_PARTY_ID' environment variable is missing. Please define it.",
       );
     }
     if (!relyingPartyOrigin) {
       throw new Error(
-        "The 'RELYING_PARTY_ORIGIN' environment variable is missing. Please define it."
+        "The 'RELYING_PARTY_ORIGIN' environment variable is missing. Please define it.",
       );
     }
 

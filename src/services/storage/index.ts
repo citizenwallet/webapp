@@ -1,6 +1,4 @@
-import {
-  WebAuthnCredential,
-} from "@simplewebauthn/server";
+import { WebAuthnCredential } from "@simplewebauthn/server";
 
 export class StorageService {
   alias: string;
@@ -19,20 +17,20 @@ export class StorageService {
   savePasskey(credential: WebAuthnCredential) {
     const existingPasskeys = this.getAllPasskeys();
     const passkeyExists = existingPasskeys.some(
-      (passkey) => passkey.id === credential.id
+      (passkey) => passkey.id === credential.id,
     );
     if (!passkeyExists) {
       existingPasskeys.push(credential);
       localStorage.setItem(
         `${this.alias}_${StorageKeys.PASSKEY}`,
-        JSON.stringify(existingPasskeys)
+        JSON.stringify(existingPasskeys),
       );
     }
   }
 
   getAllPasskeys(): WebAuthnCredential[] {
     const passkeys = localStorage.getItem(
-      `${this.alias}_${StorageKeys.PASSKEY}`
+      `${this.alias}_${StorageKeys.PASSKEY}`,
     );
     if (!passkeys) {
       return [];

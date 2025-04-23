@@ -60,5 +60,5 @@ export const useSessionStore = create<SessionState>()(
     resetPasskey: () => set({ passkeys: [] }),
 
     clear: () => set(initialState()),
-  }))
+  })),
 );

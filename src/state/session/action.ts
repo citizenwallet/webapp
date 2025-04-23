@@ -41,7 +41,6 @@ export class SessionLogic {
     this.getState().appendPasskey(passkey);
   }
 
-
   storePasskeyChallenge(challengeHash: string, challengeExpiry: number) {
     this.storage.setKey("SESSION_CHALLENGE_HASH", challengeHash);
     this.storage.setKey("SESSION_CHALLENGE_EXPIRY", challengeExpiry.toString());
@@ -78,7 +77,7 @@ export class SessionLogic {
     const accountAddress = await cwSDK.getAccountAddress(
       this.communityConfig,
       provider,
-      BigInt(salt)
+      BigInt(salt),
     );
 
     return accountAddress;

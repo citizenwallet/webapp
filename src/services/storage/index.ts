@@ -55,6 +55,10 @@ export const StorageKeys = {
   SESSION_SOURCE_TYPE: "session_source_type",
   PASSKEY: "passkey",
 
+  // for passkeys
+  SESSION_CHALLENGE_HASH: "session_challenge_hash",
+  SESSION_CHALLENGE_EXPIRY: "session_challenge_expiry",
+
   HASH: "hash", //hash of local accounts
 } as const;
 

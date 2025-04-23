@@ -41,6 +41,14 @@ export class SessionLogic {
     this.getState().appendPasskey(passkey);
   }
 
+
+  storePasskeyChallenge(challengeHash: string, challengeExpiry: number) {
+    this.storage.setKey("SESSION_CHALLENGE_HASH", challengeHash);
+    this.storage.setKey("SESSION_CHALLENGE_EXPIRY", challengeExpiry.toString());
+    // this.getState().setChallengeHash(challengeHash);
+    // this.getState().setChallengeExpiry(challengeExpiry);
+  }
+
   getPasskeys(): WebAuthnCredential[] {
     const passkeys = this.storage.getAllPasskeys();
 

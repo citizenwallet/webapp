@@ -3,6 +3,7 @@ import { SessionState } from "./state";
 import { StorageService } from "@/services/storage";
 import { generateSessionSalt } from "@/services/session";
 import { Wallet } from "ethers";
+import { WebAuthnCredential } from "@simplewebauthn/server";
 
 export class SessionLogic {
   getState: () => SessionState;
@@ -33,6 +34,24 @@ export class SessionLogic {
   storeSourceType(sourceType: string) {
     this.storage.setKey("SESSION_SOURCE_TYPE", sourceType);
     this.getState().setSourceType(sourceType);
+  }
+
+  storePasskey(passkey: WebAuthnCredential) {
+    this.storage.savePasskey(passkey);
+    this.getState().appendPasskey(passkey);
+  }
+
+  storePasskeyChallenge(challengeHash: string, challengeExpiry: number) {
+    this.storage.setKey("SESSION_CHALLENGE_HASH", challengeHash);
+    this.storage.setKey("SESSION_CHALLENGE_EXPIRY", challengeExpiry.toString());
+    // this.getState().setChallengeHash(challengeHash);
+    // this.getState().setChallengeExpiry(challengeExpiry);
+  }
+
+  getPasskeys(): WebAuthnCredential[] {
+    const passkeys = this.storage.getAllPasskeys();
+
+    return passkeys;
   }
 
   async getAccountAddress() {

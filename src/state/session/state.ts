@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { WebAuthnCredential } from "@simplewebauthn/server";
 
 // TODO: remove devtools later
 
@@ -8,6 +9,7 @@ export interface SessionState {
   sourceType: string | null;
   privateKey: string | null;
   hash: string | null; // convert to bytes when signing
+  passkeys: WebAuthnCredential[];
 
   setSourceValue: (sourceValue: string) => void;
   resetSourceValue: () => void;
@@ -21,6 +23,9 @@ export interface SessionState {
   setHash: (hash: string) => void;
   resetHash: () => void;
 
+  appendPasskey: (passkey: WebAuthnCredential) => void;
+  resetPasskey: () => void;
+
   clear: () => void;
 }
 
@@ -29,6 +34,7 @@ const initialState = () => ({
   sourceType: null,
   privateKey: null,
   hash: null,
+  passkeys: [],
 });
 
 export const useSessionStore = create<SessionState>()(
@@ -46,6 +52,12 @@ export const useSessionStore = create<SessionState>()(
 
     setHash: (hash) => set({ hash }),
     resetHash: () => set({ hash: null }),
+
+    appendPasskey: (passkey) =>
+      set((state) => ({
+        passkeys: [...state.passkeys, passkey],
+      })),
+    resetPasskey: () => set({ passkeys: [] }),
 
     clear: () => set(initialState()),
   })),

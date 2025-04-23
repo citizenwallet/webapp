@@ -5,6 +5,7 @@ import { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import SignInEmail from "./_components/signin-email";
+import SignInPasskey from "./_components/signin-passkey";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +82,7 @@ export default async function Page() {
       </CardHeader>
       <CardContent className="space-y-4">
         <SignInEmail config={config} />
+        <SignInPasskey config={config} />
       </CardContent>
     </Card>
   );

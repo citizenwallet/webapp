@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { otpFormSchema } from "@/app/signin/email/otp/_components/otp-form-schema";
+import { otpFormSchema } from "@/app/(signin)/email/otp/_components/otp-form-schema";
 import { CommunityConfig, Config } from "@citizenwallet/sdk";
 import { getBytes, Wallet } from "ethers";
 import { generateSessionHash } from "@/services/session";

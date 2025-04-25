@@ -24,7 +24,7 @@ import {
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useSessionStore } from "@/state/session/state";
 import { SessionLogic } from "@/state/session/action";
-import { submitOtpFormAction } from "@/app/signin/email/otp/actions";
+import { submitOtpFormAction } from "@/app/(signin)/email/otp/actions";
 
 interface OtpFormProps {
   config: Config;

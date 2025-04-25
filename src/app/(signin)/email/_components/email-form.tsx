@@ -19,7 +19,7 @@ import { Mail } from "lucide-react";
 import { Config, CommunityConfig, waitForTxSuccess } from "@citizenwallet/sdk";
 import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { submitEmailFormAction } from "@/app/signin/email/actions";
+import { submitEmailFormAction } from "@/app/(signin)/email/actions";
 import { useRouter } from "next/navigation";
 import { useSessionStore } from "@/state/session/state";
 import { SessionLogic } from "@/state/session/action";

@@ -1,6 +1,6 @@
 "use server";
 
-import { emailFormSchema } from "@/app/signin/email/_components/email-form-schema";
+import { emailFormSchema } from "@/app/(signin)/email/_components/email-form-schema";
 import { z } from "zod";
 import { Wallet, getBytes } from "ethers";
 import {

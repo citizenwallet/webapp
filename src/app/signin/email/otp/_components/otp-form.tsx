@@ -74,7 +74,7 @@ export default function OtpForm({ config }: OtpFormProps) {
           throw new Error("Failed to create account");
         }
 
-        router.push(`/${accountAddress}`);
+        router.replace(`/${accountAddress}`);
       } catch (error) {
         if (error instanceof Error) {
           // Handle validation error

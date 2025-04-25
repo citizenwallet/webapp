@@ -17,22 +17,22 @@ export class SessionLogic {
   }
 
   storePrivateKey(privateKey: string) {
-    this.storage.setKey("SESSION_PRIVATE_KEY", privateKey);
+    this.storage.setKey("session_private_key", privateKey);
     this.getState().setPrivateKey(privateKey);
   }
 
   storeSessionHash(hash: string) {
-    this.storage.setKey("SESSION_HASH", hash);
+    this.storage.setKey("session_hash", hash);
     this.getState().setHash(hash);
   }
 
   storeSourceValue(sourceValue: string) {
-    this.storage.setKey("SESSION_SOURCE_VALUE", sourceValue);
+    this.storage.setKey("session_source_value", sourceValue);
     this.getState().setSourceValue(sourceValue);
   }
 
   storeSourceType(sourceType: string) {
-    this.storage.setKey("SESSION_SOURCE_TYPE", sourceType);
+    this.storage.setKey("session_source_type", sourceType);
     this.getState().setSourceType(sourceType);
   }
 
@@ -42,8 +42,8 @@ export class SessionLogic {
   }
 
   storePasskeyChallenge(challengeHash: string, challengeExpiry: number) {
-    this.storage.setKey("SESSION_CHALLENGE_HASH", challengeHash);
-    this.storage.setKey("SESSION_CHALLENGE_EXPIRY", challengeExpiry.toString());
+    this.storage.setKey("session_challenge_hash", challengeHash);
+    this.storage.setKey("session_challenge_expiry", challengeExpiry.toString());
     // this.getState().setChallengeHash(challengeHash);
     // this.getState().setChallengeExpiry(challengeExpiry);
   }
@@ -57,14 +57,14 @@ export class SessionLogic {
   async getAccountAddress() {
     const sourceValue =
       this.getState().sourceValue ||
-      this.storage.getKey("SESSION_SOURCE_VALUE");
+      this.storage.getKey("session_source_value");
 
     if (!sourceValue) {
       throw new Error("Source value not found");
     }
 
     const sourceType =
-      this.getState().sourceType || this.storage.getKey("SESSION_SOURCE_TYPE");
+      this.getState().sourceType || this.storage.getKey("session_source_type");
 
     if (!sourceType) {
       throw new Error("Source type not found");
@@ -91,7 +91,7 @@ export class SessionLogic {
     }
 
     const privateKey =
-      this.getState().privateKey || this.storage.getKey("SESSION_PRIVATE_KEY");
+      this.getState().privateKey || this.storage.getKey("session_private_key");
 
     if (!privateKey) {
       throw new Error("Private key not found");

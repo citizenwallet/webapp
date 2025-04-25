@@ -24,7 +24,7 @@ import {
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useSessionStore } from "@/state/session/state";
 import { SessionLogic } from "@/state/session/action";
-import { submitOtpFormAction } from "@/app/(signin)/email/otp/actions";
+import { submitOtpFormAction } from "@/app/signin/email/otp/actions";
 
 interface OtpFormProps {
   config: Config;
@@ -39,7 +39,7 @@ export default function OtpForm({ config }: OtpFormProps) {
   const sessionStore = useSessionStore();
   const sessionLogic = new SessionLogic(
     () => useSessionStore.getState(), // Pass getter function instead of state
-    config,
+    config
   );
 
   const form = useForm<z.infer<typeof otpFormSchema>>({
@@ -61,7 +61,7 @@ export default function OtpForm({ config }: OtpFormProps) {
 
         const successReceipt = await waitForTxSuccess(
           communityConfig,
-          result.sessionRequestTxHash,
+          result.sessionRequestTxHash
         );
 
         if (!successReceipt) {

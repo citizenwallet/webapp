@@ -19,7 +19,7 @@ import { Mail } from "lucide-react";
 import { Config, CommunityConfig, waitForTxSuccess } from "@citizenwallet/sdk";
 import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { submitEmailFormAction } from "@/app/(signin)/email/actions";
+import { submitEmailFormAction } from "@/app/signin/email/actions";
 import { useRouter } from "next/navigation";
 import { useSessionStore } from "@/state/session/state";
 import { SessionLogic } from "@/state/session/action";
@@ -36,7 +36,7 @@ export default function EmailForm({ config }: EmailFormProps) {
   const sessionStore = useSessionStore();
   const sessionLogic = new SessionLogic(
     () => useSessionStore.getState(), // Pass getter function instead of state
-    config,
+    config
   );
 
   const communityConfig = new CommunityConfig(config);
@@ -59,7 +59,7 @@ export default function EmailForm({ config }: EmailFormProps) {
 
         const successReceipt = await waitForTxSuccess(
           communityConfig,
-          result.sessionRequestTxHash,
+          result.sessionRequestTxHash
         );
 
         if (!successReceipt) {

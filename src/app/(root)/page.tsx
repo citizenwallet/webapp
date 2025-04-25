@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import SignInEmail from "./_components/signin-email";
 import SignInPasskey from "./_components/signin-passkey";
 import SignInLocal from "./_components/signin-local";
+import PageClient from "./_components/page-client";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,7 @@ export default async function Page() {
 
   return (
     <Card className="w-full">
+      <PageClient config={config} />
       <div className="flex flex-col items-center pt-6">
         <Avatar className="h-24 w-24 border border-muted bg-background">
           {logoUrl ? (

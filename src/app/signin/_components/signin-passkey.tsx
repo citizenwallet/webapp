@@ -324,7 +324,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
           throw new Error("Failed to create account");
         }
 
-        router.push(`/${accountAddress}`);
+        router.replace(`/${accountAddress}`);
       } catch (error) {
         console.error("Session request error:", error);
         if (error instanceof Error) {

@@ -22,7 +22,7 @@ export class StorageService {
     if (!passkeyExists) {
       existingPasskeys.push(credential);
       localStorage.setItem(
-        `${this.alias}_${StorageKeys.PASSKEY}`,
+        `${this.alias}_${StorageKeys.passkey}`,
         JSON.stringify(existingPasskeys),
       );
     }
@@ -30,7 +30,7 @@ export class StorageService {
 
   getAllPasskeys(): WebAuthnCredential[] {
     const passkeys = localStorage.getItem(
-      `${this.alias}_${StorageKeys.PASSKEY}`,
+      `${this.alias}_${StorageKeys.passkey}`,
     );
     if (!passkeys) {
       return [];
@@ -47,17 +47,17 @@ export class StorageService {
 }
 
 export const StorageKeys = {
-  SESSION_PRIVATE_KEY: "session_private_key",
-  SESSION_HASH: "session_hash",
-  SESSION_SOURCE_VALUE: "session_source_value",
-  SESSION_SOURCE_TYPE: "session_source_type",
-  PASSKEY: "passkey",
+  session_private_key: "session_private_key",
+  session_hash: "session_hash",
+  session_source_value: "session_source_value",
+  session_source_type: "session_source_type",
+  passkey: "passkey",
 
   // for passkeys
-  SESSION_CHALLENGE_HASH: "session_challenge_hash",
-  SESSION_CHALLENGE_EXPIRY: "session_challenge_expiry",
+  session_challenge_hash: "session_challenge_hash",
+  session_challenge_expiry: "session_challenge_expiry",
 
-  HASH: "hash", //hash of local accounts
+  hash: "hash", //hash of local accounts
 } as const;
 
 export type StorageKey = keyof typeof StorageKeys;

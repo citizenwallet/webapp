@@ -17,7 +17,7 @@ export class SessionLogic {
   }
 
   storePrivateKey(privateKey: string) {
-    this.storage.setKey('session_private_key', privateKey);
+    this.storage.setKey("session_private_key", privateKey);
     this.getState().setPrivateKey(privateKey);
   }
 

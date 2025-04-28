@@ -3,7 +3,7 @@ import { StorageService, StorageKeys } from "@/services/storage";
 import { CWAccount } from "@/services/account";
 import { getBaseUrl } from "@/utils/deeplink";
 import * as cwSDK from "@citizenwallet/sdk";
-import { generateSessionSalt } from "@/services/session";
+import { useSession } from "@/state/session/action";
 
 export type AuthMethod = "passkey" | "local" | "email" | "none";
 
@@ -12,6 +12,8 @@ export function useSigninMethod(config: cwSDK.Config) {
   const [isLoading, setIsLoading] = useState(true);
   const [isReadOnly, setIsReadOnly] = useState(true);
   const [accountAddress, setAccountAddress] = useState<string | null>(null);
+  const [sessionState, sessionActions] = useSession(config);
+  const [isSessionExpired, setIsSessionExpired] = useState(true);
 
   const baseUrl = getBaseUrl();
 
@@ -39,15 +41,18 @@ export function useSigninMethod(config: cwSDK.Config) {
       method,
       accountAddress,
       isReadOnly,
+      isSessionExpired,
     }: {
       method: AuthMethod;
       accountAddress: string | null;
       isReadOnly: boolean;
+      isSessionExpired: boolean;
     }) => {
       setAuthMethod(method);
       setAccountAddress(accountAddress);
       setIsLoading(false);
       setIsReadOnly(isReadOnly);
+      setIsSessionExpired(isSessionExpired);
     },
     []
   );
@@ -56,12 +61,7 @@ export function useSigninMethod(config: cwSDK.Config) {
     (async () => {
       try {
         const storageService = new StorageService(config.community.alias);
-
         const communityConfig = new cwSDK.CommunityConfig(config);
-
-        const providerAddress =
-          communityConfig.primarySessionConfig.provider_address;
-
         const walletHash = storageService.getKey(StorageKeys.hash);
 
         const sourceType = storageService.getKey(
@@ -82,9 +82,10 @@ export function useSigninMethod(config: cwSDK.Config) {
             // verify account ownership
             const connectionHash = cwSDK.generateConnectionMessage(
               signer.address,
-              expiryTime.toString()
+              expiryTime.toString(),
+              ""
             );
-              
+
             const signedConnectionHash =
               await signer.signMessage(connectionHash);
 
@@ -105,24 +106,21 @@ export function useSigninMethod(config: cwSDK.Config) {
             method: "local",
             accountAddress: account.account,
             isReadOnly: !signer || !verifyConnectionResult,
+            isSessionExpired: false,
           });
           return;
         }
 
         // email sign in
         if (sourceValue && sourceType === "email") {
-          const salt = generateSessionSalt(sourceValue, sourceType);
-
-          const accountAddress = await cwSDK.getAccountAddress(
-            communityConfig,
-            providerAddress,
-            BigInt(salt)
-          );
+          const accountAddress = await sessionActions.getAccountAddress();
+          const isSessionExpired = await sessionActions.isSessionExpired();
 
           handleSetters({
             method: "email",
             accountAddress: accountAddress,
-            isReadOnly: false, // FIXME: evaluate
+            isReadOnly: false,
+            isSessionExpired: isSessionExpired,
           });
 
           return;
@@ -130,18 +128,14 @@ export function useSigninMethod(config: cwSDK.Config) {
 
         //   passkey sign in
         if (sourceValue && sourceType === "passkey") {
-          const salt = generateSessionSalt(sourceValue, sourceType);
-
-          const accountAddress = await cwSDK.getAccountAddress(
-            communityConfig,
-            providerAddress,
-            BigInt(salt)
-          );
+          const accountAddress = await sessionActions.getAccountAddress();
+          const isSessionExpired = await sessionActions.isSessionExpired();
 
           handleSetters({
             method: "passkey",
             accountAddress: accountAddress,
-            isReadOnly: false, // FIXME: evaluate
+            isReadOnly: false,
+            isSessionExpired: isSessionExpired,
           });
           return;
         }
@@ -150,6 +144,7 @@ export function useSigninMethod(config: cwSDK.Config) {
           method: "none",
           accountAddress: null,
           isReadOnly: true,
+          isSessionExpired: true,
         });
       } catch (error) {
         console.error("Error checking auth method:", error);
@@ -157,15 +152,17 @@ export function useSigninMethod(config: cwSDK.Config) {
           method: "none",
           accountAddress: null,
           isReadOnly: true,
+          isSessionExpired: true,
         });
       }
     })();
-  }, [config, accountOfLocalSignIn, handleSetters]);
+  }, [config, accountOfLocalSignIn, handleSetters, sessionActions]);
 
   return {
     authMethod,
     isLoading,
     accountAddress,
     isReadOnly,
+    isSessionExpired,
   };
 }

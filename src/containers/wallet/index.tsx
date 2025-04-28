@@ -23,25 +23,28 @@ import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import VoucherModal from "./VoucherModal";
-import { getFullUrl } from "@/utils/deeplink";
 import { useIsScrolled } from "@/hooks/scroll";
 import Link from "next/link";
 import BackupModal from "./BackupModal";
 import { getWindow } from "@/utils/window";
 import { getAvatarUrl } from "@/lib/utils";
 import { useThemeUpdater } from "@/hooks/theme";
+import { useSigninMethod } from "@/hooks/signin-method";
 import WalletKitService from "@/services/walletkit";
 import WalletConnect from "@/containers/wallet_connect";
 import { useToast } from "@/components/ui/use-toast";
 import WalletKitProvider from "@/provider/wallet_kit";
 import { getBaseUrl } from "@/utils/deeplink";
+
 interface ContainerProps {
   config: Config;
+  accountAddress: string;
 }
 
-export default function Container({ config }: ContainerProps) {
+export default function Container({ config, accountAddress }: ContainerProps) {
   const { community } = config;
   const communityConfig = new CommunityConfig(config);
+  const { isReadOnly } = useSigninMethod(config);
 
   const isScrolled = useIsScrolled();
 
@@ -119,22 +122,9 @@ export default function Container({ config }: ContainerProps) {
   useThemeUpdater(community);
 
   useEffect(() => {
-    // read the url first
-    const href = getFullUrl();
-
-    console.log("hash", hash);
-    console.log("href", href);
-
-    actions.openAccount(hash, (hashPath: string) => {
-      history.replaceState(null, "", hashPath);
-      const w = getWindow();
-      if (w) {
-        w.location.hash = hashPath;
-      }
-
-      handleScan(href);
-    });
-  }, [actions, hash, profilesActions, community, handleScan]);
+    // TODO: handle scan
+    actions.getAccount(accountAddress);
+  }, [accountAddress, actions]);
 
   const account = state((state) => state.account);
 
@@ -169,12 +159,14 @@ export default function Container({ config }: ContainerProps) {
       ref={scrollableRef}
       className="relative flex min-h-screen w-full flex-col align-center p-4 max-w-xl"
     >
-      <BackupModal
-        community={community}
-        account={account}
-        url={getWindow()?.location.href ?? "/"}
-        className="z-20 absolute left-0 top-0"
-      />
+      {!isReadOnly && (
+        <BackupModal
+          community={community}
+          account={account}
+          url={getWindow()?.location.href ?? "/"}
+          className="z-20 absolute left-0 top-0"
+        />
+      )}
 
       <Link
         href={`/profile/${account}`}
@@ -189,23 +181,26 @@ export default function Container({ config }: ContainerProps) {
         </Avatar>
       </Link>
 
-      <Flex
-        justify="center"
-        align="center"
-        gap="2"
-        className="z-20 fixed right-0 bottom-0 w-full mb-6"
-      >
-        <QRScannerModal onScan={handleScan}>
-          <Button
-            variant="ghost"
-            className="h-20 w-20 rounded-full border-primary border-4 m-4 shadow-lg bg-white"
-          >
-            <QrCodeIcon size={40} className="text-primary" />
-          </Button>
-        </QRScannerModal>
-      </Flex>
+      {!isReadOnly && (
+        <Flex
+          justify="center"
+          align="center"
+          gap="2"
+          className="z-20 fixed right-0 bottom-0 w-full mb-6"
+        >
+          <QRScannerModal onScan={handleScan}>
+            <Button
+              variant="ghost"
+              className="h-20 w-20 rounded-full border-primary border-4 m-4 shadow-lg bg-white"
+            >
+              <QrCodeIcon size={40} className="text-primary" />
+            </Button>
+          </QRScannerModal>
+        </Flex>
+      )}
 
       <ActionBar
+        readonly={isReadOnly}
         account={account}
         balance={balance}
         small={isScrolled}
@@ -227,16 +222,19 @@ export default function Container({ config }: ContainerProps) {
         ))}
       </Flex>
 
-      <VoucherModal config={config} actions={voucherActions} />
+      {!isReadOnly && <VoucherModal config={config} actions={voucherActions} />}
 
       <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10"></Box>
-      <WalletKitProvider config={config}>
-        <WalletConnect
-          config={config}
-          account={account}
-          wallet={actions.account}
-        />
-      </WalletKitProvider>
+
+      {!isReadOnly && (
+        <WalletKitProvider config={config}>
+          <WalletConnect
+            config={config}
+            account={account}
+            wallet={actions.account}
+          />
+        </WalletKitProvider>
+      )}
     </main>
   );
 }

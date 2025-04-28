@@ -22,8 +22,7 @@ import {
   InputOTPGroup,
 } from "@/components/ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { useSessionStore } from "@/state/session/state";
-import { SessionLogic } from "@/state/session/action";
+import { useSession } from "@/state/session/action";
 import { submitOtpFormAction } from "@/app/signin/email/otp/actions";
 
 interface OtpFormProps {
@@ -36,18 +35,14 @@ export default function OtpForm({ config }: OtpFormProps) {
   const router = useRouter();
   const communityConfig = new CommunityConfig(config);
 
-  const sessionStore = useSessionStore();
-  const sessionLogic = new SessionLogic(
-    () => useSessionStore.getState(), // Pass getter function instead of state
-    config,
-  );
+  const [sessionState, sessionActions] = useSession(config);
 
   const form = useForm<z.infer<typeof otpFormSchema>>({
     resolver: zodResolver(otpFormSchema),
     defaultValues: {
       code: "",
-      sessionRequestHash: sessionStore.hash ?? "",
-      privateKey: sessionStore.privateKey ?? "",
+      sessionRequestHash: sessionState((state) => state.hash) ?? "",
+      privateKey: sessionState((state) => state.privateKey) ?? "",
     },
   });
 
@@ -68,7 +63,7 @@ export default function OtpForm({ config }: OtpFormProps) {
           throw new Error("Failed to confirm transaction");
         }
 
-        const accountAddress = await sessionLogic.getAccountAddress();
+        const accountAddress = await sessionActions.getAccountAddress();
 
         if (!accountAddress) {
           throw new Error("Failed to create account");

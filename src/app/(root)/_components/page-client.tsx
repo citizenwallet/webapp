@@ -11,14 +11,18 @@ interface PageClientProps {
 
 export default function PageClient({ config }: PageClientProps) {
   const router = useRouter();
-  const { authMethod, isLoading, accountAddress } = useSigninMethod(config);
+  const { isSessionExpired, accountAddress } = useSigninMethod(config);
 
   useEffect(() => {
-    if (accountAddress) {
+    if (accountAddress && !isSessionExpired) {
       // Redirect to account page when we have an address
       router.replace(`/${accountAddress}`);
+      return;
     }
-  }, [accountAddress, router]);
+
+    // page with auth options
+    router.replace("/");
+  }, [accountAddress, isSessionExpired, router]);
 
   return <></>;
 }

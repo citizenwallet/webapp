@@ -1,8 +1,5 @@
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
 import { WebAuthnCredential } from "@simplewebauthn/server";
-
-// TODO: remove devtools later
 
 export interface SessionState {
   sourceValue: string | null;
@@ -37,28 +34,26 @@ const initialState = () => ({
   passkeys: [],
 });
 
-export const useSessionStore = create<SessionState>()(
-  devtools((set) => ({
-    ...initialState(),
+export const useSessionStore = create<SessionState>()((set) => ({
+  ...initialState(),
 
-    setSourceValue: (sourceValue) => set({ sourceValue }),
-    resetSourceValue: () => set({ sourceValue: null }),
+  setSourceValue: (sourceValue) => set({ sourceValue }),
+  resetSourceValue: () => set({ sourceValue: null }),
 
-    setSourceType: (sourceType) => set({ sourceType }),
-    resetSourceType: () => set({ sourceType: null }),
+  setSourceType: (sourceType) => set({ sourceType }),
+  resetSourceType: () => set({ sourceType: null }),
 
-    setPrivateKey: (privateKey) => set({ privateKey }),
-    resetPrivateKey: () => set({ privateKey: null }),
+  setPrivateKey: (privateKey) => set({ privateKey }),
+  resetPrivateKey: () => set({ privateKey: null }),
 
-    setHash: (hash) => set({ hash }),
-    resetHash: () => set({ hash: null }),
+  setHash: (hash) => set({ hash }),
+  resetHash: () => set({ hash: null }),
 
-    appendPasskey: (passkey) =>
-      set((state) => ({
-        passkeys: [...state.passkeys, passkey],
-      })),
-    resetPasskey: () => set({ passkeys: [] }),
+  appendPasskey: (passkey) =>
+    set((state) => ({
+      passkeys: [...state.passkeys, passkey],
+    })),
+  resetPasskey: () => set({ passkeys: [] }),
 
-    clear: () => set(initialState()),
-  })),
-);
+  clear: () => set(initialState()),
+}));

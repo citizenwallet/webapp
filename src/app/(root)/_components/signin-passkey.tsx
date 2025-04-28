@@ -16,8 +16,9 @@ import {
 } from "@/app/(root)/actions";
 import { toast } from "@/components/ui/use-toast";
 import * as simpleWebAuthn from "@simplewebauthn/browser";
-import { useSessionStore } from "@/state/session/state";
-import { SessionLogic } from "@/state/session/action";
+import { useSession } from "@/state/session/action";
+
+
 import { WebAuthnCredential } from "@simplewebauthn/server";
 import { useRouter } from "next/navigation";
 
@@ -34,11 +35,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
 
   const router = useRouter();
 
-  const sessionStore = useSessionStore();
-  const sessionLogic = new SessionLogic(
-    () => useSessionStore.getState(), // Pass getter function instead of state
-    config,
-  );
+  const [sessionState, sessionActions] = useSession(config);
 
   const primaryColor = config.community.theme?.primary ?? "#000000";
 
@@ -62,7 +59,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
   }, []);
 
   const handlePasskey = async () => {
-    const passkeys = sessionLogic.getPasskeys();
+    const passkeys = sessionActions.getPasskeys();
 
     // no passkeys registered
     if (passkeys.length === 0) {
@@ -107,7 +104,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
           throw new Error("No credential created");
         }
 
-        sessionLogic.storePasskey(credential);
+        sessionActions.storePasskey(credential);
 
         handleSessionRequest(credential);
       } catch (error) {
@@ -292,11 +289,11 @@ export default function SignInEmail({ config }: SignInEmailProps) {
           throw new Error("Failed to confirm session request");
         }
 
-        sessionLogic.storePrivateKey(result.privateKey);
-        sessionLogic.storeSessionHash(result.hash);
-        sessionLogic.storeSourceValue(credential.publicKey.toString());
-        sessionLogic.storeSourceType("passkey");
-        sessionLogic.storePasskeyChallenge(
+        sessionActions.storePrivateKey(result.privateKey);
+        sessionActions.storeSessionHash(result.hash);
+        sessionActions.storeSourceValue(credential.publicKey.toString());
+        sessionActions.storeSourceType("passkey");
+        sessionActions.storePasskeyChallenge(
           result.challengeHash,
           result.challengeExpiry,
         );
@@ -318,7 +315,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
           throw new Error("Failed to confirm transaction");
         }
 
-        const accountAddress = await sessionLogic.getAccountAddress();
+        const accountAddress = await sessionActions.getAccountAddress();
 
         if (!accountAddress) {
           throw new Error("Failed to create account");

@@ -21,8 +21,7 @@ import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { submitEmailFormAction } from "@/app/signin/email/actions";
 import { useRouter } from "next/navigation";
-import { useSessionStore } from "@/state/session/state";
-import { SessionLogic } from "@/state/session/action";
+import {  useSession } from "@/state/session/action";
 
 interface EmailFormProps {
   config: Config;
@@ -33,11 +32,7 @@ export default function EmailForm({ config }: EmailFormProps) {
   const { toast } = useToast();
   const router = useRouter();
 
-  const sessionStore = useSessionStore();
-  const sessionLogic = new SessionLogic(
-    () => useSessionStore.getState(), // Pass getter function instead of state
-    config,
-  );
+  const [sessionState, sessionActions] = useSession(config);
 
   const communityConfig = new CommunityConfig(config);
 
@@ -66,17 +61,14 @@ export default function EmailForm({ config }: EmailFormProps) {
           throw new Error("Failed to confirm transaction");
         }
 
-        sessionLogic.storePrivateKey(result.privateKey);
-        sessionLogic.storeSessionHash(result.hash);
-        sessionLogic.storeSourceValue(values.email);
-        sessionLogic.storeSourceType(values.type);
+        sessionActions.storePrivateKey(result.privateKey);
+        sessionActions.storeSessionHash(result.hash);
+        sessionActions.storeSourceValue(values.email);
+        sessionActions.storeSourceType(values.type);
 
         router.push("/signin/email/otp");
       } catch (error) {
-        sessionStore.resetSourceValue();
-        sessionStore.resetSourceType();
-        sessionStore.resetPrivateKey();
-        sessionStore.resetHash();
+        sessionActions.clear()
 
         // Handle specific error types
         if (error instanceof Error) {

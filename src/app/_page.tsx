@@ -54,7 +54,7 @@ export default async function Home() {
 
   return (
     <Suspense fallback={<FallBack config={config} />}>
-      <Wallet config={config} />
+    
     </Suspense>
   );
 }

@@ -27,7 +27,7 @@ export async function submitOtpFormAction({
 
   const sessionHash = generateSessionHash(
     formData.sessionRequestHash,
-    parseInt(formData.code)
+    parseInt(formData.code),
   );
 
   const sessionHashInBytes = getBytes(sessionHash);

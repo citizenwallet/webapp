@@ -37,7 +37,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
   const sessionStore = useSessionStore();
   const sessionLogic = new SessionLogic(
     () => useSessionStore.getState(), // Pass getter function instead of state
-    config
+    config,
   );
 
   const primaryColor = config.community.theme?.primary ?? "#000000";
@@ -85,7 +85,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         const registrationResponseJSON = await simpleWebAuthn.startRegistration(
           {
             optionsJSON: registrationOptionsJSON,
-          }
+          },
         );
 
         if (!registrationResponseJSON) {
@@ -193,7 +193,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         }
 
         const selectedCredential = passkeys.find(
-          (passkey) => passkey.id === authenticationResponseJSON.id
+          (passkey) => passkey.id === authenticationResponseJSON.id,
         );
 
         if (!selectedCredential) {
@@ -285,7 +285,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
 
         const sessionRequestSuccessReceipt = await waitForTxSuccess(
           new CommunityConfig(config),
-          result.sessionRequestTxHash
+          result.sessionRequestTxHash,
         );
 
         if (!sessionRequestSuccessReceipt) {
@@ -298,7 +298,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         sessionLogic.storeSourceType("passkey");
         sessionLogic.storePasskeyChallenge(
           result.challengeHash,
-          result.challengeExpiry
+          result.challengeExpiry,
         );
 
         const sessionConfirmResult = await confirmSessionAction({
@@ -311,7 +311,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
 
         const sessionConfirmSuccessReceipt = await waitForTxSuccess(
           new CommunityConfig(config),
-          sessionConfirmResult.sessionRequestTxHash
+          sessionConfirmResult.sessionRequestTxHash,
         );
 
         if (!sessionConfirmSuccessReceipt) {
@@ -434,7 +434,7 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         "border",
         "h-11 px-4 py-2",
         "gap-2.5",
-        "hover:bg-opacity-20"
+        "hover:bg-opacity-20",
       )}
     >
       {isRegisteringPasskey || isSigningInPasskey || isRequestingSession ? (

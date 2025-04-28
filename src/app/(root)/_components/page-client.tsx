@@ -19,9 +19,6 @@ export default function PageClient({ config }: PageClientProps) {
       router.replace(`/${accountAddress}`);
       return;
     }
-
-    // page with auth options
-    router.replace("/");
   }, [accountAddress, isSessionExpired, router]);
 
   return <></>;

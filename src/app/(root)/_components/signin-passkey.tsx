@@ -13,7 +13,7 @@ import {
   generatePasskeyAuthenticationOptionsAction,
   requestSessionAction,
   confirmSessionAction,
-} from "@/app/signin/actions";
+} from "@/app/(root)/actions";
 import { toast } from "@/components/ui/use-toast";
 import * as simpleWebAuthn from "@simplewebauthn/browser";
 import { useSessionStore } from "@/state/session/state";

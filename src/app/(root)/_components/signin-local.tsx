@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { Config } from "@citizenwallet/sdk";
 import { cn } from "@/lib/utils";
 import { IncognitoIcon } from "@/components/icons";
-import { useTransition } from "react";
+import { useCallback, useEffect, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { getBaseUrl } from "@/utils/deeplink";
 import { useHash } from "@/hooks/hash";
@@ -32,15 +32,25 @@ export default function SignInLocal({ config }: SignInLocalProps) {
     color: primaryColor,
   };
 
-  const createAccountCallback = (accountAddress: string) => {
-    router.replace(`/${accountAddress}`);
-  };
+  const createAccountCallback = useCallback(
+    (accountAddress: string) => {
+      router.replace(`/${accountAddress}`);
+    },
+    [router],
+  );
 
-  const handleLocal = () => {
+  const handleLocal = useCallback(() => {
     startLoading(async () => {
       actions.openAccount(hash, createAccountCallback);
     });
-  };
+  }, [hash, actions, startLoading, createAccountCallback]);
+
+  useEffect(() => {
+    console.log("hash", hash);
+    if (hash) {
+      handleLocal();
+    }
+  }, [handleLocal, hash]);
 
   return (
     <Button

@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { StorageService, StorageKeys } from "@/services/storage";
 import { CWAccount } from "@/services/account";
 import { getBaseUrl } from "@/utils/deeplink";
-import { useHash } from "@/hooks/hash";
 import * as cwSDK from "@citizenwallet/sdk";
 import { generateSessionSalt } from "@/services/session";
 
@@ -13,7 +12,6 @@ export function useSigninMethod(config: cwSDK.Config) {
   const [isLoading, setIsLoading] = useState(true);
   const [accountAddress, setAccountAddress] = useState<string | null>(null);
   const baseUrl = getBaseUrl();
-  const hash = useHash(); // maybe from a deeplink
 
   const accountOfLocalSignIn = useCallback(
     async (walletHash: string) => {
@@ -59,9 +57,7 @@ export function useSigninMethod(config: cwSDK.Config) {
         const providerAddress =
           communityConfig.primarySessionConfig.provider_address;
 
-        const walletHash = hash
-          ? hash
-          : storageService.getKey(StorageKeys.hash);
+        const walletHash = storageService.getKey(StorageKeys.hash);
 
         const sourceType = storageService.getKey(
           StorageKeys.session_source_type
@@ -125,7 +121,7 @@ export function useSigninMethod(config: cwSDK.Config) {
         });
       }
     })();
-  }, [config, accountOfLocalSignIn, handleSetters, hash]);
+  }, [config, accountOfLocalSignIn, handleSetters]);
 
   return {
     authMethod,

@@ -1,44 +1,45 @@
 import * as cwSDK from "@citizenwallet/sdk";
-import { SessionState } from "./state";
+import { SessionState, useSessionStore } from "./state";
 import { StorageService } from "@/services/storage";
-import { generateSessionSalt } from "@/services/session";
 import { Wallet } from "ethers";
 import { WebAuthnCredential } from "@simplewebauthn/server";
+import { StoreApi, UseBoundStore } from "zustand";
+import { useMemo } from "react";
 
 export class SessionLogic {
-  getState: () => SessionState;
+  state: SessionState;
   communityConfig: cwSDK.CommunityConfig;
   storage: StorageService;
 
-  constructor(getState: () => SessionState, config: cwSDK.Config) {
-    this.getState = getState;
+  constructor(state: SessionState, config: cwSDK.Config) {
+    this.state = state;
     this.communityConfig = new cwSDK.CommunityConfig(config);
     this.storage = new StorageService(this.communityConfig.community.alias);
   }
 
   storePrivateKey(privateKey: string) {
     this.storage.setKey("session_private_key", privateKey);
-    this.getState().setPrivateKey(privateKey);
+    this.state.setPrivateKey(privateKey);
   }
 
   storeSessionHash(hash: string) {
     this.storage.setKey("session_hash", hash);
-    this.getState().setHash(hash);
+    this.state.setHash(hash);
   }
 
   storeSourceValue(sourceValue: string) {
     this.storage.setKey("session_source_value", sourceValue);
-    this.getState().setSourceValue(sourceValue);
+    this.state.setSourceValue(sourceValue);
   }
 
   storeSourceType(sourceType: string) {
     this.storage.setKey("session_source_type", sourceType);
-    this.getState().setSourceType(sourceType);
+    this.state.setSourceType(sourceType);
   }
 
   storePasskey(passkey: WebAuthnCredential) {
     this.storage.savePasskey(passkey);
-    this.getState().appendPasskey(passkey);
+    this.state.appendPasskey(passkey);
   }
 
   storePasskeyChallenge(challengeHash: string, challengeExpiry: number) {
@@ -56,29 +57,24 @@ export class SessionLogic {
 
   async getAccountAddress() {
     const sourceValue =
-      this.getState().sourceValue ||
-      this.storage.getKey("session_source_value");
+      this.state.sourceValue || this.storage.getKey("session_source_value");
 
     if (!sourceValue) {
       throw new Error("Source value not found");
     }
 
     const sourceType =
-      this.getState().sourceType || this.storage.getKey("session_source_type");
+      this.state.sourceType || this.storage.getKey("session_source_type");
 
     if (!sourceType) {
       throw new Error("Source type not found");
     }
 
-    const provider = this.communityConfig.primarySessionConfig.provider_address;
-
-    const salt = generateSessionSalt(sourceValue, sourceType);
-
-    const accountAddress = await cwSDK.getAccountAddress(
-      this.communityConfig,
-      provider,
-      BigInt(salt),
-    );
+    const accountAddress = await cwSDK.getTwoFAAddress({
+      community: this.communityConfig,
+      source: sourceValue,
+      type: sourceType,
+    });
 
     return accountAddress;
   }
@@ -91,7 +87,7 @@ export class SessionLogic {
     }
 
     const privateKey =
-      this.getState().privateKey || this.storage.getKey("session_private_key");
+      this.state.privateKey || this.storage.getKey("session_private_key");
 
     if (!privateKey) {
       throw new Error("Private key not found");
@@ -99,17 +95,29 @@ export class SessionLogic {
 
     const signer = new Wallet(privateKey);
 
-    // TODO: temp comment
-    // const isExpired = await cwSDK.isSessionExpired({
-    //   community: this.communityConfig,
-    //   account: accountAddress,
-    //   owner: signer.address,
-    // });
+    const isExpired = await cwSDK.isSessionExpired({
+      community: this.communityConfig,
+      account: accountAddress,
+      owner: signer.address,
+    });
 
     return false;
   }
 
   clear() {
-    this.getState().clear();
+    this.state.clear();
   }
 }
+
+export const useSession = (
+  config: cwSDK.Config
+): [UseBoundStore<StoreApi<SessionState>>, SessionLogic] => {
+  const sessionStore = useSessionStore;
+
+  const actions = useMemo(
+    () => new SessionLogic(sessionStore.getState(), config),
+    [sessionStore, config]
+  );
+
+  return [sessionStore, actions];
+};

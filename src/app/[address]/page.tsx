@@ -1,7 +1,6 @@
 import { headers } from "next/headers";
 import { getCommunityFromHeaders } from "@/services/config";
 import Wallet from "@/containers/wallet";
-import ReadOnly from "../../containers/wallet/readonly";
 
 // TODO: logout functionality
 
@@ -21,10 +20,5 @@ export default async function Page(props: PageProps) {
 
   const { address } = await props.params;
 
-  return (
-    <>
-      {/* TODO: replace with Wallet component */}
-      <ReadOnly config={config} accountAddress={address} />
-    </>
-  );
+  return <Wallet config={config} accountAddress={address} />;
 }

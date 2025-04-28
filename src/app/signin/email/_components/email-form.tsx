@@ -21,7 +21,7 @@ import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { submitEmailFormAction } from "@/app/signin/email/actions";
 import { useRouter } from "next/navigation";
-import {  useSession } from "@/state/session/action";
+import { useSession } from "@/state/session/action";
 
 interface EmailFormProps {
   config: Config;
@@ -68,7 +68,7 @@ export default function EmailForm({ config }: EmailFormProps) {
 
         router.push("/signin/email/otp");
       } catch (error) {
-        sessionActions.clear()
+        sessionActions.clear();
 
         // Handle specific error types
         if (error instanceof Error) {

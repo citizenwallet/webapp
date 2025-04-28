@@ -18,7 +18,6 @@ import { toast } from "@/components/ui/use-toast";
 import * as simpleWebAuthn from "@simplewebauthn/browser";
 import { useSession } from "@/state/session/action";
 
-
 import { WebAuthnCredential } from "@simplewebauthn/server";
 import { useRouter } from "next/navigation";
 

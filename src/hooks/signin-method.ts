@@ -28,12 +28,12 @@ export function useSigninMethod(config: cwSDK.Config) {
         baseUrl,
         walletHash,
         walletPassword,
-        config
+        config,
       );
 
       return account;
     },
-    [baseUrl, config]
+    [baseUrl, config],
   );
 
   const handleSetters = useCallback(
@@ -54,7 +54,7 @@ export function useSigninMethod(config: cwSDK.Config) {
       setIsReadOnly(isReadOnly);
       setIsSessionExpired(isSessionExpired);
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -65,10 +65,10 @@ export function useSigninMethod(config: cwSDK.Config) {
         const walletHash = storageService.getKey(StorageKeys.hash);
 
         const sourceType = storageService.getKey(
-          StorageKeys.session_source_type
+          StorageKeys.session_source_type,
         );
         const sourceValue = storageService.getKey(
-          StorageKeys.session_source_value
+          StorageKeys.session_source_value,
         );
 
         // local sign in
@@ -83,7 +83,7 @@ export function useSigninMethod(config: cwSDK.Config) {
             const connectionHash = cwSDK.generateConnectionMessage(
               signer.address,
               expiryTime.toString(),
-              ""
+              "",
             );
 
             const signedConnectionHash =
@@ -98,7 +98,7 @@ export function useSigninMethod(config: cwSDK.Config) {
               communityConfig,
               {
                 params,
-              }
+              },
             );
           }
 

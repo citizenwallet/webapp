@@ -110,13 +110,13 @@ export class SessionLogic {
 }
 
 export const useSession = (
-  config: cwSDK.Config
+  config: cwSDK.Config,
 ): [UseBoundStore<StoreApi<SessionState>>, SessionLogic] => {
   const sessionStore = useSessionStore;
 
   const actions = useMemo(
     () => new SessionLogic(sessionStore.getState(), config),
-    [sessionStore, config]
+    [sessionStore, config],
   );
 
   return [sessionStore, actions];

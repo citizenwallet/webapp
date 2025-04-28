@@ -17,12 +17,11 @@ export default function PageClient({ config }: PageClientProps) {
     if (accountAddress && !isSessionExpired) {
       // Redirect to account page when we have an address
       router.replace(`/${accountAddress}`);
-      return
+      return;
     }
 
-  
     // page with auth options
-     router.replace("/");
+    router.replace("/");
   }, [accountAddress, isSessionExpired, router]);
 
   return <></>;

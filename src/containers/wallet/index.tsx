@@ -86,7 +86,7 @@ export default function Container({ config, accountAddress }: ContainerProps) {
         });
       }
     },
-    [toast]
+    [toast],
   );
 
   const handleScan = useCallback(
@@ -116,7 +116,7 @@ export default function Container({ config, accountAddress }: ContainerProps) {
           return;
       }
     },
-    [sendActions, voucherActions, profilesActions, handleWalletConnect]
+    [sendActions, voucherActions, profilesActions, handleWalletConnect],
   );
 
   useThemeUpdater(community);

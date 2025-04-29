@@ -84,6 +84,7 @@ export default async function Page() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* TODO: show loader */}
         <SignInEmail config={config} />
         <SignInPasskey config={config} />
         <SignInLocal config={config} />

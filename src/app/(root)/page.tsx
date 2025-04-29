@@ -1,12 +1,8 @@
-import { CommunityConfig } from "@citizenwallet/sdk";
 import { getCommunityFromHeaders } from "@/services/config";
 import { headers } from "next/headers";
 import { Metadata } from "next";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import SignInEmail from "./_components/signin-email";
-import SignInPasskey from "./_components/signin-passkey";
-import SignInLocal from "./_components/signin-local";
+
+
 import PageClient from "./_components/page-client";
 
 export const dynamic = "force-dynamic";
@@ -52,43 +48,5 @@ export default async function Page() {
     return <div>Community not found</div>;
   }
 
-  const communityConfig = new CommunityConfig(config);
-
-  const logoUrl = communityConfig.community.logo;
-  const communityName = communityConfig.community.name;
-  const tokenSymbol = communityConfig.primaryToken.symbol;
-
-  return (
-    <Card className="w-full">
-      <PageClient config={config} />
-      <div className="flex flex-col items-center pt-6">
-        <Avatar className="h-24 w-24 border border-muted bg-background">
-          {logoUrl ? (
-            <AvatarImage
-              src={logoUrl}
-              alt={communityName}
-              className="object-contain p-1"
-            />
-          ) : (
-            <AvatarFallback className="bg-primary/10">
-              {tokenSymbol}
-            </AvatarFallback>
-          )}
-        </Avatar>
-
-        <p className="mt-2 text-lg font-medium">{communityName}</p>
-      </div>
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">
-          Sign In
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* TODO: show loader */}
-        <SignInEmail config={config} />
-        <SignInPasskey config={config} />
-        <SignInLocal config={config} />
-      </CardContent>
-    </Card>
-  );
+  return <PageClient config={config} />;
 }

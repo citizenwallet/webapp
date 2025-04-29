@@ -7,13 +7,15 @@ import { useSession } from "@/state/session/action";
 
 export type AuthMethod = "passkey" | "local" | "email" | "none";
 
+
+
 export function useSigninMethod(config: cwSDK.Config) {
   const [authMethod, setAuthMethod] = useState<AuthMethod>("none");
   const [isLoading, setIsLoading] = useState(true);
   const [isReadOnly, setIsReadOnly] = useState(true);
   const [accountAddress, setAccountAddress] = useState<string | null>(null);
   const [sessionState, sessionActions] = useSession(config);
-  const [isSessionExpired, setIsSessionExpired] = useState(true);
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
 
   const baseUrl = getBaseUrl();
 
@@ -144,7 +146,7 @@ export function useSigninMethod(config: cwSDK.Config) {
           method: "none",
           accountAddress: null,
           isReadOnly: true,
-          isSessionExpired: true,
+          isSessionExpired: false,
         });
       } catch (error) {
         console.error("Error checking auth method:", error);
@@ -152,7 +154,7 @@ export function useSigninMethod(config: cwSDK.Config) {
           method: "none",
           accountAddress: null,
           isReadOnly: true,
-          isSessionExpired: true,
+          isSessionExpired: false,
         });
       }
     })();

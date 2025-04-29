@@ -7,8 +7,6 @@ import { useSession } from "@/state/session/action";
 
 export type AuthMethod = "passkey" | "local" | "email" | "none";
 
-
-
 export function useSigninMethod(config: cwSDK.Config) {
   const [authMethod, setAuthMethod] = useState<AuthMethod>("none");
   const [isLoading, setIsLoading] = useState(true);

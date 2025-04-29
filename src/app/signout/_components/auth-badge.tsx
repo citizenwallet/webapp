@@ -1,11 +1,11 @@
 import { Key, Mail } from "lucide-react";
 import { Config } from "@citizenwallet/sdk";
 import { cn } from "@/lib/utils";
-import {AuthMethod} from '@/hooks/signin-method'
+import { AuthMethod } from "@/hooks/signin-method";
 import { IncognitoIcon } from "@/components/icons";
 
 interface AuthBadgeProps {
-    config: Config
+  config: Config;
   authMethod: AuthMethod;
 }
 
@@ -32,18 +32,17 @@ export default function AuthBadge({ authMethod, config }: AuthBadgeProps) {
   };
 
   return (
-       <div 
+    <div
       style={style}
       className={cn(
         "absolute -bottom-2 -right-2 rounded-full h-10 w-10",
         "flex items-center justify-center",
         "ring-2 ring-background",
         "transition-colors",
-        "hover:bg-opacity-20"
+        "hover:bg-opacity-20",
       )}
     >
       {getAuthIcon()}
     </div>
-  
   );
 }

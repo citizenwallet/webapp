@@ -16,6 +16,10 @@ import { useRef, useState } from "react";
 import { getAvatarUrl } from "@/lib/utils";
 import { useThemeUpdater } from "@/hooks/theme";
 import { Skeleton } from "@/components/ui/skeleton";
+import Signout from "./signout";
+
+
+
 interface ContainerProps {
   config: Config;
   profile?: Profile;
@@ -48,8 +52,6 @@ export default function Container({
       return;
     }
 
-    // can't go back for some reason, go home
-    router.replace("/");
   };
 
   const handleOpenExplorer = (account: string) => {
@@ -125,6 +127,10 @@ export default function Container({
           )}
         </Flex>
       </Flex>
+
+      <div className="w-full h-[1px] bg-border" />
+
+      <Signout config={config} />
     </main>
   );
 }

@@ -21,6 +21,13 @@ import { useSession } from "@/state/session/action";
 import { StorageService } from "@/services/storage";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useAccount } from "@/state/account/actions";
+import { useProfiles } from "@/state/profiles/actions";
+import { useReceive } from "@/state/receive/actions";
+import { useSend } from "@/state/send/actions";
+import { useVoucher } from "@/state/voucher/actions";
+import { useWalletKit } from "@/state/wallet_kit/actions";
+import { getBaseUrl } from "@/utils/deeplink";
 
 interface PageClientProps {
   config: Config;
@@ -29,9 +36,19 @@ interface PageClientProps {
 export default function PageClient({ config }: PageClientProps) {
   const communityConfig = new CommunityConfig(config);
 
+  const baseUrl = getBaseUrl();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSigningOut, startSignout] = useTransition();
+
   const [sessionState, sessionActions] = useSession(config);
+  const [accountState, accountActions] = useAccount(baseUrl, config);
+  const [profilesState, profilesActions] = useProfiles(config);
+  const [receiveState, receiveActions] = useReceive();
+  const [sendState, sendActions] = useSend();
+  const [voucherState, voucherActions] = useVoucher(config);
+  const [walletKitState, walletKitActions] = useWalletKit();
+
   const router = useRouter();
   const storageService = new StorageService(config.community.alias);
 
@@ -66,13 +83,13 @@ export default function PageClient({ config }: PageClientProps) {
 
   const signOutLocal = () => {
     handleCloseDialog();
-    // TODO: clear state
+
     storageService.deleteKey("hash");
+    clearState();
     router.replace("/");
   };
 
   const signOutSession = () => {
-    // TODO: clear state
     startSignout(async () => {
       const privateKey = sessionActions.storage.getKey("session_private_key");
       const account = await sessionActions.getAccountAddress();
@@ -98,7 +115,7 @@ export default function PageClient({ config }: PageClientProps) {
         return;
       }
 
-      sessionActions.clear();
+      clearState();
       storageService.deleteKey("session_private_key");
       storageService.deleteKey("session_source_type");
       storageService.deleteKey("session_source_value");
@@ -108,6 +125,16 @@ export default function PageClient({ config }: PageClientProps) {
 
       router.replace("/");
     });
+  };
+
+  const clearState = () => {
+    sessionActions.clear();
+    accountActions.clear();
+    profilesActions.clear();
+    receiveActions.clear();
+    sendActions.clear();
+    voucherActions.clear();
+    walletKitActions.clear();
   };
 
   const handleOpenDialog = () => {

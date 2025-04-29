@@ -143,7 +143,7 @@ export default function PageClient({ config }: PageClientProps) {
 
         <div className="w-full">
           <Button
-            variant="destructive"
+            variant={authMethod === "local" ? "destructive" : "secondary"}
             className="w-full"
             onClick={handleSignOut}
             disabled={isSigningOut}

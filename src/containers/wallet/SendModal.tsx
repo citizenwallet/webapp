@@ -29,6 +29,7 @@ import { ToastAction } from "@/components/ui/toast";
 import { selectCanSend } from "@/state/send/selectors";
 import { scrollToTop } from "@/utils/window";
 import { CommunityConfig } from "@citizenwallet/sdk";
+import { useState } from "react";
 
 interface SendModalProps {
   accountActions: AccountLogic;
@@ -42,6 +43,8 @@ export default function SendModal({
   children,
 }: SendModalProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  const [isSending, setIsSending] = useState(false);
 
   const communityConfig = new CommunityConfig(config);
   const primaryToken = communityConfig.primaryToken;
@@ -85,7 +88,11 @@ export default function SendModal({
     sendDescription?: string,
   ) => {
     if (!resolvedTo) return;
+
+    setIsSending(true);
     const tx = await accountActions.send(sendTo, sendAmount, sendDescription);
+    setIsSending(false);
+
     if (tx) {
       // send toast
       const profile = profiles[sendTo];
@@ -110,6 +117,7 @@ export default function SendModal({
           <ToastAction
             altText="Try again"
             onClick={() => handleSend(sendTo, sendAmount, sendDescription)}
+            disabled={isSending}
           >
             Try again
           </ToastAction>
@@ -150,6 +158,7 @@ export default function SendModal({
               <Button
                 onClick={() => handleSend(resolvedTo, amount, description)}
                 className="w-full"
+                disabled={isSending}
               >
                 Send
                 <ArrowRightIcon size={24} className="ml-4" />

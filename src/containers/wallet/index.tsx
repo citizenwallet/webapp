@@ -35,6 +35,7 @@ import WalletConnect from "@/containers/wallet_connect";
 import { useToast } from "@/components/ui/use-toast";
 import WalletKitProvider from "@/provider/wallet_kit";
 import { getBaseUrl } from "@/utils/deeplink";
+import { useRouter } from "next/navigation";
 
 interface ContainerProps {
   config: Config;
@@ -44,16 +45,17 @@ interface ContainerProps {
 export default function Container({ config, accountAddress }: ContainerProps) {
   const { community } = config;
   const communityConfig = new CommunityConfig(config);
-  const { isReadOnly } = useSigninMethod(config);
+  const { isReadOnly, authMethod } = useSigninMethod(config);
 
   const isScrolled = useIsScrolled();
 
   const baseUrl = getBaseUrl();
 
-  const [state, actions] = useAccount(baseUrl, config);
+  const [accountState, accountActions] = useAccount(baseUrl, config);
   const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
   const [voucherState, voucherActions] = useVoucher(config);
+  const router = useRouter();
   const hash = useHash();
 
   const { toast } = useToast();
@@ -86,7 +88,7 @@ export default function Container({ config, accountAddress }: ContainerProps) {
         });
       }
     },
-    [toast],
+    [toast]
   );
 
   const handleScan = useCallback(
@@ -116,25 +118,35 @@ export default function Container({ config, accountAddress }: ContainerProps) {
           return;
       }
     },
-    [sendActions, voucherActions, profilesActions, handleWalletConnect],
+    [sendActions, voucherActions, profilesActions, handleWalletConnect]
   );
 
   useThemeUpdater(community);
 
   useEffect(() => {
     // TODO: handle scan
-    actions.getAccount(accountAddress);
-  }, [accountAddress, actions]);
+    accountActions.getAccount(accountAddress);
 
-  const account = state((state) => state.account);
+    if (authMethod === "local") {
+      accountActions.openAccount(hash, (accountAddress: string) => {
+        router.replace(`/${accountAddress}`);
+      });
+    }
+
+    if (["email", "passkey"].includes(authMethod)) {
+      accountActions.openSessionAccount(accountAddress);
+    }
+  }, [accountAddress, accountActions, router, hash, authMethod]);
+
+  const account = accountState((state) => state.account);
 
   useFocusEffect(() => {
     let unsubscribe: () => void | undefined;
 
     if (account) {
       profilesActions.loadProfile(account);
-      actions.fetchBalance();
-      unsubscribe = actions.listen(account);
+      accountActions.fetchBalance();
+      unsubscribe = accountActions.listen(account);
     }
 
     return () => {
@@ -144,13 +156,13 @@ export default function Container({ config, accountAddress }: ContainerProps) {
 
   const fetchMoreTransfers = useCallback(async () => {
     if (!account) return false;
-    return actions.getTransfers(account);
-  }, [actions, account]);
+    return accountActions.getTransfers(account);
+  }, [accountActions, account]);
 
   const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
 
-  const balance = state((state) => state.balance);
-  const logs = state(selectOrderedLogs);
+  const balance = accountState((state) => state.balance);
+  const logs = accountState(selectOrderedLogs);
   const profile = profilesState((state) => state.profiles[account]);
   const profiles = profilesState((state) => state.profiles);
 
@@ -205,7 +217,7 @@ export default function Container({ config, accountAddress }: ContainerProps) {
         balance={balance}
         small={isScrolled}
         config={config}
-        accountActions={actions}
+        accountActions={accountActions}
       />
 
       <Flex direction="column" className="w-full pt-[420px]" gap="3">
@@ -231,7 +243,7 @@ export default function Container({ config, accountAddress }: ContainerProps) {
           <WalletConnect
             config={config}
             account={account}
-            wallet={actions.account}
+            wallet={accountActions.account}
           />
         </WalletKitProvider>
       )}

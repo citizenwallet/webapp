@@ -66,11 +66,13 @@ export default function PageClient({ config }: PageClientProps) {
 
   const signOutLocal = () => {
     handleCloseDialog();
+    // TODO: clear state
     storageService.deleteKey("hash");
     router.replace("/");
   };
 
   const signOutSession = () => {
+    // TODO: clear state
     startSignout(async () => {
       const privateKey = sessionActions.storage.getKey("session_private_key");
       const account = await sessionActions.getAccountAddress();

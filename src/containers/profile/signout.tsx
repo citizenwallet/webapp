@@ -2,13 +2,6 @@
 
 import { CommunityConfig, Config, revokeSession } from "@citizenwallet/sdk";
 import { useSigninMethod } from "@/hooks/signin-method";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
 import { Wallet } from "ethers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AuthBadge from "./auth-badge";
@@ -125,15 +118,9 @@ export default function PageClient({ config }: PageClientProps) {
 
   return (
     <>
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            {communityName}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex justify-center">
+      <div className="w-full flex flex-col items-center gap-6">
+        <div className="flex justify-center">
           <div className="relative inline-flex">
-            {/* Main community avatar */}
             <Avatar className="h-24 w-24 border-2 border-muted bg-background">
               <AvatarImage
                 src={logoUrl || "/placeholder.svg"}
@@ -145,18 +132,18 @@ export default function PageClient({ config }: PageClientProps) {
 
             <AuthBadge authMethod={authMethod} config={config} />
           </div>
-        </CardContent>
+        </div>
 
-        <CardContent className="space-y-4">
+        <div className="w-full">
           <div className="flex justify-center gap-2 items-center">
             <p className="text-lg font-medium">You are signed in with</p>
             <p className="text-lg font-medium">{getAuthMethodName()}</p>
           </div>
-        </CardContent>
+        </div>
 
-        <CardFooter>
+        <div className="w-full">
           <Button
-            variant="destructive"
+            variant={authMethod === "local" ? "destructive" : "secondary"}
             className="w-full"
             onClick={handleSignOut}
             disabled={isSigningOut}
@@ -170,8 +157,8 @@ export default function PageClient({ config }: PageClientProps) {
                 ? "Delete Forever"
                 : "Sign Out"}
           </Button>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
 
       {/* confirmation for local account */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

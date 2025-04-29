@@ -101,7 +101,7 @@ export class SessionLogic {
       owner: signer.address,
     });
 
-    return false;
+    return isExpired;
   }
 
   clear() {

@@ -1,0 +1,204 @@
+"use client";
+
+import { CommunityConfig, Config, revokeSession } from "@citizenwallet/sdk";
+import { useSigninMethod } from "@/hooks/signin-method";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Wallet } from "ethers";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AuthBadge from "./auth-badge";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useState, useTransition } from "react";
+import { useSession } from "@/state/session/action";
+import { StorageService } from "@/services/storage";
+import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+
+interface PageClientProps {
+  config: Config;
+}
+
+export default function PageClient({ config }: PageClientProps) {
+  const communityConfig = new CommunityConfig(config);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSigningOut, startSignout] = useTransition();
+  const [sessionState, sessionActions] = useSession(config);
+  const router = useRouter();
+  const storageService = new StorageService(config.community.alias);
+
+  const logoUrl = communityConfig.community.logo;
+  const communityName = communityConfig.community.name;
+  const tokenSymbol = communityConfig.primaryToken.symbol;
+
+  const { authMethod } = useSigninMethod(config);
+
+  const getAuthMethodName = () => {
+    switch (authMethod) {
+      case "email":
+        return "email";
+      case "passkey":
+        return "passkey";
+      case "local":
+        return "local account";
+      default:
+        return "email";
+    }
+  };
+
+  const handleSignOut = () => {
+    if (authMethod === "local") {
+      handleOpenDialog();
+    }
+
+    if (["email", "passkey"].includes(authMethod)) {
+      signOutSession();
+    }
+  };
+
+  const signOutLocal = () => {
+    handleCloseDialog();
+    storageService.deleteKey("hash");
+    router.replace("/");
+  };
+
+  const signOutSession = () => {
+    startSignout(async () => {
+      const privateKey = sessionActions.storage.getKey("session_private_key");
+      const account = await sessionActions.getAccountAddress();
+
+      if (!privateKey || !account) {
+        return;
+      }
+
+      const signer = new Wallet(privateKey);
+
+      const tx = await revokeSession({
+        community: communityConfig,
+        signer,
+        account,
+      });
+
+      if (!tx) {
+        toast({
+          variant: "destructive",
+          title: "Signout failed",
+          description: "Please try again.",
+        });
+        return;
+      }
+
+      sessionActions.clear();
+      storageService.deleteKey("session_private_key");
+      storageService.deleteKey("session_source_type");
+      storageService.deleteKey("session_source_value");
+      storageService.deleteKey("session_hash");
+      storageService.deleteKey("session_challenge_hash");
+      storageService.deleteKey("session_challenge_expiry");
+
+      router.replace("/");
+    });
+  };
+
+  const handleOpenDialog = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
+
+  return (
+    <>
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            {communityName}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex justify-center">
+          <div className="relative inline-flex">
+            {/* Main community avatar */}
+            <Avatar className="h-24 w-24 border-2 border-muted bg-background">
+              <AvatarImage
+                src={logoUrl || "/placeholder.svg"}
+                alt={communityName}
+                className="object-contain p-1"
+              />
+              <AvatarFallback>{tokenSymbol}</AvatarFallback>
+            </Avatar>
+
+            <AuthBadge authMethod={authMethod} config={config} />
+          </div>
+        </CardContent>
+
+        <CardContent className="space-y-4">
+          <div className="flex justify-center gap-2 items-center">
+            <p className="text-lg font-medium">You are signed in with</p>
+            <p className="text-lg font-medium">{getAuthMethodName()}</p>
+          </div>
+        </CardContent>
+
+        <CardFooter>
+          <Button
+            variant="destructive"
+            className="w-full"
+            onClick={handleSignOut}
+            disabled={isSigningOut}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            {isSigningOut
+              ? authMethod === "local"
+                ? "Deleting Forever..."
+                : "Signing out..."
+              : authMethod === "local"
+                ? "Delete Forever"
+                : "Sign Out"}
+          </Button>
+        </CardFooter>
+      </Card>
+
+      {/* confirmation for local account */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Forever</DialogTitle>
+            <DialogDescription>
+              This will clear all data on this page and log you out forever.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-end gap-2">
+            <DialogClose asChild>
+              <Button type="button" variant="outline" disabled={isSigningOut}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              disabled={isSigningOut}
+              onClick={signOutLocal}
+              type="button"
+              variant="destructive"
+            >
+              {isSigningOut ? "Signing out..." : "Sign out"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

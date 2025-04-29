@@ -14,6 +14,10 @@ export class StorageService {
     return localStorage.getItem(`${this.alias}_${key}`);
   }
 
+  deleteKey(key: StorageKey) {
+    localStorage.removeItem(`${this.alias}_${key}`);
+  }
+
   savePasskey(credential: WebAuthnCredential) {
     const existingPasskeys = this.getAllPasskeys();
     const passkeyExists = existingPasskeys.some(

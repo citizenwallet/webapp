@@ -22,10 +22,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState, useTransition } from "react";
 import { useSession } from "@/state/session/action";
+import { StorageService } from "@/services/storage";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
@@ -40,6 +40,7 @@ export default function PageClient({ config }: PageClientProps) {
   const [isSigningOut, startSignout] = useTransition();
   const [sessionState, sessionActions] = useSession(config);
   const router = useRouter();
+  const storageService = new StorageService(config.community.alias);
 
   const logoUrl = communityConfig.community.logo;
   const communityName = communityConfig.community.name;
@@ -72,7 +73,8 @@ export default function PageClient({ config }: PageClientProps) {
 
   const signOutLocal = () => {
     handleCloseDialog();
-    //   TODO: clear hash from local storage
+    storageService.deleteKey("hash");
+    router.replace("/");
   };
 
   const signOutSession = () => {
@@ -102,12 +104,12 @@ export default function PageClient({ config }: PageClientProps) {
       }
 
       sessionActions.clear();
-      sessionActions.storage.deleteKey("session_private_key");
-      sessionActions.storage.deleteKey("session_source_type");
-      sessionActions.storage.deleteKey("session_source_value");
-      sessionActions.storage.deleteKey("session_hash");
-      sessionActions.storage.deleteKey("session_challenge_hash");
-      sessionActions.storage.deleteKey("session_challenge_expiry");
+      storageService.deleteKey("session_private_key");
+      storageService.deleteKey("session_source_type");
+      storageService.deleteKey("session_source_value");
+      storageService.deleteKey("session_hash");
+      storageService.deleteKey("session_challenge_hash");
+      storageService.deleteKey("session_challenge_expiry");
 
       router.replace("/");
     });

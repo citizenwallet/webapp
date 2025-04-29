@@ -1,9 +1,6 @@
 import { headers } from "next/headers";
 import { getCommunityFromHeaders } from "@/services/config";
-import Wallet from "@/containers/wallet";
-
-// TODO: logout functionality
-
+import PageClient from "./_components/page-client";
 interface PageProps {
   params: Promise<{
     address: string;
@@ -20,5 +17,5 @@ export default async function Page(props: PageProps) {
 
   const { address } = await props.params;
 
-  return <Wallet config={config} accountAddress={address} />;
+  return <PageClient config={config} address={address} />;
 }

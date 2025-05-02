@@ -86,6 +86,12 @@ const config = {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        "grow-bounce": {
+          "0%": { transform: "scale(0.2)" },
+          "85%": { transform: "scale(1)" },
+          "95%": { transform: "scale(0.98)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -93,6 +99,7 @@ const config = {
         "fade-in": "fade-in 0.5s ease-in-out",
         "fade-in-slow": "fade-in 1s ease-in-out",
         "fade-in-fast": "fade-in 0.15s ease-in-out",
+        "grow-bounce": "grow-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
       backgroundImage: {
         "transparent-to-white": "linear-gradient(to top, transparent, white)",

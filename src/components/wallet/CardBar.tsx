@@ -46,10 +46,17 @@ export default function ActionBar({
   return (
     <Flex
       direction="column"
-      className="fixed top-0 w-full max-w-xl items-center justify-between text-sm pr-4"
+      className="fixed z-50 top-0 bg-transparent-to-white-90 w-full max-w-xl items-center justify-between text-sm pr-4 pb-10"
     >
       <div
-        className="w-[80%] aspect-[1.59] mt-12 mr-4 mb-8 relative flex items-start justify-start rounded-xl border border-white/80 shadow-[0_8px_16px_rgba(0,0,0,0.3)] animate-grow-bounce"
+        className={cn(
+          "aspect-[1.59] mt-12 mr-4 mb-8 z-50 relative",
+          "flex items-start justify-start",
+          "rounded-xl border border-white/80 shadow-[0_8px_16px_rgba(0,0,0,0.3)]",
+          "animate-grow-bounce",
+          "transition-all ease-in-out duration-200",
+          small ? "w-[70%]" : "w-[80%]"
+        )}
         style={{
           backgroundColor: cardColor,
         }}
@@ -91,7 +98,7 @@ export default function ActionBar({
         justify="center"
         gap={small ? "4" : "8"}
         className={cn(
-          "w-full bg-white max-w-5xl items-center justify-between text-sm",
+          "w-full  max-w-5xl items-center justify-between text-sm",
           small ? "pt-2 pb-4 pr-4" : "pt-4 pr-4"
         )}
       >
@@ -131,7 +138,7 @@ export default function ActionBar({
         ))}
       </Flex>
 
-      <Box className="bg-transparent-to-white h-10 w-full"></Box>
+      {/* <Box className="bg-transparent-to-white h-10 w-full"></Box> */}
     </Flex>
   );
 }

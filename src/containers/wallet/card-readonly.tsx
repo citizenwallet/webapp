@@ -1,19 +1,17 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CardBar from "@/components/wallet/CardBar";
 import TxRow from "@/components/wallet/TxRow";
+import { useIsScrolled } from "@/hooks/scroll";
 import { useThemeUpdater } from "@/hooks/theme";
 import { useFocusEffect } from "@/hooks/useFocusEffect";
 import { useScrollableWindowFetcher } from "@/hooks/useScrollableWindow";
-import { getAvatarUrl } from "@/lib/utils";
 import { useAccount } from "@/state/account/actions";
 import { selectOrderedLogs } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
 import { getBaseUrl } from "@/utils/deeplink";
 import { CommunityConfig, Config } from "@citizenwallet/sdk";
 import { Flex } from "@radix-ui/themes";
-import Link from "next/link";
 import { useCallback, useEffect } from "react";
 interface ContainerProps {
   config: Config;
@@ -29,6 +27,8 @@ export default function ReadOnly({
   const { community } = config;
 
   const communityConfig = new CommunityConfig(config);
+
+  const isScrolled = useIsScrolled();
 
   const baseUrl = getBaseUrl();
 
@@ -89,6 +89,7 @@ export default function ReadOnly({
 
       <CardBar
         readonly
+        small={isScrolled}
         cardColor={cardColor}
         profile={profile}
         account={account}
@@ -97,7 +98,7 @@ export default function ReadOnly({
         accountActions={actions}
       />
 
-      <Flex direction="column" className="w-full pt-[420px]" gap="3">
+      <Flex direction="column" className="w-full pt-[440px]" gap="3">
         {logs.map((tx) => (
           <TxRow
             key={tx.hash}

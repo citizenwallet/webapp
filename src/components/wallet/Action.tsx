@@ -1,5 +1,6 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface WalletActionProps {
   icon: React.ReactNode;
@@ -16,33 +17,29 @@ export default function WalletAction({
   alt = false,
   onClick,
 }: WalletActionProps) {
-  if (compact) {
-    return (
-      <Button
-        variant={alt ? "secondary" : "default"}
-        onClick={onClick}
-        className="h-18 w-40 rounded-full gap-2"
-      >
-        <Text size="4" weight="bold">
-          {label}
-        </Text>
-        {icon}
-      </Button>
-    );
-  }
-
   return (
     <Flex direction="column" justify="center" align="center" gap="2">
       <Button
         variant={alt ? "secondary" : "default"}
         onClick={onClick}
-        className="h-20 w-20 rounded-full"
+        className={cn(
+          "rounded-full gap-2 transition-all ease-in-out duration-200",
+          compact ? "h-18 w-40" : "h-20 w-20"
+        )}
       >
+        {compact && (
+          <Text size="4" weight="bold">
+            {label}
+          </Text>
+        )}
         {icon}
       </Button>
-      <Text size="4" weight="bold">
-        {label}
-      </Text>
+
+      {!compact && (
+        <Text size="4" weight="bold" className="animate-fade-in-fast">
+          {label}
+        </Text>
+      )}
     </Flex>
   );
 }

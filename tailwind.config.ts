@@ -105,6 +105,8 @@ const config = {
         "transparent-to-white": "linear-gradient(to top, transparent, white)",
         "transparent-from-white":
           "linear-gradient(to bottom, transparent, white)",
+        "transparent-to-white-90":
+          "linear-gradient(to bottom, white 90%, transparent)",
       },
     },
   },

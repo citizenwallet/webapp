@@ -46,7 +46,7 @@ export class AccountLogic {
   // local account
   async openAccount(
     hash: string,
-    createAccountCallback: (hashPath: string) => void
+    createAccountCallback: (hashPath: string) => void,
   ) {
     const format = parseQRFormat(hash);
 
@@ -69,7 +69,7 @@ export class AccountLogic {
         this.baseUrl,
         accountHash,
         walletPassword,
-        this.config
+        this.config,
       );
       if (!this.account) {
         throw new Error("Invalid wallet format");
@@ -111,12 +111,12 @@ export class AccountLogic {
       const hash = await generateWalletHash(
         this.account.account,
         this.account.signer,
-        walletPassword
+        walletPassword,
       );
 
       const hashPath = generateAccountHashPath(
         hash,
-        this.config.community.alias
+        this.config.community.alias,
       );
 
       this.storage.setKey("hash", hashPath);
@@ -182,7 +182,7 @@ export class AccountLogic {
         const { array: logs = [] } = await this.logsService.getNewLogs(
           primaryToken.address,
           tokenTransferEventTopic,
-          params
+          params,
         );
 
         if (logs.length > 0) {
@@ -220,7 +220,7 @@ export class AccountLogic {
       const { array: logs } = await this.logsService.getLogs(
         primaryToken.address,
         account,
-        params
+        params,
       );
 
       this.state.putLogs(logs);
@@ -281,7 +281,7 @@ export class AccountLogic {
       const logs = await this.logsService.getLogs(
         primaryToken.address,
         tokenTransferEventTopic,
-        params
+        params,
       );
 
       this.logsPagination = logs.meta;
@@ -302,7 +302,7 @@ export class AccountLogic {
   async send(
     to: string,
     amount: string,
-    description?: string
+    description?: string,
   ): Promise<string | null> {
     try {
       if (!this.account) {
@@ -326,13 +326,13 @@ export class AccountLogic {
 
 export const useAccount = (
   baseUrl: string,
-  config: Config
+  config: Config,
 ): [UseBoundStore<StoreApi<AccountState>>, AccountLogic] => {
   const accountStore = useAccountStore;
 
   const actions = useMemo(
     () => new AccountLogic(baseUrl, accountStore.getState(), config),
-    [baseUrl, accountStore, config]
+    [baseUrl, accountStore, config],
   );
 
   return [accountStore, actions];

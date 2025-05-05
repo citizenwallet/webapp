@@ -2,7 +2,6 @@ import { getCommunityFromHeaders } from "@/services/config";
 import { headers } from "next/headers";
 import { Metadata } from "next";
 
-
 import PageClient from "./_components/page-client";
 
 export const dynamic = "force-dynamic";

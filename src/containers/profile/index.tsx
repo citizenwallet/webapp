@@ -18,8 +18,6 @@ import { useThemeUpdater } from "@/hooks/theme";
 import { Skeleton } from "@/components/ui/skeleton";
 import Signout from "./signout";
 
-
-
 interface ContainerProps {
   config: Config;
   profile?: Profile;
@@ -51,7 +49,6 @@ export default function Container({
       router.back();
       return;
     }
-
   };
 
   const handleOpenExplorer = (account: string) => {

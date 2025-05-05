@@ -60,17 +60,19 @@ export default function PageClient({ config }: PageClientProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {isLoading ? <>
-         <SkeletonButton />
-         <SkeletonButton />
-         <SkeletonButton />
-        </> : <>
-        <SignInEmail config={config} />
-        <SignInPasskey config={config} />
-        <SignInLocal config={config} />
-        </>}
-       
-       
+        {isLoading ? (
+          <>
+            <SkeletonButton />
+            <SkeletonButton />
+            <SkeletonButton />
+          </>
+        ) : (
+          <>
+            <SignInEmail config={config} />
+            <SignInPasskey config={config} />
+            <SignInLocal config={config} />
+          </>
+        )}
       </CardContent>
     </Card>
   );

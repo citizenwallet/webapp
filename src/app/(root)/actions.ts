@@ -18,13 +18,11 @@ import {
   Config,
   CommunityConfig,
   verifyConnectedUrl,
-} from "@citizenwallet/sdk";
-import { getBytes, Wallet } from "ethers";
-import {
   generateSessionRequestHash,
   generateSessionSalt,
   generateSessionHash,
-} from "@/services/session/index";
+} from "@citizenwallet/sdk";
+import { getBytes, Wallet } from "ethers";
 
 const relyingPartyName = process.env.RELYING_PARTY_NAME;
 const relyingPartyId = process.env.RELYING_PARTY_ID;
@@ -202,8 +200,17 @@ export async function requestSessionAction({
   const publicKeyBuffer = credential.publicKey;
   const publicKey = publicKeyBuffer.toString();
 
-  const salt = generateSessionSalt(publicKey, "passkey");
-  const hash = generateSessionRequestHash(provider, sessionOwner, salt, expiry);
+  const salt = generateSessionSalt({
+    source: publicKey,
+    type: "passkey",
+  });
+
+  const hash = generateSessionRequestHash({
+    community: communityConfig,
+    sessionOwner,
+    salt,
+    expiry,
+  });
   const hashInBytes = getBytes(hash);
   const signature = await signer.signMessage(hashInBytes);
 
@@ -265,7 +272,9 @@ export async function confirmSessionAction({
 
   const signer = new Wallet(privateKey);
   const sessionOwner = signer.address;
-  const challengeSig = await signer.signMessage(sessionChallengeHash);
+
+  const challengeHashInBytes = getBytes(sessionChallengeHash);
+  const challengeSig = await signer.signMessage(challengeHashInBytes);
 
   const params = new URLSearchParams();
   params.set("sigAuthAccount", sessionOwner); // the account address
@@ -278,10 +287,10 @@ export async function confirmSessionAction({
     throw new Error("Cannot verify signer");
   }
 
-  const sessionHash = generateSessionHash(
+  const sessionHash = generateSessionHash({
     sessionRequestHash,
-    sessionChallengeHash,
-  );
+    challenge: sessionChallengeHash,
+  });
 
   const sessionHashInBytes = getBytes(sessionHash);
   const signature = await signer.signMessage(sessionHashInBytes);

@@ -2,9 +2,12 @@
 
 import { z } from "zod";
 import { otpFormSchema } from "@/app/signin/email/otp/_components/otp-form-schema";
-import { CommunityConfig, Config } from "@citizenwallet/sdk";
+import {
+  CommunityConfig,
+  Config,
+  generateSessionHash,
+} from "@citizenwallet/sdk";
 import { getBytes, Wallet } from "ethers";
-import { generateSessionHash } from "@/services/session";
 
 export async function submitOtpFormAction({
   formData,
@@ -25,10 +28,10 @@ export async function submitOtpFormAction({
   const signer = new Wallet(formData.privateKey);
   const sessionOwner = signer.address;
 
-  const sessionHash = generateSessionHash(
-    formData.sessionRequestHash,
-    parseInt(formData.code),
-  );
+  const sessionHash = generateSessionHash({
+    sessionRequestHash: formData.sessionRequestHash,
+    challenge: parseInt(formData.code),
+  });
 
   const sessionHashInBytes = getBytes(sessionHash);
   const signature = await signer.signMessage(sessionHashInBytes);

@@ -4,10 +4,11 @@ import { emailFormSchema } from "@/app/signin/email/_components/email-form-schem
 import { z } from "zod";
 import { Wallet, getBytes } from "ethers";
 import {
+  Config,
+  CommunityConfig,
   generateSessionRequestHash,
   generateSessionSalt,
-} from "@/services/session/index";
-import { Config, CommunityConfig } from "@citizenwallet/sdk";
+} from "@citizenwallet/sdk";
 
 export async function submitEmailFormAction({
   formData,
@@ -38,8 +39,18 @@ export async function submitEmailFormAction({
   const expiry = now + SECONDS_PER_DAY * DAYS;
 
   // Generate session credentials
-  const salt = generateSessionSalt(formData.email, formData.type);
-  const hash = generateSessionRequestHash(provider, sessionOwner, salt, expiry);
+  const salt = generateSessionSalt({
+    source: formData.email,
+    type: formData.type,
+  });
+
+  const hash = generateSessionRequestHash({
+    community: communityConfig,
+    sessionOwner,
+    salt,
+    expiry,
+  });
+
   const hashInBytes = getBytes(hash);
   const signature = await signer.signMessage(hashInBytes);
 

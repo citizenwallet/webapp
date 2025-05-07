@@ -12,6 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CommunityConfig } from "@citizenwallet/sdk";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { getFullUrl } from "@/utils/deeplink";
+import { StorageService } from "@/services/storage";
 
 interface PageClientProps {
   config: Config;
@@ -19,21 +21,27 @@ interface PageClientProps {
 
 export default function PageClient({ config }: PageClientProps) {
   const communityConfig = new CommunityConfig(config);
+
   const logoUrl = communityConfig.community.logo;
   const communityName = communityConfig.community.name;
   const tokenSymbol = communityConfig.primaryToken.symbol;
 
   const router = useRouter();
+
   const { isSessionExpired, accountAddress, isLoading } =
     useSigninMethod(config);
 
   useEffect(() => {
+    const storageService = new StorageService(config.community.alias);
+    const deeplink = getFullUrl();
+    storageService.setKey("deeplink", deeplink);
+
     if (accountAddress && !isSessionExpired) {
       // Redirect to account page when we have an address
       router.replace(`/${accountAddress}`);
       return;
     }
-  }, [accountAddress, isSessionExpired, router]);
+  }, [accountAddress, isSessionExpired, router, config.community.alias]);
 
   return (
     <Card className="w-full">

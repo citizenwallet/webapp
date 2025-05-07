@@ -4,6 +4,7 @@ import { CWAccount } from "@/services/account";
 import { getBaseUrl } from "@/utils/deeplink";
 import * as cwSDK from "@citizenwallet/sdk";
 import { useSession } from "@/state/session/action";
+import { getBytes } from "ethers";
 
 export type AuthMethod = "passkey" | "local" | "email" | "none";
 
@@ -83,11 +84,11 @@ export function useSigninMethod(config: cwSDK.Config) {
             const connectionHash = cwSDK.generateConnectionMessage(
               signer.address,
               expiryTime.toString(),
-              "",
             );
-
-            const signedConnectionHash =
-              await signer.signMessage(connectionHash);
+            const connectionHashInBytes = getBytes(connectionHash);
+            const signedConnectionHash = await signer.signMessage(
+              connectionHashInBytes,
+            );
 
             const params = new URLSearchParams();
             params.set("sigAuthAccount", signer.address);

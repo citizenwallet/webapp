@@ -62,6 +62,9 @@ export const StorageKeys = {
   session_challenge_expiry: "session_challenge_expiry",
 
   hash: "hash", //hash of local accounts
+
+  // for deeplinks
+  deeplink: "deeplink",
 } as const;
 
 export type StorageKey = keyof typeof StorageKeys;

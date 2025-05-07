@@ -36,6 +36,7 @@ import { useToast } from "@/components/ui/use-toast";
 import WalletKitProvider from "@/provider/wallet_kit";
 import { getBaseUrl } from "@/utils/deeplink";
 import { useRouter } from "next/navigation";
+import { StorageService } from "@/services/storage";
 
 interface ContainerProps {
   config: Config;
@@ -124,7 +125,6 @@ export default function Container({ config, accountAddress }: ContainerProps) {
   useThemeUpdater(community);
 
   useEffect(() => {
-    // TODO: handle scan
     accountActions.getAccount(accountAddress);
 
     if (authMethod === "local") {
@@ -134,7 +134,16 @@ export default function Container({ config, accountAddress }: ContainerProps) {
     if (["email", "passkey"].includes(authMethod)) {
       accountActions.openSessionAccount(accountAddress);
     }
-  }, [accountAddress, accountActions, router, hash, authMethod]);
+
+
+    const storageService = new StorageService(config.community.alias);
+    const deeplink = storageService.getKey("deeplink");
+
+    if (deeplink) {
+      storageService.deleteKey("deeplink");
+      handleScan(deeplink);
+    }
+  }, [accountAddress, accountActions, router, hash, authMethod, config.community.alias, handleScan]);
 
   const account = accountState((state) => state.account);
 

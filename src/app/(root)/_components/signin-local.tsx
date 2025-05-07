@@ -46,7 +46,6 @@ export default function SignInLocal({ config }: SignInLocalProps) {
   }, [hash, actions, startLoading, createAccountCallback]);
 
   useEffect(() => {
-    console.log("hash", hash);
     if (hash) {
       handleLocal();
     }

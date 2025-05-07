@@ -64,7 +64,7 @@ export default async function Page(props: PageProps) {
   const { address } = await props.params;
 
   return (
-    <Suspense fallback={<FallBack config={config} />}>
+    <Suspense key={address} fallback={<FallBack config={config} />}>
       <AsyncPage config={config} address={address} />
     </Suspense>
   );

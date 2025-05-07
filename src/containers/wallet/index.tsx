@@ -88,7 +88,7 @@ export default function Container({ config, accountAddress }: ContainerProps) {
         });
       }
     },
-    [toast],
+    [toast]
   );
 
   const handleScan = useCallback(
@@ -118,7 +118,7 @@ export default function Container({ config, accountAddress }: ContainerProps) {
           return;
       }
     },
-    [sendActions, voucherActions, profilesActions, handleWalletConnect],
+    [sendActions, voucherActions, profilesActions, handleWalletConnect]
   );
 
   useThemeUpdater(community);
@@ -128,9 +128,7 @@ export default function Container({ config, accountAddress }: ContainerProps) {
     accountActions.getAccount(accountAddress);
 
     if (authMethod === "local") {
-      accountActions.openAccount(hash, (accountAddress: string) => {
-        router.replace(`/${accountAddress}`);
-      });
+      accountActions.openAccount(hash, (accountAddress: string) => {});
     }
 
     if (["email", "passkey"].includes(authMethod)) {

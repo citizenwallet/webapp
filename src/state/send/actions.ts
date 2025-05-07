@@ -23,6 +23,7 @@ class SendActions {
         throw new Error("Unsupported QR code format");
       }
 
+      // TODO: can be removed
       const alias = parseAliasFromReceiveLink(data);
       if (!alias) {
         throw new Error("QR code from another community");

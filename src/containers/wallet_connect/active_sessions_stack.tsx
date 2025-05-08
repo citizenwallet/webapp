@@ -520,7 +520,7 @@ export function ActiveSessionsStack() {
           <div
             className={cn(
               "relative inline-flex items-center justify-center rounded-full bg-muted text-muted-foreground ring-2 ring-background",
-              sizeClasses["lg"]
+              sizeClasses["lg"],
             )}
           >
             <span className="text-xs font-medium">+{remainingSessions}</span>
@@ -551,7 +551,7 @@ const SessionAvatar = ({ session }: SessionAvatarProps) => {
       key={publicKey}
       className={cn(
         "ring-2 ring-background border-primary relative inline-block rounded-full bg-white",
-        sizeClasses["lg"]
+        sizeClasses["lg"],
       )}
     >
       <AvatarImage src={icon} alt={`${name}'s avatar`} />

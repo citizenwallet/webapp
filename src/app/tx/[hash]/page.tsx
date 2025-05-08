@@ -84,7 +84,7 @@ async function AsyncPage({ config, hash }: { config: Config; hash: string }) {
   try {
     const { object } = await logsService.getLog(
       communityConfig.primaryToken.address,
-      hash
+      hash,
     );
 
     const logData = object.data;

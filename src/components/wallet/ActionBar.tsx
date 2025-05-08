@@ -103,7 +103,7 @@ export default function ActionBar({
         gap={small ? "4" : "8"}
         className={cn(
           "w-full bg-white max-w-5xl items-center justify-between text-sm",
-          small ? "pt-2 pb-4 pr-4" : "pt-4 pr-4"
+          small ? "pt-2 pb-4 pr-4" : "pt-4 pr-4",
         )}
       >
         {!readonly && (

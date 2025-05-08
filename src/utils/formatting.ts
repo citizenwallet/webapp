@@ -8,7 +8,7 @@ export const formatUrl = (url: string) => {
 
 export const formatCurrency = (
   value: string,
-  allowDecimals: boolean = true
+  allowDecimals: boolean = true,
 ) => {
   // Remove all non-digit or non-decimal point characters
   value = value.replace(/[^0-9.]/g, "");

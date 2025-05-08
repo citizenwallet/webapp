@@ -6,7 +6,7 @@ export const useThemeUpdater = (community?: ConfigCommunity) => {
     if (community?.theme) {
       document.documentElement.style.setProperty(
         "--primary",
-        community.theme.primary
+        community.theme.primary,
       );
     }
   }, [community]);

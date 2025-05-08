@@ -564,7 +564,7 @@ const SessionListItem = ({ session }: SessionListItemProps) => {
         key={publicKey}
         className={cn(
           "ring-2 ring-background border-primary relative inline-block rounded-full bg-white mr-2",
-          sizeClasses["lg"]
+          sizeClasses["lg"],
         )}
       >
         <AvatarImage src={icon} alt={`${name}'s avatar`} />

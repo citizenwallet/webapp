@@ -9,7 +9,7 @@ export const formatDate = (date: Date) => {
       minute: "2-digit",
       second: "2-digit",
       //   hour12: true,
-    }
+    },
   ).format(new Date(date));
 
   return formattedDate;

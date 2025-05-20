@@ -32,11 +32,17 @@ export default function ReadOnly({ config, accountAddress }: ContainerProps) {
 
   useThemeUpdater(community);
 
+  const account = state((state) => state.account);
+
   useEffect(() => {
     actions.getAccount(accountAddress);
   }, [accountAddress, actions]);
 
-  const account = state((state) => state.account);
+  useEffect(() => {
+    if (account) {
+      actions.getTransfers(account);
+    }
+  }, [account, actions]);
 
   useFocusEffect(() => {
     let unsubscribe: () => void | undefined;

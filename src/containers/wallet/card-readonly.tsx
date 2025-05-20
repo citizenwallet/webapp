@@ -11,7 +11,7 @@ import { selectOrderedLogs } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
 import { getBaseUrl } from "@/utils/deeplink";
 import { CommunityConfig, Config } from "@citizenwallet/sdk";
-import { Flex } from "@radix-ui/themes";
+import { Flex, Text } from "@radix-ui/themes";
 import { useCallback, useEffect } from "react";
 interface ContainerProps {
   config: Config;
@@ -42,6 +42,12 @@ export default function ReadOnly({
   }, [accountAddress, actions]);
 
   const account = state((state) => state.account);
+
+  useEffect(() => {
+    if (account) {
+      actions.getTransfers(account);
+    }
+  }, [account, actions]);
 
   useFocusEffect(() => {
     let unsubscribe: () => void | undefined;
@@ -99,6 +105,19 @@ export default function ReadOnly({
       />
 
       <Flex direction="column" className="w-full pt-[440px]" gap="3">
+        {logs.length === 0 && (
+          <Flex
+            justify="center"
+            align="center"
+            direction="column"
+            className="w-full max-w-full py-4 active:bg-muted rounded-lg transition-colors duration-500 ease-in-out bg-white"
+            gap="3"
+          >
+            <Text>This is your card</Text>
+            <Text>You can already top it up</Text>
+            <Text>Spending is coming soon</Text>
+          </Flex>
+        )}
         {logs.map((tx) => (
           <TxRow
             key={tx.hash}

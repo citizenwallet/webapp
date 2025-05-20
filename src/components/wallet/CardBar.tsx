@@ -112,13 +112,15 @@ export default function ActionBar({
           </SendModal>
         )}
 
-        <ReceiveModal token={primaryToken} communityConfig={communityConfig}>
-          <WalletAction
-            compact={small}
-            icon={<ArrowDownIcon size={small ? 30 : 40} />}
-            label="Receive"
-          />
-        </ReceiveModal>
+        {!readonly && (
+          <ReceiveModal token={primaryToken} communityConfig={communityConfig}>
+            <WalletAction
+              compact={small}
+              icon={<ArrowDownIcon size={small ? 30 : 40} />}
+              label="Receive"
+            />
+          </ReceiveModal>
+        )}
 
         {plugins.map((plugin) => (
           <WalletAction

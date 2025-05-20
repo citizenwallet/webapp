@@ -12,7 +12,9 @@ import { useProfiles } from "@/state/profiles/actions";
 import { getBaseUrl } from "@/utils/deeplink";
 import { CommunityConfig, Config } from "@citizenwallet/sdk";
 import { Flex, Text } from "@radix-ui/themes";
-import { useCallback, useEffect } from "react";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 interface ContainerProps {
   config: Config;
   accountAddress: string;
@@ -24,6 +26,8 @@ export default function ReadOnly({
   accountAddress,
   cardColor,
 }: ContainerProps) {
+  const [loading, setLoading] = useState(true);
+
   const { community } = config;
 
   const communityConfig = new CommunityConfig(config);
@@ -44,9 +48,12 @@ export default function ReadOnly({
   const account = state((state) => state.account);
 
   useEffect(() => {
-    if (account) {
-      actions.getTransfers(account);
-    }
+    (async () => {
+      if (account) {
+        await actions.getTransfers(account);
+        setLoading(false);
+      }
+    })();
   }, [account, actions]);
 
   useFocusEffect(() => {
@@ -105,7 +112,7 @@ export default function ReadOnly({
       />
 
       <Flex direction="column" className="w-full pt-[440px]" gap="3">
-        {logs.length === 0 && (
+        {!loading && logs.length === 0 && (
           <Flex
             justify="center"
             align="center"
@@ -113,9 +120,25 @@ export default function ReadOnly({
             className="w-full max-w-full py-4 active:bg-muted rounded-lg transition-colors duration-500 ease-in-out bg-white"
             gap="3"
           >
-            <Text>This is your card</Text>
-            <Text>You can already top it up</Text>
+            <Image
+              src="/hello.png"
+              alt="card"
+              width={140}
+              height={140}
+              className="pb-8"
+            />
             <Text>Spending is coming soon</Text>
+          </Flex>
+        )}
+        {loading && logs.length === 0 && (
+          <Flex
+            justify="center"
+            align="center"
+            direction="column"
+            className="w-full max-w-full py-4 active:bg-muted rounded-lg transition-colors duration-500 ease-in-out bg-white"
+            gap="3"
+          >
+            <Loader2 className="animate-spin" />
           </Flex>
         )}
         {logs.map((tx) => (

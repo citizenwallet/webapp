@@ -24,13 +24,15 @@ import {
 } from "@citizenwallet/sdk";
 import { getBytes, Wallet } from "ethers";
 
-const relyingPartyName = process.env.RELYING_PARTY_NAME;
-const relyingPartyId = process.env.RELYING_PARTY_ID;
-const relyingPartyOrigin = process.env.RELYING_PARTY_ORIGIN;
-
 export async function generatePasskeyRegistrationOptionsAction(args: {
   existingPasskeys: WebAuthnCredential[];
+  relyingPartyName: string;
+  relyingPartyId: string;
+  relyingPartyOrigin: string;
 }): Promise<PublicKeyCredentialCreationOptionsJSON> {
+
+  const { existingPasskeys, relyingPartyName, relyingPartyId } = args;
+
   if (!relyingPartyName) {
     throw new Error(
       "The 'RELYING_PARTY_NAME' environment variable is missing. Please define it.",
@@ -41,7 +43,6 @@ export async function generatePasskeyRegistrationOptionsAction(args: {
       "The 'RELYING_PARTY_ID' environment variable is missing. Please define it.",
     );
   }
-  const { existingPasskeys } = args;
 
   const excludeCredentials =
     existingPasskeys.length > 0
@@ -80,8 +81,10 @@ export async function generatePasskeyRegistrationOptionsAction(args: {
 export async function verifyPasskeyRegistrationAction(args: {
   registrationOptions: PublicKeyCredentialCreationOptionsJSON;
   resgistrationResponse: RegistrationResponseJSON;
+  relyingPartyId: string;
+  relyingPartyOrigin: string;
 }): Promise<VerifiedRegistrationResponse> {
-  const { registrationOptions, resgistrationResponse } = args;
+  const { registrationOptions, resgistrationResponse, relyingPartyId, relyingPartyOrigin } = args;
 
   try {
     if (!relyingPartyId) {
@@ -112,8 +115,11 @@ export async function verifyPasskeyRegistrationAction(args: {
 
 export async function generatePasskeyAuthenticationOptionsAction(args: {
   passkeys: WebAuthnCredential[];
+  relyingPartyName: string;
+  relyingPartyId: string;
+  relyingPartyOrigin: string;
 }): Promise<PublicKeyCredentialRequestOptionsJSON> {
-  const { passkeys } = args;
+  const { passkeys, relyingPartyName, relyingPartyId } = args;
 
   if (!relyingPartyName) {
     throw new Error(
@@ -147,8 +153,10 @@ export async function verifyPasskeyAuthenticationAction(args: {
   authenticationOptions: PublicKeyCredentialRequestOptionsJSON;
   authenticationResponse: AuthenticationResponseJSON;
   selectedCredential: WebAuthnCredential;
+  relyingPartyId: string;
+  relyingPartyOrigin: string;
 }) {
-  const { authenticationOptions, authenticationResponse, selectedCredential } =
+  const { authenticationOptions, authenticationResponse, selectedCredential, relyingPartyId, relyingPartyOrigin } =
     args;
 
   try {

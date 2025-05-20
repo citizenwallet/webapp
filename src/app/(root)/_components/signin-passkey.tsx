@@ -21,11 +21,14 @@ import { useSession } from "@/state/session/action";
 import { WebAuthnCredential } from "@simplewebauthn/server";
 import { useRouter } from "next/navigation";
 
-interface SignInEmailProps {
+interface SignInPasskeyProps {
   config: Config;
+  relyingPartyId: string;
+  relyingPartyOrigin: string;
+  relyingPartyName: string;
 }
 
-export default function SignInEmail({ config }: SignInEmailProps) {
+export default function SignInPasskey(props: SignInPasskeyProps) {
   const [isPasskeySupported, setIsPasskeySupported] = useState(false);
 
   const [isRegisteringPasskey, startRegisterPasskey] = useTransition();
@@ -34,9 +37,9 @@ export default function SignInEmail({ config }: SignInEmailProps) {
 
   const router = useRouter();
 
-  const [sessionState, sessionActions] = useSession(config);
+  const [sessionState, sessionActions] = useSession(props.config);
 
-  const primaryColor = config.community.theme?.primary ?? "#000000";
+  const primaryColor = props.config.community.theme?.primary ?? "#000000";
 
   const style = {
     backgroundColor: `${primaryColor}1A`, // 10% opacity
@@ -76,6 +79,9 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         const registrationOptionsJSON =
           await generatePasskeyRegistrationOptionsAction({
             existingPasskeys: passkeys,
+            relyingPartyName: props.relyingPartyName,
+            relyingPartyId: props.relyingPartyId,
+            relyingPartyOrigin: props.relyingPartyOrigin,
           });
 
         const registrationResponseJSON = await simpleWebAuthn.startRegistration(
@@ -91,6 +97,8 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         const verification = await verifyPasskeyRegistrationAction({
           registrationOptions: registrationOptionsJSON,
           resgistrationResponse: registrationResponseJSON,
+          relyingPartyId: props.relyingPartyId,
+          relyingPartyOrigin: props.relyingPartyOrigin,
         });
 
         if (!verification.verified) {
@@ -177,6 +185,9 @@ export default function SignInEmail({ config }: SignInEmailProps) {
         const authenticationOptionsJSON =
           await generatePasskeyAuthenticationOptionsAction({
             passkeys,
+            relyingPartyName: props.relyingPartyName,
+            relyingPartyId: props.relyingPartyId,
+            relyingPartyOrigin: props.relyingPartyOrigin,
           });
 
         const authenticationResponseJSON =
@@ -200,6 +211,8 @@ export default function SignInEmail({ config }: SignInEmailProps) {
           authenticationOptions: authenticationOptionsJSON,
           authenticationResponse: authenticationResponseJSON,
           selectedCredential: selectedCredential,
+          relyingPartyId: props.relyingPartyId,
+          relyingPartyOrigin: props.relyingPartyOrigin,
         });
 
         if (!verification.verified) {
@@ -276,11 +289,11 @@ export default function SignInEmail({ config }: SignInEmailProps) {
       try {
         const result = await requestSessionAction({
           credential,
-          config,
+          config: props.config,
         });
 
         const sessionRequestSuccessReceipt = await waitForTxSuccess(
-          new CommunityConfig(config),
+          new CommunityConfig(props.config),
           result.sessionRequestTxHash,
         );
 
@@ -302,11 +315,11 @@ export default function SignInEmail({ config }: SignInEmailProps) {
           sessionRequestHash: result.hash,
           sessionChallengeHash: result.challengeHash,
           sessionChallengeExpiry: result.challengeExpiry,
-          config,
+          config: props.config,
         });
 
         const sessionConfirmSuccessReceipt = await waitForTxSuccess(
-          new CommunityConfig(config),
+          new CommunityConfig(props.config),
           sessionConfirmResult.sessionRequestTxHash,
         );
 

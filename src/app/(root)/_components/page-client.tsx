@@ -12,8 +12,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CommunityConfig } from "@citizenwallet/sdk";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { getFullUrl } from "@/utils/deeplink";
+import { getFullUrl, getBaseUrl } from "@/utils/deeplink";
 import { StorageService } from "@/services/storage";
+import { extractRelyingPartyId } from "@/utils/webauthn";
 
 interface PageClientProps {
   config: Config;
@@ -27,6 +28,7 @@ export default function PageClient({ config }: PageClientProps) {
   const tokenSymbol = communityConfig.primaryToken.symbol;
 
   const router = useRouter();
+  const baseUrl = getBaseUrl();
 
   const { isSessionExpired, accountAddress, isLoading } =
     useSigninMethod(config);
@@ -77,7 +79,12 @@ export default function PageClient({ config }: PageClientProps) {
         ) : (
           <>
             <SignInEmail config={config} />
-            <SignInPasskey config={config} />
+            <SignInPasskey
+              config={config}
+              relyingPartyId={extractRelyingPartyId(baseUrl)}
+              relyingPartyOrigin={baseUrl}
+              relyingPartyName={communityName}
+            />
             <SignInLocal config={config} />
           </>
         )}

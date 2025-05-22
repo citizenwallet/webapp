@@ -6,7 +6,7 @@ import { Wallet } from "ethers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AuthBadge from "./auth-badge";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { Check, Copy, LogOut } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useSession } from "@/state/session/action";
 import { StorageService } from "@/services/storage";
 import { toast } from "@/components/ui/use-toast";
@@ -28,6 +28,7 @@ import { useSend } from "@/state/send/actions";
 import { useVoucher } from "@/state/voucher/actions";
 import { useWalletKit } from "@/state/wallet_kit/actions";
 import { getBaseUrl } from "@/utils/deeplink";
+import { Input } from "@/components/ui/input";
 
 interface PageClientProps {
   config: Config;
@@ -38,8 +39,14 @@ export default function PageClient({ config }: PageClientProps) {
 
   const baseUrl = getBaseUrl();
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSigningOut, startSignout] = useTransition();
+  const [localAccountUrl, setLocalAccountUrl] = useState<string | undefined>(
+    undefined
+  );
+  const [copyStatus, setCopyStatus] = useState<"copy" | "copied">("copy");
 
   const [sessionState, sessionActions] = useSession(config);
   const [accountState, accountActions] = useAccount(baseUrl, config);
@@ -73,11 +80,27 @@ export default function PageClient({ config }: PageClientProps) {
 
   const handleSignOut = () => {
     if (authMethod === "local") {
+      const hash = storageService.getKey("hash");
+      const localAccountUrl = `${baseUrl}/${hash}`;
+      setLocalAccountUrl(localAccountUrl);
       handleOpenDialog();
     }
 
     if (["email", "passkey"].includes(authMethod)) {
       signOutSession();
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (inputRef.current) {
+      inputRef.current.select();
+      navigator.clipboard.writeText(inputRef.current.value);
+      setCopyStatus("copied");
+
+      // Reset back to "Copy" after 2 seconds
+      setTimeout(() => {
+        setCopyStatus("copy");
+      }, 2000);
     }
   };
 
@@ -178,13 +201,7 @@ export default function PageClient({ config }: PageClientProps) {
             disabled={isSigningOut}
           >
             <LogOut className="mr-2 h-4 w-4" />
-            {isSigningOut
-              ? authMethod === "local"
-                ? "Deleting Forever..."
-                : "Signing out..."
-              : authMethod === "local"
-                ? "Delete Forever"
-                : "Sign Out"}
+            {isSigningOut ? "Signing out..." : "Sign Out"}
           </Button>
         </div>
       </div>
@@ -198,6 +215,37 @@ export default function PageClient({ config }: PageClientProps) {
               This will clear all data on this page and log you out forever.
             </DialogDescription>
           </DialogHeader>
+
+          <div className="flex rounded-md overflow-hidden mt-2 bg-slate-100 dark:bg-slate-800 border">
+            <Input
+              ref={inputRef}
+              readOnly
+              value={localAccountUrl}
+              className="border-0 bg-transparent font-mono text-sm flex-1 focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="rounded-none h-10 px-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+              onClick={copyToClipboard}
+            >
+              {copyStatus === "copy" ? (
+                <>
+                  <Copy className="mr-1.5 h-4 w-4" />
+                  <span>Copy</span>
+                </>
+              ) : (
+                <>
+                  <Check className="mr-1.5 h-4 w-4" />
+                  <span>Copied</span>
+                </>
+              )}
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Copy and save your account to log in later
+          </p>
+
           <DialogFooter className="sm:justify-end gap-2">
             <DialogClose asChild>
               <Button type="button" variant="outline" disabled={isSigningOut}>

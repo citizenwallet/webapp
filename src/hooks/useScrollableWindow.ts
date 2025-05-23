@@ -15,7 +15,7 @@ const FETCHER_THRESHOLD = 100;
  */
 export const useScrollableWindowFetcher = (
   fetchFunction: () => Promise<boolean>,
-  refetchDelay = 500
+  refetchDelay = 500,
 ): MutableRefObject<HTMLDivElement | null> => {
   const elementRef = useRef<HTMLDivElement | null>(null);
 

@@ -124,7 +124,7 @@ class WalletKitService {
 
   static buildNamespaces(
     proposal: ProposalTypes.Struct,
-    account: string
+    account: string,
   ): SessionTypes.Namespaces {
     const chainId = WalletKitService.communityConfig.primaryToken.chain_id;
 
@@ -145,7 +145,7 @@ class WalletKitService {
 
   static populateAuthPayload(
     payloadParams: AuthTypes.PayloadParams,
-    account: string
+    account: string,
   ) {
     if (!WalletKitService.walletKit) return;
     const chainId = WalletKitService.communityConfig.primaryToken.chain_id;
@@ -169,12 +169,12 @@ class WalletKitService {
 
   static async getContractDetails(
     community: CommunityConfig,
-    address: string
+    address: string,
   ): Promise<null | ContractData> {
     const explorerApi = "https://api.gnosisscan.io/api"; // TODO: add to community.json file
 
     let response = await fetch(
-      `${explorerApi}?module=contract&action=getsourcecode&address=${address}&apikey=${process.env.NEXT_PUBLIC_GNOSIS_SCAN_API_KEY}`
+      `${explorerApi}?module=contract&action=getsourcecode&address=${address}&apikey=${process.env.NEXT_PUBLIC_GNOSIS_SCAN_API_KEY}`,
     );
     let data = await response.json();
 
@@ -193,7 +193,7 @@ class WalletKitService {
     const implementation = result.Implementation;
     if (implementation) {
       response = await fetch(
-        `${explorerApi}?module=contract&action=getsourcecode&address=${implementation}&apikey=${process.env.NEXT_PUBLIC_GNOSIS_SCAN_API_KEY}`
+        `${explorerApi}?module=contract&action=getsourcecode&address=${implementation}&apikey=${process.env.NEXT_PUBLIC_GNOSIS_SCAN_API_KEY}`,
       );
       data = await response.json();
 
@@ -239,16 +239,16 @@ class WalletKitService {
             i === 0
               ? `${acc}${input.name} ${input.type}`
               : `${acc},${input.name} ${input.type}`,
-          ""
+          "",
         )})`,
         signature: keccak256(
           toUtf8Bytes(
             `${v.name}(${v.inputs.reduce(
               (acc, input, i) =>
                 i === 0 ? `${acc}${input.type}` : `${acc},${input.type}`,
-              ""
-            )})`
-          )
+              "",
+            )})`,
+          ),
         ).slice(0, 10),
         selected: false,
       }));

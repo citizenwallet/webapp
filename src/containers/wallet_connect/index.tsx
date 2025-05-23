@@ -89,7 +89,7 @@ export default function Container({ config, account, wallet }: ContainerProps) {
         params,
       });
     },
-    []
+    [],
   );
 
   const onSessionDisconnect = React.useCallback(async () => {
@@ -138,7 +138,7 @@ export default function Container({ config, account, wallet }: ContainerProps) {
         variant: "destructive",
       });
     },
-    [toast]
+    [toast],
   );
 
   const onSessionAuthenticate = React.useCallback(
@@ -153,7 +153,7 @@ export default function Container({ config, account, wallet }: ContainerProps) {
         message,
       });
     },
-    [account]
+    [account],
   );
 
   useSafeEffect(() => {
@@ -556,7 +556,7 @@ function TransactionSignModal({
       try {
         const contract = await WalletKitService.getContractDetails(
           community,
-          address
+          address,
         );
 
         const abi = WalletKitService.parseAbi(contract?.ABI ?? "[]");
@@ -566,7 +566,7 @@ function TransactionSignModal({
         const functionSelector = encodedTransaction?.data.slice(0, 10);
 
         const functionName = abi.find(
-          (item) => item.signature === functionSelector
+          (item) => item.signature === functionSelector,
         )?.name;
 
         setFunctionName(functionName ?? null);
@@ -577,7 +577,7 @@ function TransactionSignModal({
         setContractLoading(false);
       }
     },
-    [community, event]
+    [community, event],
   );
 
   useSafeEffect(() => {
@@ -590,7 +590,7 @@ function TransactionSignModal({
 
     fetchContractDetails(
       event.params.request.params[0].to,
-      event.params.request.params[0].data
+      event.params.request.params[0].data,
     );
   }, [event?.params?.request?.params, fetchContractDetails]);
 
@@ -612,7 +612,7 @@ function TransactionSignModal({
       const hash = await wallet.call(
         encodedTransaction.to,
         encodedTransaction.data,
-        encodedTransaction.value
+        encodedTransaction.value,
       );
 
       await wallet.waitForTransactionSuccess(hash);

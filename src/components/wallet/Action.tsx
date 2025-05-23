@@ -24,7 +24,7 @@ export default function WalletAction({
         onClick={onClick}
         className={cn(
           "rounded-full gap-2 transition-all ease-in-out duration-200",
-          compact ? "h-18 w-40" : "h-20 w-20"
+          compact ? "h-18 w-40" : "h-20 w-20",
         )}
       >
         {compact && (

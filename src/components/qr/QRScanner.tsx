@@ -60,7 +60,7 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ isActive, onScan }) => {
             aspectRatio: 1.0,
           },
           onScanSuccess,
-          onScanFailure
+          onScanFailure,
         );
         setIsScanning(true);
       } catch (err) {

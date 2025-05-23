@@ -23,7 +23,7 @@ describe("parsePrivateKeyFromHash", () => {
     const [account, wallet] = await parsePrivateKeyFromHash(
       baseUrl,
       hash,
-      walletPassword
+      walletPassword,
     );
 
     expect(account).toBe(expectedAccount);
@@ -44,7 +44,7 @@ describe("parsePrivateKeyFromHash", () => {
     const [account, wallet] = await parsePrivateKeyFromHash(
       baseUrl,
       hash,
-      walletPassword
+      walletPassword,
     );
 
     expect(account).toBe(expectedAccount);
@@ -59,7 +59,7 @@ describe("parsePrivateKeyFromHash", () => {
     const [account, wallet] = await parsePrivateKeyFromHash(
       baseUrl,
       hash,
-      walletPassword
+      walletPassword,
     );
 
     expect(account).toBeUndefined();

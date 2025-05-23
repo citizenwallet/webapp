@@ -27,7 +27,7 @@ export const getEmptyProfile = (account: string): Profile => {
 
 export const getMinterProfile = (
   account: string,
-  community: ConfigCommunity
+  community: ConfigCommunity,
 ): Profile => {
   return {
     account,
@@ -42,7 +42,7 @@ export const getMinterProfile = (
 
 export const getBurnerProfile = (
   account: string,
-  community: ConfigCommunity
+  community: ConfigCommunity,
 ): Profile => {
   return {
     account,

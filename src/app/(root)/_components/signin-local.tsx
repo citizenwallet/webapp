@@ -41,12 +41,12 @@ export default function SignInLocal({ config }: SignInLocalProps) {
 
   const handleLocal = useCallback(() => {
     startLoading(async () => {
-      actions.openAccount(hash, createAccountCallback);
+      await actions.openAccount(hash, createAccountCallback);
     });
   }, [hash, actions, startLoading, createAccountCallback]);
 
   useEffect(() => {
-    if (hash) {
+    if (hash && hash.includes("/wallet/v3-")) {
       handleLocal();
     }
   }, [handleLocal, hash]);

@@ -44,8 +44,6 @@ export default function SendModal({
 }: SendModalProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  const [isSending, setIsSending] = useState(false);
-
   const communityConfig = new CommunityConfig(config);
   const primaryToken = communityConfig.primaryToken;
 
@@ -56,6 +54,7 @@ export default function SendModal({
   const profiles = useProfilesStore((state) => state.profiles);
 
   const balance = useAccountStore((state) => state.balance);
+  const isSending = useAccountStore((state) => state.sending);
 
   const canSend = useSendStore(selectCanSend(balance));
 
@@ -89,9 +88,9 @@ export default function SendModal({
   ) => {
     if (!resolvedTo) return;
 
-    setIsSending(true);
+   
     const tx = await accountActions.send(sendTo, sendAmount, sendDescription);
-    setIsSending(false);
+   
 
     if (tx) {
       // send toast

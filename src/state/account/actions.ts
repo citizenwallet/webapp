@@ -309,10 +309,13 @@ export class AccountLogic {
         throw new Error("Account not set");
       }
 
+      this.state.sendRequest();
       const tx = await this.account.send(to, amount, description);
+      this.state.sendSuccess();
 
       return tx;
     } catch (error) {
+      this.state.sendFailure(error as string);
       console.error(error);
     }
 

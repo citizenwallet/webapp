@@ -207,7 +207,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD",
+        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
         "chain_id": 42220
       },
       "primary_card_manager": {
@@ -300,7 +300,7 @@
         "chain_id": 137
       },
       "primary_account_factory": {
-        "address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
+        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
         "chain_id": 137
       },
       "primary_session_manager": {
@@ -329,6 +329,13 @@
         "paymaster_address": "0x7FC98D0a2bd7f766bAca37388eB0F6Db37666B33",
         "account_factory_address": "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e",
         "paymaster_type": "cw"
+      },
+      "137:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 137,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0x16679363e723535c640Fcd26E99130E5b3EEB5E2",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
       }
     },
     "sessions": {
@@ -453,7 +460,7 @@
         "chain_id": 100
       },
       "primary_account_factory": {
-        "address": "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9",
+        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
         "chain_id": 100
       },
       "primary_session_manager": {
@@ -542,7 +549,7 @@
         "chain_id": 42220
       },
       "primary_account_factory": {
-        "address": "0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87",
+        "address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
         "chain_id": 42220
       },
       "primary_session_manager": {
@@ -571,6 +578,13 @@
         "paymaster_address": "0x4E127A1DAa66568B4a91E8c5615120a6Ea5442E3",
         "account_factory_address": "0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87",
         "paymaster_type": "cw"
+      },
+      "42220:0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2": {
+        "chain_id": 42220,
+        "entrypoint_address": "0x7079253c0358eF9Fd87E16488299Ef6e06F403B6",
+        "paymaster_address": "0xe5Eb4fB0F3312649Eb7b62fba66C9E26579D7208",
+        "account_factory_address": "0x940Cbb155161dc0C4aade27a4826a16Ed8ca0cb2",
+        "paymaster_type": "cw-safe"
       }
     },
     "sessions": {

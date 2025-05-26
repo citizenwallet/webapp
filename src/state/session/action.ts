@@ -1,4 +1,4 @@
-import * as cwSDK from "@citizenwallet/sdk";
+import {Config as cwConfig, CommunityConfig as cwCommunityConfig, getTwoFAAddress as cwGetTwoFAAddress, isSessionExpired as cwIsSessionExpired} from "@citizenwallet/sdk";
 import { SessionState, useSessionStore } from "./state";
 import { StorageService } from "@/services/storage";
 import { Wallet } from "ethers";
@@ -8,12 +8,12 @@ import { useMemo } from "react";
 
 export class SessionLogic {
   state: SessionState;
-  communityConfig: cwSDK.CommunityConfig;
+  communityConfig: cwCommunityConfig;
   storage: StorageService;
 
-  constructor(state: SessionState, config: cwSDK.Config) {
+  constructor(state: SessionState, config: cwConfig) {
     this.state = state;
-    this.communityConfig = new cwSDK.CommunityConfig(config);
+    this.communityConfig = new cwCommunityConfig(config);
     this.storage = new StorageService(this.communityConfig.community.alias);
   }
 
@@ -70,7 +70,7 @@ export class SessionLogic {
       throw new Error("Source type not found");
     }
 
-    const accountAddress = await cwSDK.getTwoFAAddress({
+    const accountAddress = await cwGetTwoFAAddress({
       community: this.communityConfig,
       source: sourceValue,
       type: sourceType,
@@ -95,7 +95,7 @@ export class SessionLogic {
 
     const signer = new Wallet(privateKey);
 
-    const isExpired = await cwSDK.isSessionExpired({
+    const isExpired = await cwIsSessionExpired({
       community: this.communityConfig,
       account: accountAddress,
       owner: signer.address,
@@ -110,7 +110,7 @@ export class SessionLogic {
 }
 
 export const useSession = (
-  config: cwSDK.Config,
+  config: cwConfig,
 ): [UseBoundStore<StoreApi<SessionState>>, SessionLogic] => {
   const sessionStore = useSessionStore;
 

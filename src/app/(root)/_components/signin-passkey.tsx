@@ -15,7 +15,7 @@ import {
   confirmSessionAction,
 } from "@/app/(root)/actions";
 import { toast } from "@/components/ui/use-toast";
-import * as simpleWebAuthn from "@simplewebauthn/browser";
+import { browserSupportsWebAuthn, WebAuthnAbortService,startRegistration, startAuthentication } from "@simplewebauthn/browser";
 import { useSession } from "@/state/session/action";
 
 import { WebAuthnCredential } from "@simplewebauthn/server";
@@ -49,14 +49,14 @@ export default function SignInPasskey(props: SignInPasskeyProps) {
 
   useEffect(() => {
     const checkPasskeySupport = () => {
-      setIsPasskeySupported(simpleWebAuthn.browserSupportsWebAuthn());
+      setIsPasskeySupported(browserSupportsWebAuthn());
     };
 
     checkPasskeySupport();
 
     // Cleanup WebAuthn ceremony when component unmounts
     return () => {
-      simpleWebAuthn.WebAuthnAbortService.cancelCeremony();
+      WebAuthnAbortService.cancelCeremony();
     };
   }, []);
 
@@ -84,7 +84,7 @@ export default function SignInPasskey(props: SignInPasskeyProps) {
             relyingPartyOrigin: props.relyingPartyOrigin,
           });
 
-        const registrationResponseJSON = await simpleWebAuthn.startRegistration(
+        const registrationResponseJSON = await startRegistration(
           {
             optionsJSON: registrationOptionsJSON,
           },
@@ -191,7 +191,7 @@ export default function SignInPasskey(props: SignInPasskeyProps) {
           });
 
         const authenticationResponseJSON =
-          await simpleWebAuthn.startAuthentication({
+          await startAuthentication({
             optionsJSON: authenticationOptionsJSON,
           });
 

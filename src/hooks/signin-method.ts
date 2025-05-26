@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 import { StorageService, StorageKeys } from "@/services/storage";
 import { CWAccount } from "@/services/account";
 import { getBaseUrl } from "@/utils/deeplink";
-import * as cwSDK from "@citizenwallet/sdk";
+import {Config as cwConfig, CommunityConfig as cwCommunityConfig, generateConnectionMessage as cwGenerateConnectionMessage, verifyConnectedUrl as cwVerifyConnectedUrl} from "@citizenwallet/sdk";
 import { useSession } from "@/state/session/action";
 import { getBytes } from "ethers";
 
 export type AuthMethod = "passkey" | "local" | "email" | "none";
 
-export function useSigninMethod(config: cwSDK.Config) {
+export function useSigninMethod(config: cwConfig) {
   const [authMethod, setAuthMethod] = useState<AuthMethod>("none");
   const [isLoading, setIsLoading] = useState(true);
   const [isReadOnly, setIsReadOnly] = useState(true);
@@ -62,7 +62,7 @@ export function useSigninMethod(config: cwSDK.Config) {
     (async () => {
       try {
         const storageService = new StorageService(config.community.alias);
-        const communityConfig = new cwSDK.CommunityConfig(config);
+        const communityConfig = new cwCommunityConfig(config);
         const walletHash = storageService.getKey(StorageKeys.hash);
 
         const sourceType = storageService.getKey(
@@ -81,7 +81,7 @@ export function useSigninMethod(config: cwSDK.Config) {
           let verifyConnectionResult = null;
           if (signer) {
             // verify account ownership
-            const connectionHash = cwSDK.generateConnectionMessage(
+            const connectionHash = cwGenerateConnectionMessage(
               signer.address,
               expiryTime.toString(),
             );
@@ -95,7 +95,7 @@ export function useSigninMethod(config: cwSDK.Config) {
             params.set("sigAuthExpiry", expiryTime.toString());
             params.set("sigAuthSignature", signedConnectionHash);
 
-            verifyConnectionResult = await cwSDK.verifyConnectedUrl(
+            verifyConnectionResult = await cwVerifyConnectedUrl(
               communityConfig,
               {
                 params,

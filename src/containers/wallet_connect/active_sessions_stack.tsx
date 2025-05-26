@@ -1,5 +1,5 @@
 "use client";
-import * as React from "react";
+import {useRef} from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { SessionTypes } from "@walletconnect/types";
@@ -496,7 +496,7 @@ const limit = 2;
 export function ActiveSessionsStack() {
   const [state] = useWalletKit();
 
-  const modalRef = React.useRef<ActiveSessionsModalRef>(null);
+  const modalRef = useRef<ActiveSessionsModalRef>(null);
 
   const activeSessions = state((state) => state.activeSessions);
 

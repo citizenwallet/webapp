@@ -1,7 +1,6 @@
 "use client";
 
 import { Config } from "@citizenwallet/sdk";
-import { useSigninMethod } from "@/hooks/signin-method";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import SignInEmail from "./signin-email";
@@ -15,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { getFullUrl, getBaseUrl } from "@/utils/deeplink";
 import { StorageService } from "@/services/storage";
 import { extractRelyingPartyId } from "@/utils/webauthn";
+import { useSession } from "@/state/session/action";
 
 interface PageClientProps {
   config: Config;
@@ -30,8 +30,10 @@ export default function PageClient({ config }: PageClientProps) {
   const router = useRouter();
   const baseUrl = getBaseUrl();
 
-  const { isSessionExpired, accountAddress, isLoading } =
-    useSigninMethod(config);
+  const [sessionState, sessionActions] = useSession(baseUrl, config);
+  const isSessionLoading = sessionState((state) => state.isLoading);
+  const accountAddress = sessionState((state) => state.accountAddress);
+  const isSessionExpired = sessionState((state) => state.isSessionExpired);
 
   useEffect(() => {
     const storageService = new StorageService(config.community.alias);
@@ -44,6 +46,10 @@ export default function PageClient({ config }: PageClientProps) {
       return;
     }
   }, [accountAddress, isSessionExpired, router, config.community.alias]);
+
+  useEffect(() => {
+    sessionActions.evalAuthSession();
+  }, [sessionActions]);
 
   return (
     <Card className="w-full">
@@ -66,11 +72,11 @@ export default function PageClient({ config }: PageClientProps) {
       </div>
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">
-          {isLoading ? "Signing in..." : "Sign In"}
+          {isSessionLoading ? "Signing in..." : "Sign In"}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {isLoading ? (
+        {isSessionLoading ? (
           <>
             <SkeletonButton />
             <SkeletonButton />

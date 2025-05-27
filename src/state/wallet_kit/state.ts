@@ -2,8 +2,6 @@ import { WalletKitTypes } from "@reown/walletkit";
 import { SessionTypes } from "@walletconnect/types";
 import { create } from "zustand";
 
-
-
 export interface WalletKitState {
   sessionProposal?: WalletKitTypes.SessionProposal;
   setSessionProposal: (sessionProposal: WalletKitTypes.SessionProposal) => void;
@@ -14,18 +12,16 @@ export interface WalletKitState {
   clear: () => void;
 }
 
-
 const initialState = () => ({
-    sessionProposal: undefined,
-    activeSessions: {},
+  sessionProposal: undefined,
+  activeSessions: {},
 });
 
-
 export const useWalletKitStore = create<WalletKitState>((set) => ({
-    ...initialState(),
-    setSessionProposal: (sessionProposal) => set((state) => ({ sessionProposal })),
-    setActiveSessions: (sessions) => set((state) => ({ activeSessions: sessions })),
-    clear: () => set(initialState()),
+  ...initialState(),
+  setSessionProposal: (sessionProposal) =>
+    set((state) => ({ sessionProposal })),
+  setActiveSessions: (sessions) =>
+    set((state) => ({ activeSessions: sessions })),
+  clear: () => set(initialState()),
 }));
-
-

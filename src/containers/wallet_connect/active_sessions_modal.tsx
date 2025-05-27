@@ -1,5 +1,5 @@
 "use client";
-import * as React from "react";
+import {forwardRef, useImperativeHandle, useState} from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { SessionTypes } from "@walletconnect/types";
@@ -500,10 +500,10 @@ export interface ActiveSessionsModalRef {
   toggle: () => void;
 }
 
-export const ActiveSessionsModal = React.forwardRef((_, ref) => {
-  const [open, setOpen] = React.useState(false);
+export const ActiveSessionsModal = forwardRef((_, ref) => {
+  const [open, setOpen] = useState(false);
 
-  React.useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({
     toggle: () => setOpen((prev) => !prev),
   }));
 
@@ -564,7 +564,7 @@ const SessionListItem = ({ session }: SessionListItemProps) => {
         key={publicKey}
         className={cn(
           "ring-2 ring-background border-primary relative inline-block rounded-full bg-white mr-2",
-          sizeClasses["lg"]
+          sizeClasses["lg"],
         )}
       >
         <AvatarImage src={icon} alt={`${name}'s avatar`} />

@@ -33,13 +33,13 @@ export function getAccount(data: any, _key: string): KeystoreAccount {
   const ciphertext = spelunk<Uint8Array>(data, "crypto.ciphertext:data!");
 
   const computedMAC = hexlify(
-    keccak256(concat([key.slice(16, 32), ciphertext]))
+    keccak256(concat([key.slice(16, 32), ciphertext])),
   ).substring(2);
   assertArgument(
     computedMAC === spelunk<string>(data, "crypto.mac:string!").toLowerCase(),
     "incorrect password",
     "password",
-    "[ REDACTED ]"
+    "[ REDACTED ]",
   );
 
   const privateKey = decrypt(data, key.slice(0, 16), ciphertext);
@@ -61,7 +61,7 @@ export function getAccount(data: any, _key: string): KeystoreAccount {
       getAddress(check) === address,
       "keystore address/privateKey mismatch",
       "address",
-      data.address
+      data.address,
     );
   }
 
@@ -317,7 +317,7 @@ export function getDecryptKdfParams<T>(data: any): KdfParams {
         algorithm === "sha256" || algorithm === "sha512",
         "invalid kdf.pdf",
         "kdf.pdf",
-        prf
+        prf,
       );
 
       const count = spelunk<number>(data, "crypto.kdfparams.c:int!");

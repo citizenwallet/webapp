@@ -42,7 +42,7 @@ export class CWAccount {
 
     const account = await getAccountAddress(
       communityConfig,
-      connectedWallet.address
+      connectedWallet.address,
     );
 
     if (!account) {
@@ -56,7 +56,7 @@ export class CWAccount {
     baseUrl: string,
     hash: string,
     walletPassword: string,
-    config: Config
+    config: Config,
   ) {
     const [_, encoded] = hash.split("#/wallet/");
 
@@ -71,7 +71,7 @@ export class CWAccount {
       [account, signer] = await parsePrivateKeyFromHash(
         baseUrl,
         hash,
-        walletPassword
+        walletPassword,
       );
 
       if (!account || !signer) {
@@ -117,7 +117,7 @@ export class CWAccount {
       this.account,
       to,
       amount,
-      description
+      description,
     );
 
     return hash;
@@ -138,7 +138,7 @@ export class CWAccount {
       to,
       this.account,
       dataBytes,
-      BigInt(value ?? 0)
+      BigInt(value ?? 0),
     );
 
     return hash;

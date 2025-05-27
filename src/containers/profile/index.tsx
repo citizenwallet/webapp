@@ -16,6 +16,8 @@ import { useRef, useState } from "react";
 import { getAvatarUrl } from "@/lib/utils";
 import { useThemeUpdater } from "@/hooks/theme";
 import { Skeleton } from "@/components/ui/skeleton";
+import Signout from "./signout";
+
 interface ContainerProps {
   config: Config;
   profile?: Profile;
@@ -31,7 +33,7 @@ export default function Container({
 
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState(
-    (ref.current ? ref.current.clientWidth : 200) * 0.8
+    (ref.current ? ref.current.clientWidth : 200) * 0.8,
   );
 
   useThemeUpdater(config.community);
@@ -47,9 +49,6 @@ export default function Container({
       router.back();
       return;
     }
-
-    // can't go back for some reason, go home
-    router.replace("/");
   };
 
   const handleOpenExplorer = (account: string) => {
@@ -125,6 +124,10 @@ export default function Container({
           )}
         </Flex>
       </Flex>
+
+      <div className="w-full h-[1px] bg-border" />
+
+      <Signout config={config} />
     </main>
   );
 }

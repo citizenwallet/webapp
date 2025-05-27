@@ -12,7 +12,7 @@ export class WalletKitLogic {
   setActiveSessions(sessions: Record<string, SessionTypes.Struct>) {
     this.state.setActiveSessions(sessions);
   }
-    
+
   getActiveSessions() {
     return this.state.activeSessions;
   }
@@ -24,13 +24,13 @@ export class WalletKitLogic {
 
 export const useWalletKit = (): [
   UseBoundStore<StoreApi<WalletKitState>>,
-  WalletKitLogic
+  WalletKitLogic,
 ] => {
   const walletKitStore = useWalletKitStore;
 
   const actions = useMemo(
     () => new WalletKitLogic(walletKitStore.getState()),
-    [walletKitStore]
+    [walletKitStore],
   );
 
   return [walletKitStore, actions];

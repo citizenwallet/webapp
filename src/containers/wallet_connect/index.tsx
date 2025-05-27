@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import {useState, useCallback, Fragment} from "react";
 import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { WalletKitTypes } from "@reown/walletkit";
 import { ProposalTypes } from "@walletconnect/types";
@@ -58,30 +58,30 @@ export default function Container({ config, account, wallet }: ContainerProps) {
   const [_, actions] = useWalletKit();
 
   const [sessionProposalModal, setSessionProposalModal] =
-    React.useState<SessionProposalModal>({
+    useState<SessionProposalModal>({
       open: false,
       params: null,
     });
 
   const [personalSignModal, setPersonalSignModal] =
-    React.useState<PersonalSignModal>({
+    useState<PersonalSignModal>({
       open: false,
       event: null,
     });
 
   const [transactionSignModal, setTransactionSignModal] =
-    React.useState<TransactionSignModal>({
+    useState<TransactionSignModal>({
       open: false,
       event: null,
     });
 
   const [sessionAuthenticateModal, setSessionAuthenticateModal] =
-    React.useState<SessionAuthenticateModal>({
+    useState<SessionAuthenticateModal>({
       open: false,
       message: null,
     });
 
-  const onSessionProposal = React.useCallback(
+  const onSessionProposal = useCallback(
     async (proposal: WalletKitTypes.SessionProposal) => {
       const { params } = proposal;
       setSessionProposalModal({
@@ -89,10 +89,10 @@ export default function Container({ config, account, wallet }: ContainerProps) {
         params,
       });
     },
-    []
+    [],
   );
 
-  const onSessionDisconnect = React.useCallback(async () => {
+  const onSessionDisconnect = useCallback(async () => {
     const walletKit = WalletKitService.getWalletKit();
     if (!walletKit) return;
 
@@ -101,7 +101,7 @@ export default function Container({ config, account, wallet }: ContainerProps) {
     actions.setActiveSessions(activeSessions);
   }, [actions]);
 
-  const onSessionRequest = React.useCallback(
+  const onSessionRequest = useCallback(
     async (event: WalletKitTypes.SessionRequest) => {
       console.log("event", JSON.stringify(event));
 
@@ -138,10 +138,10 @@ export default function Container({ config, account, wallet }: ContainerProps) {
         variant: "destructive",
       });
     },
-    [toast]
+    [toast],
   );
 
-  const onSessionAuthenticate = React.useCallback(
+  const onSessionAuthenticate = useCallback(
     async (event: WalletKitTypes.SessionAuthenticate) => {
       const authParams = event.params.authPayload;
       const message =
@@ -153,7 +153,7 @@ export default function Container({ config, account, wallet }: ContainerProps) {
         message,
       });
     },
-    [account]
+    [account],
   );
 
   useSafeEffect(() => {
@@ -178,7 +178,7 @@ export default function Container({ config, account, wallet }: ContainerProps) {
   }, [onSessionProposal, onSessionDisconnect, onSessionRequest]);
 
   return (
-    <React.Fragment>
+    <Fragment>
       <SessionProposalModal
         account={account}
         modal={sessionProposalModal}
@@ -203,7 +203,7 @@ export default function Container({ config, account, wallet }: ContainerProps) {
         modal={sessionAuthenticateModal}
         setModal={setSessionAuthenticateModal}
       />
-    </React.Fragment>
+    </Fragment>
   );
 }
 
@@ -222,7 +222,7 @@ function SessionProposalModal({
   const walletKit = WalletKitService.getWalletKit();
   const [_, actions] = useWalletKit();
   const { toast } = useToast();
-  const [isConnecting, setIsConnecting] = React.useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   if (!params || !walletKit) return null;
 
@@ -364,7 +364,7 @@ function PersonalSignModal({
 }: PersonalSignModalProps) {
   const { event } = modal;
   const walletKit = WalletKitService.getWalletKit();
-  const [isSigning, setIsSigning] = React.useState(false);
+  const [isSigning, setIsSigning] = useState(false);
   const { toast } = useToast();
 
   if (!event || !walletKit) return null;
@@ -547,16 +547,16 @@ function TransactionSignModal({
   const walletKit = WalletKitService.getWalletKit();
   const { toast } = useToast();
 
-  const [isSigning, setIsSigning] = React.useState(false);
-  const [contractLoading, setContractLoading] = React.useState(true);
-  const [functionName, setFunctionName] = React.useState<string | null>(null);
+  const [isSigning, setIsSigning] = useState(false);
+  const [contractLoading, setContractLoading] = useState(true);
+  const [functionName, setFunctionName] = useState<string | null>(null);
 
-  const fetchContractDetails = React.useCallback(
+  const fetchContractDetails = useCallback(
     async (address: string, data: string) => {
       try {
         const contract = await WalletKitService.getContractDetails(
           community,
-          address
+          address,
         );
 
         const abi = WalletKitService.parseAbi(contract?.ABI ?? "[]");
@@ -566,7 +566,7 @@ function TransactionSignModal({
         const functionSelector = encodedTransaction?.data.slice(0, 10);
 
         const functionName = abi.find(
-          (item) => item.signature === functionSelector
+          (item) => item.signature === functionSelector,
         )?.name;
 
         setFunctionName(functionName ?? null);
@@ -577,7 +577,7 @@ function TransactionSignModal({
         setContractLoading(false);
       }
     },
-    [community, event]
+    [community, event],
   );
 
   useSafeEffect(() => {
@@ -590,7 +590,7 @@ function TransactionSignModal({
 
     fetchContractDetails(
       event.params.request.params[0].to,
-      event.params.request.params[0].data
+      event.params.request.params[0].data,
     );
   }, [event?.params?.request?.params, fetchContractDetails]);
 
@@ -612,7 +612,7 @@ function TransactionSignModal({
       const hash = await wallet.call(
         encodedTransaction.to,
         encodedTransaction.data,
-        encodedTransaction.value
+        encodedTransaction.value,
       );
 
       await wallet.waitForTransactionSuccess(hash);
@@ -762,7 +762,7 @@ function SessionAuthenticateModal({
   setModal,
 }: SessionAuthenticateModalProps) {
   const { message } = modal;
-  const [isSigning, setIsSigning] = React.useState(false);
+  const [isSigning, setIsSigning] = useState(false);
 
   const onApprove = async () => {
     setModal({ open: false, message: null });

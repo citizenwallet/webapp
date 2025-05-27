@@ -4,7 +4,7 @@ import { useSafeEffect } from "./useSafeEffect";
 // Custom hook to execute an effect when the page is focused.
 export const useFocusEffect = (
   effect: EffectCallback, // The effect function to run when the page is focused.
-  deps: DependencyList // Dependencies for the effect. If any change, the effect is re-run.
+  deps: DependencyList, // Dependencies for the effect. If any change, the effect is re-run.
 ) => {
   // Use a custom version of useEffect that handles cleanup and dependencies safely.
   useSafeEffect(() => {

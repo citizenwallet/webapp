@@ -48,7 +48,7 @@ export default function PageClient({ config }: PageClientProps) {
   );
   const [copyStatus, setCopyStatus] = useState<"copy" | "copied">("copy");
 
-  const [sessionState, sessionActions] = useSession(config);
+  const [sessionState, sessionActions] = useSession(baseUrl, config);
   const [accountState, accountActions] = useAccount(baseUrl, config);
   const [profilesState, profilesActions] = useProfiles(config);
   const [receiveState, receiveActions] = useReceive();
@@ -182,7 +182,9 @@ export default function PageClient({ config }: PageClientProps) {
               <AvatarFallback>{tokenSymbol}</AvatarFallback>
             </Avatar>
 
-            <AuthBadge authMethod={authMethod} config={config} />
+            {authMethod !== "none" && (
+              <AuthBadge authMethod={authMethod} config={config} />
+            )}
           </div>
         </div>
 

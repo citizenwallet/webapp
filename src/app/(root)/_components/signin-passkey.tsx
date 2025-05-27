@@ -17,6 +17,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { browserSupportsWebAuthn, WebAuthnAbortService,startRegistration, startAuthentication } from "@simplewebauthn/browser";
 import { useSession } from "@/state/session/action";
+import { getBaseUrl } from "@/utils/deeplink";
 
 import { WebAuthnCredential } from "@simplewebauthn/server";
 import { useRouter } from "next/navigation";
@@ -37,7 +38,8 @@ export default function SignInPasskey(props: SignInPasskeyProps) {
 
   const router = useRouter();
 
-  const [sessionState, sessionActions] = useSession(props.config);
+  const baseUrl = getBaseUrl();
+  const [sessionState, sessionActions] = useSession(baseUrl, props.config);
 
   const primaryColor = props.config.community.theme?.primary ?? "#000000";
 

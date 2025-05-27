@@ -22,6 +22,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { submitEmailFormAction } from "@/app/signin/email/actions";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/state/session/action";
+import { getBaseUrl } from "@/utils/deeplink";
 
 interface EmailFormProps {
   config: Config;
@@ -32,7 +33,8 @@ export default function EmailForm({ config }: EmailFormProps) {
   const { toast } = useToast();
   const router = useRouter();
 
-  const [sessionState, sessionActions] = useSession(config);
+  const baseUrl = getBaseUrl();
+  const [sessionState, sessionActions] = useSession(baseUrl, config);
 
   const communityConfig = new CommunityConfig(config);
 

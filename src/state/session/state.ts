@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { WebAuthnCredential } from "@simplewebauthn/server";
+export type AuthMethod = "passkey" | "local" | "email";
 
 export interface SessionState {
   sourceValue: string | null;
@@ -7,6 +8,7 @@ export interface SessionState {
   privateKey: string | null;
   hash: string | null; // convert to bytes when signing
   passkeys: WebAuthnCredential[];
+  isLoading: boolean;
 
   setSourceValue: (sourceValue: string) => void;
   resetSourceValue: () => void;
@@ -32,6 +34,7 @@ const initialState = () => ({
   privateKey: null,
   hash: null,
   passkeys: [],
+  isLoading: true,
 });
 
 export const useSessionStore = create<SessionState>()((set) => ({

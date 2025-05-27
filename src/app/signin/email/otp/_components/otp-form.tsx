@@ -24,6 +24,7 @@ import {
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useSession } from "@/state/session/action";
 import { submitOtpFormAction } from "@/app/signin/email/otp/actions";
+import { getBaseUrl } from "@/utils/deeplink";
 
 interface OtpFormProps {
   config: Config;
@@ -35,7 +36,8 @@ export default function OtpForm({ config }: OtpFormProps) {
   const router = useRouter();
   const communityConfig = new CommunityConfig(config);
 
-  const [sessionState, sessionActions] = useSession(config);
+  const baseUrl = getBaseUrl();
+  const [sessionState, sessionActions] = useSession(baseUrl, config);
 
   const form = useForm<z.infer<typeof otpFormSchema>>({
     resolver: zodResolver(otpFormSchema),

@@ -1,7 +1,7 @@
 import { Key, Mail } from "lucide-react";
 import { Config } from "@citizenwallet/sdk";
 import { cn } from "@/lib/utils";
-import { AuthMethod } from "@/hooks/signin-method";
+import { AuthMethod } from "@/state/session/state";
 import { IncognitoIcon } from "@/components/icons";
 
 interface AuthBadgeProps {

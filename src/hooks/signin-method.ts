@@ -6,17 +6,17 @@ import {Config as cwConfig, CommunityConfig as cwCommunityConfig, generateConnec
 import { useSession } from "@/state/session/action";
 import { getBytes } from "ethers";
 
-export type AuthMethod = "passkey" | "local" | "email" | "none";
+type AuthMethod = "passkey" | "local" | "email" | "none";
 
 export function useSigninMethod(config: cwConfig) {
   const [authMethod, setAuthMethod] = useState<AuthMethod>("none");
   const [isLoading, setIsLoading] = useState(true);
   const [isReadOnly, setIsReadOnly] = useState(true);
   const [accountAddress, setAccountAddress] = useState<string | null>(null);
-  const [sessionState, sessionActions] = useSession(config);
+  const baseUrl = getBaseUrl();
+  const [sessionState, sessionActions] = useSession(baseUrl, config);
   const [isSessionExpired, setIsSessionExpired] = useState(false);
 
-  const baseUrl = getBaseUrl();
 
   const accountOfLocalSignIn = useCallback(
     async (walletHash: string) => {

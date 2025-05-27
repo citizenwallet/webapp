@@ -121,13 +121,13 @@ export class SessionLogic {
     return isExpired;
   }
 
-  async getAuthSession(): Promise<AuthSession> {
+  async evalAuthSession(): Promise<void> {
     const walletHash = this.storage.getKey(StorageKeys.hash);
     const sourceType = this.storage.getKey(StorageKeys.session_source_type);
     const sourceValue = this.storage.getKey(StorageKeys.session_source_value);
 
     try {
-      this.state.isLoading = true;
+      this.state.setIsLoading(true);
 
       if (walletHash) {
         const walletPassword = process.env.NEXT_PUBLIC_WEB_BURNER_PASSWORD;
@@ -142,7 +142,7 @@ export class SessionLogic {
         );
         const expiryTime = Date.now() + 1000 * 60 * 5; // 5 mins
         const signer = account.signer;
-        let verifyConnectionResult = null;
+        let verifyConnectionResult: string | null = null;
 
         if (signer) {
           // verify account ownership
@@ -168,58 +168,50 @@ export class SessionLogic {
           );
         }
 
-        this.state.isLoading = false;
-        return {
-          method: "local",
-          accountAddress: account.account,
-          isReadOnly: !signer || !verifyConnectionResult,
-          isSessionExpired: false,
-        };
+        this.state.setAuthMethod("local");
+        this.state.setAccountAddress(account.account);
+        this.state.setIsReadOnly(!signer || !verifyConnectionResult);
+        this.state.setIsSessionExpired(false);
+        this.state.setIsLoading(false);
+        return;
       }
 
       if (sourceValue && sourceType === "email") {
         const accountAddress = await this.getAccountAddress();
         const isSessionExpired = await this.isSessionExpired();
 
-        this.state.isLoading = false;
-        return {
-          method: "email",
-          accountAddress: accountAddress,
-          isReadOnly: false,
-          isSessionExpired: isSessionExpired,
-        };
+        this.state.setAuthMethod("email");
+        this.state.setAccountAddress(accountAddress);
+        this.state.setIsReadOnly(false);
+        this.state.setIsSessionExpired(isSessionExpired);
+        this.state.setIsLoading(false);
+        return;
       }
 
       if (sourceValue && sourceType === "passkey") {
         const accountAddress = await this.getAccountAddress();
         const isSessionExpired = await this.isSessionExpired();
 
-        this.state.isLoading = false;
-        return {
-          method: "passkey",
-          accountAddress: accountAddress,
-          isReadOnly: false,
-          isSessionExpired: isSessionExpired,
-        };
+        this.state.setAuthMethod("passkey");
+        this.state.setAccountAddress(accountAddress);
+        this.state.setIsReadOnly(false);
+        this.state.setIsSessionExpired(isSessionExpired);
+        this.state.setIsLoading(false);
+        return;
       }
 
-      this.state.isLoading = false;
-      return {
-        method: null,
-        accountAddress: null,
-        isReadOnly: true,
-        isSessionExpired: false,
-      };
+      this.state.setIsLoading(false);
+      this.state.setAuthMethod(null);
+      this.state.setAccountAddress(null);
+      this.state.setIsReadOnly(true);
+      this.state.setIsSessionExpired(false);
     } catch (error) {
       console.error("Error checking auth method:", error);
       this.state.isLoading = false;
-
-      return {
-        method: null,
-        accountAddress: null,
-        isReadOnly: true,
-        isSessionExpired: false,
-      };
+      this.state.setAuthMethod(null);
+      this.state.setAccountAddress(null);
+      this.state.setIsReadOnly(true);
+      this.state.setIsSessionExpired(false);
     }
   }
 

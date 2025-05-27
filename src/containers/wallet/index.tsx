@@ -12,6 +12,7 @@ import { selectOrderedLogs } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
 import { useSend } from "@/state/send/actions";
 import { useVoucher } from "@/state/voucher/actions";
+import { useSession } from "@/state/session/action";
 import {
   Config,
   CommunityConfig,
@@ -29,7 +30,6 @@ import BackupModal from "./BackupModal";
 import { getWindow } from "@/utils/window";
 import { getAvatarUrl } from "@/lib/utils";
 import { useThemeUpdater } from "@/hooks/theme";
-import { useSigninMethod } from "@/hooks/signin-method";
 import WalletKitService from "@/services/walletkit";
 import WalletConnect from "@/containers/wallet_connect";
 import { useToast } from "@/components/ui/use-toast";
@@ -46,13 +46,18 @@ interface ContainerProps {
 export default function Container({ config, accountAddress }: ContainerProps) {
   const { community } = config;
   const communityConfig = new CommunityConfig(config);
-  const { isReadOnly, authMethod } = useSigninMethod(config);
+  // const { isReadOnly, authMethod } = useSigninMethod(config);
 
   const isScrolled = useIsScrolled();
 
   const baseUrl = getBaseUrl();
 
   const [accountState, accountActions] = useAccount(baseUrl, config);
+
+  const [sessionState, sessionActions] = useSession(baseUrl, config);
+  const isReadOnly = sessionState((state) => state.isReadOnly);
+  const authMethod = sessionState((state) => state.authMethod);
+
   const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
   const [voucherState, voucherActions] = useVoucher(config);
@@ -127,14 +132,13 @@ export default function Container({ config, accountAddress }: ContainerProps) {
   useEffect(() => {
     accountActions.getAccount(accountAddress);
 
-    if (authMethod === "local") {
+    if (authMethod && authMethod === "local") {
       accountActions.openAccount(hash, (accountAddress: string) => {});
     }
 
-    if (["email", "passkey"].includes(authMethod)) {
+    if (authMethod && ["email", "passkey"].includes(authMethod)) {
       accountActions.openSessionAccount(accountAddress);
     }
-
 
     const storageService = new StorageService(config.community.alias);
     const deeplink = storageService.getKey("deeplink");
@@ -143,7 +147,19 @@ export default function Container({ config, accountAddress }: ContainerProps) {
       storageService.deleteKey("deeplink");
       handleScan(deeplink);
     }
-  }, [accountAddress, accountActions, router, hash, authMethod, config.community.alias, handleScan]);
+  }, [
+    accountAddress,
+    accountActions,
+    router,
+    hash,
+    authMethod,
+    config.community.alias,
+    handleScan,
+  ]);
+
+  useEffect(() => {
+    sessionActions.evalAuthSession();
+  }, [sessionActions]);
 
   const account = accountState((state) => state.account);
 

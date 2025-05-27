@@ -1,7 +1,6 @@
 "use client";
 
 import { CommunityConfig, Config, revokeSession } from "@citizenwallet/sdk";
-import { useSigninMethod } from "@/hooks/signin-method";
 import { Wallet } from "ethers";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AuthBadge from "./auth-badge";
@@ -16,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition, useEffect } from "react";
 import { useSession } from "@/state/session/action";
 import { StorageService } from "@/services/storage";
 import { toast } from "@/components/ui/use-toast";
@@ -49,6 +48,8 @@ export default function PageClient({ config }: PageClientProps) {
   const [copyStatus, setCopyStatus] = useState<"copy" | "copied">("copy");
 
   const [sessionState, sessionActions] = useSession(baseUrl, config);
+  const authMethod = sessionState((state) => state.authMethod);
+
   const [accountState, accountActions] = useAccount(baseUrl, config);
   const [profilesState, profilesActions] = useProfiles(config);
   const [receiveState, receiveActions] = useReceive();
@@ -63,7 +64,9 @@ export default function PageClient({ config }: PageClientProps) {
   const communityName = communityConfig.community.name;
   const tokenSymbol = communityConfig.primaryToken.symbol;
 
-  const { authMethod } = useSigninMethod(config);
+  useEffect(() => {
+    sessionActions.evalAuthSession();
+  }, [sessionActions]);
 
   const getAuthMethodName = () => {
     switch (authMethod) {
@@ -79,6 +82,10 @@ export default function PageClient({ config }: PageClientProps) {
   };
 
   const handleSignOut = () => {
+    if (!authMethod) {
+      return;
+    }
+
     if (authMethod === "local") {
       const hash = storageService.getKey("hash");
       const localAccountUrl = `${baseUrl}/${hash}`;
@@ -182,7 +189,7 @@ export default function PageClient({ config }: PageClientProps) {
               <AvatarFallback>{tokenSymbol}</AvatarFallback>
             </Avatar>
 
-            {authMethod !== "none" && (
+            {authMethod && (
               <AuthBadge authMethod={authMethod} config={config} />
             )}
           </div>

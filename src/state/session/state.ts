@@ -9,6 +9,11 @@ export interface SessionState {
   hash: string | null; // convert to bytes when signing
   passkeys: WebAuthnCredential[];
   isLoading: boolean;
+  authMethod: AuthMethod | null;
+  accountAddress: string | null;
+  isReadOnly: boolean;
+  isSessionExpired: boolean;
+
 
   setSourceValue: (sourceValue: string) => void;
   resetSourceValue: () => void;
@@ -25,6 +30,12 @@ export interface SessionState {
   appendPasskey: (passkey: WebAuthnCredential) => void;
   resetPasskey: () => void;
 
+  setAuthMethod: (authMethod: AuthMethod | null) => void;
+  setAccountAddress: (accountAddress: string | null) => void;
+  setIsReadOnly: (isReadOnly: boolean) => void;
+  setIsSessionExpired: (isSessionExpired: boolean) => void;
+  setIsLoading: (isLoading: boolean) => void;
+
   clear: () => void;
 }
 
@@ -35,6 +46,10 @@ const initialState = () => ({
   hash: null,
   passkeys: [],
   isLoading: true,
+  authMethod: null,
+  accountAddress: null,
+  isReadOnly: true,
+  isSessionExpired: false,
 });
 
 export const useSessionStore = create<SessionState>()((set) => ({
@@ -57,6 +72,12 @@ export const useSessionStore = create<SessionState>()((set) => ({
       passkeys: [...state.passkeys, passkey],
     })),
   resetPasskey: () => set({ passkeys: [] }),
+
+  setAuthMethod: (authMethod: AuthMethod | null) => set({ authMethod }),
+  setAccountAddress: (accountAddress: string | null) => set({ accountAddress }),
+  setIsReadOnly: (isReadOnly: boolean) => set({ isReadOnly }),
+  setIsSessionExpired: (isSessionExpired: boolean) => set({ isSessionExpired }),
+  setIsLoading: (isLoading: boolean) => set({ isLoading }),
 
   clear: () => set(initialState()),
 }));

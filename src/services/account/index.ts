@@ -9,6 +9,7 @@ import { HDNodeWallet, JsonRpcProvider, Wallet } from "ethers";
 import {
   parseLegacyWalletFromHash,
   parsePrivateKeyFromHash,
+  parsePrivateKeyFromV4Hash,
 } from "./urlAccount";
 
 export class CWAccount {
@@ -19,24 +20,37 @@ export class CWAccount {
   communityConfig: CommunityConfig;
   account: string;
   signer?: Wallet | HDNodeWallet;
+  accountFactory?: string;
 
-  constructor(config: Config, account: string, signer?: Wallet | HDNodeWallet) {
+  constructor(
+    config: Config,
+    account: string,
+    signer?: Wallet | HDNodeWallet,
+    accountFactory?: string
+  ) {
     this.communityConfig = new CommunityConfig(config);
 
-    this.provider = new JsonRpcProvider(this.communityConfig.primaryRPCUrl);
+    this.provider = new JsonRpcProvider(
+      this.communityConfig.getRPCUrl(accountFactory)
+    );
 
-    this.bundler = new BundlerService(this.communityConfig);
+    this.bundler = new BundlerService(this.communityConfig, {
+      accountFactoryAddress: accountFactory,
+    });
 
     this.config = config;
     this.account = account;
     this.signer = signer;
+    this.accountFactory = accountFactory;
   }
 
-  static async random(config: Config) {
+  static async random(config: Config, accountFactory?: string) {
     const wallet = Wallet.createRandom();
 
     const communityConfig = new CommunityConfig(config);
-    const provider = new JsonRpcProvider(communityConfig.primaryRPCUrl);
+    const provider = new JsonRpcProvider(
+      communityConfig.getRPCUrl(accountFactory)
+    );
 
     const connectedWallet = wallet.connect(provider);
 
@@ -49,7 +63,7 @@ export class CWAccount {
       throw new Error("Failed to get account address");
     }
 
-    return new CWAccount(config, account, wallet);
+    return new CWAccount(config, account, wallet, accountFactory);
   }
 
   static async fromHash(
@@ -62,42 +76,49 @@ export class CWAccount {
 
     let account: string | undefined;
     let signer: Wallet | HDNodeWallet | undefined;
+    let accountFactory: string | undefined;
 
-    try {
-      if (!encoded.startsWith("v3-")) {
+    const version = encoded.split("-")[0];
+
+    switch (version) {
+      case "v4":
+        [account, accountFactory, signer] = await parsePrivateKeyFromV4Hash(
+          baseUrl,
+          hash,
+          walletPassword
+        );
+        break;
+
+      case "v3":
+        [account, signer] = await parsePrivateKeyFromHash(
+          baseUrl,
+          hash,
+          walletPassword
+        );
+        break;
+
+      case "v2":
+        signer = await parseLegacyWalletFromHash(baseUrl, hash, walletPassword);
+        if (!signer) {
+          throw new Error("Invalid wallet format");
+        }
+
+        const communityConfig = new CommunityConfig(config);
+        account =
+          (await getAccountAddress(communityConfig, signer.address)) ||
+          undefined;
+
+        break;
+
+      default:
         throw new Error("Invalid wallet format");
-      }
-
-      [account, signer] = await parsePrivateKeyFromHash(
-        baseUrl,
-        hash,
-        walletPassword
-      );
-
-      if (!account || !signer) {
-        throw new Error("Invalid wallet format");
-      }
-    } catch (error) {
-      console.error(error);
-      if (!encoded.startsWith("v2-")) {
-        throw new Error("Invalid wallet format");
-      }
-
-      signer = await parseLegacyWalletFromHash(baseUrl, hash, walletPassword);
-      if (!signer) {
-        throw new Error("Invalid wallet format");
-      }
-
-      const communityConfig = new CommunityConfig(config);
-      account =
-        (await getAccountAddress(communityConfig, signer.address)) || undefined;
     }
 
     if (!account || !signer) {
       throw new Error("Invalid wallet format");
     }
 
-    return new CWAccount(config, account, signer);
+    return new CWAccount(config, account, signer, accountFactory);
   }
 
   async getBalance() {
@@ -117,7 +138,8 @@ export class CWAccount {
       this.account,
       to,
       amount,
-      description
+      description,
+      this.accountFactory
     );
 
     return hash;
@@ -138,7 +160,8 @@ export class CWAccount {
       to,
       this.account,
       dataBytes,
-      BigInt(value ?? 0)
+      BigInt(value ?? 0),
+      this.accountFactory
     );
 
     return hash;

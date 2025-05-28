@@ -122,7 +122,9 @@ export class CWAccount {
   }
 
   async getBalance() {
-    return (await getAccountBalance(this.communityConfig, this.account)) ?? 0n;
+    return (
+      await getAccountBalance(this.communityConfig, this.account, this.accountFactory)
+    ) ?? 0n;
   }
 
   async send(to: string, amount: string, description?: string) {

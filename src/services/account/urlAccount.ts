@@ -12,11 +12,11 @@ export const parsePrivateKeyFromV4Hash = async (
   const encoded = encodedURL.pathname.replace("/wallet/", "");
 
   try {
-    if (!encoded.startsWith("v3-")) {
+    if (!encoded.startsWith("v4-")) {
       throw new Error("Invalid wallet format");
     }
 
-    const decoded = Buffer.from(encoded.replace("v3-", ""), "base64").toString(
+    const decoded = Buffer.from(encoded.replace("v4-", ""), "base64").toString(
       "utf-8"
     );
 

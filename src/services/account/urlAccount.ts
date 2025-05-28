@@ -1,3 +1,4 @@
+import { Config } from "@citizenwallet/sdk";
 import { HDNodeWallet, Wallet, pbkdf2, scrypt } from "ethers";
 import { getAccount, getDecryptKdfParams, getPassword } from "./ethers";
 
@@ -143,4 +144,38 @@ export const generateWalletHash = async (
   const encoded = btoa(`${account}|${encryptedPrivateKey}`);
 
   return `v3-${encoded}`;
+};
+
+
+export const generateWalletHashV4 = async (
+  account: string,
+  config: Config,
+  wallet: HDNodeWallet | Wallet,
+  walletPassword: string
+): Promise<string> => {
+  const encryptedPrivateKey = await wallet.encrypt(walletPassword);
+
+  let accountFactory: string | undefined;
+  const alias = config.community.alias;
+
+  switch (alias) {
+    case "gratitude":
+      accountFactory = "0xAE6E18a9Cd26de5C8f89B886283Fc3f0bE5f04DD";
+      break;
+    case "bread":
+      accountFactory = "0xAE76B1C6818c1DD81E20ccefD3e72B773068ABc9";
+      break;
+    case "wallet.commonshub.brussels":
+      accountFactory = "0x307A9456C4057F7C7438a174EFf3f25fc0eA6e87";
+      break;
+    case "wallet.sfluv.org":
+      accountFactory = "0x5e987a6c4bb4239d498E78c34e986acf29c81E8e";
+      break;
+    default:
+      accountFactory = config.community.primary_account_factory.address;
+  }
+
+  const encoded = btoa(`${account}|${accountFactory}|${encryptedPrivateKey}`);
+
+  return `v4-${encoded}`;
 };

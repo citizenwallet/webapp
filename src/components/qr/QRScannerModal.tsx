@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+
 import { useMediaQuery } from "@/hooks/mediaQuery";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,19 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { Box, Flex } from "@radix-ui/themes";
 import { useState } from "react";
 import { DialogClose } from "@radix-ui/react-dialog";
-import QRScanner from "@/components/qr/QRScanner";
+import NewQrScanner from "@/components/qr/NewQrScanner";
 
 interface QRScannerModalProps {
   title?: string;
@@ -46,70 +36,34 @@ export default function QRScannerModal({
     onScan(data);
   };
 
-  if (isDesktop) {
-    return (
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="h-30 sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-          </DialogHeader>
-          <QRScannerContent
-            className="h-full"
-            onScan={handleScan}
-            open={open}
-          />
-          <DialogFooter className="pt-2">
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="h-full">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+
+      <DialogContent className="w-full h-full sm:h-auto sm:max-w-md sm:rounded-lg rounded-none p-6 sm:p-6 flex flex-col">
+        <DialogHeader className="text-left space-y-2">
+          <DialogTitle className="text-xl sm:text-lg">{title}</DialogTitle>
         </DialogHeader>
-        <QRScannerContent
-          className="h-80 px-4"
-          onScan={handleScan}
-          open={open}
-        />
-        <DialogFooter className="pt-2">
+
+        <div className="w-full flex-1 flex flex-col items-center justify-center">
+          {open && <NewQrScanner onScan={handleScan} isActive={open} />}
+          <p className="text-sm text-muted-foreground mt-3 text-center">
+            Position the QR code within the frame to scan
+          </p>
+        </div>
+
+        <DialogFooter className="flex-col sm:flex-row gap-3 sm:gap-2 mt-6 sm:mt-4">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto order-2 sm:order-1 h-11 sm:h-9"
+            >
+              Cancel
+            </Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
-interface QRScannerContentProps {
-  className?: string;
-  onScan: (data: string) => void;
-  open: boolean;
-}
-
-const QRScannerContent = ({
-  className,
-  onScan,
-  open,
-}: QRScannerContentProps) => {
-  return (
-    <Flex
-      direction="column"
-      className={cn("w-full items-start gap-4 overflow-hidden", className)}
-    >
-      <Box className="h-full w-full overflow-hidden rounded-lg">
-        <QRScanner isActive={open} onScan={onScan} />
-      </Box>
-    </Flex>
-  );
-};

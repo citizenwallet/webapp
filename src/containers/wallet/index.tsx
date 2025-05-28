@@ -76,6 +76,16 @@ export default function Container({ config }: ContainerProps) {
         });
       } catch (error) {
         console.error("WalletConnect pairing failed:", error);
+
+        if (error instanceof Error && error.message.includes("Expired")) {
+          toast({
+            title: "Connection request expired",
+            description: "Please try again with a new connection URI.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         toast({
           title: "Connection failed",
           description: "Unable to connect to wallet",

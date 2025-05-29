@@ -1,12 +1,15 @@
+import { generateAccountHashPath } from "@/utils/hash";
 import {
-  Config,
-  CommunityConfig,
   BundlerService,
-  getAccountBalance,
+  CommunityConfig,
+  Config,
   getAccountAddress,
+  getAccountBalance,
 } from "@citizenwallet/sdk";
 import { HDNodeWallet, JsonRpcProvider, Wallet } from "ethers";
 import {
+  generateWalletHash,
+  generateWalletHashV4,
   parseLegacyWalletFromHash,
   parsePrivateKeyFromHash,
   parsePrivateKeyFromV4Hash,
@@ -95,6 +98,26 @@ export class CWAccount {
           hash,
           walletPassword
         );
+
+        if (!account || !signer) {
+          throw new Error("Invalid wallet format");
+        }
+
+        const hashV4 = await generateWalletHashV4(
+          account,
+          config,
+          signer,
+          walletPassword
+        );
+
+        const hashV4Path = generateAccountHashPath(
+          hashV4,
+          config.community.alias
+        );
+
+        window.location.href = window.location.origin + "/" + hashV4Path;
+        window.location.reload();
+
         break;
 
       case "v2":
@@ -107,6 +130,24 @@ export class CWAccount {
         account =
           (await getAccountAddress(communityConfig, signer.address)) ||
           undefined;
+
+        if (!account || !signer) {
+          throw new Error("Invalid wallet format");
+        }
+
+        const hashV3 = await generateWalletHash(
+          account,
+          signer,
+          walletPassword
+        );
+
+        const hashV3Path = generateAccountHashPath(
+          hashV3,
+          config.community.alias
+        );
+
+        window.location.href = window.location.origin + "/" + hashV3Path;
+        window.location.reload();
 
         break;
 
@@ -123,8 +164,12 @@ export class CWAccount {
 
   async getBalance() {
     return (
-      await getAccountBalance(this.communityConfig, this.account, this.accountFactory)
-    ) ?? 0n;
+      (await getAccountBalance(
+        this.communityConfig,
+        this.account,
+        this.accountFactory
+      )) ?? 0n
+    );
   }
 
   async send(to: string, amount: string, description?: string) {

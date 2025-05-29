@@ -490,10 +490,7 @@ const limit = 2;
 export default function ActiveSessionsStack() {
   const [state] = useWalletKit();
 
-  // const activeSessions = state((state) => state.activeSessions);
-  const activeSessions = [session1, session2, session3, session4, session5, session6];
-
-  console.log("activeSessions", activeSessions);
+  const activeSessions = state((state) => state.activeSessions);
 
   if (Object.keys(activeSessions).length === 0) {
     return null;

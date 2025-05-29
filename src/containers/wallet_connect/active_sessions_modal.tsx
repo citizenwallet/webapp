@@ -5,9 +5,12 @@ import { cn } from "@/lib/utils";
 import { SessionTypes } from "@walletconnect/types";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { ExternalLinkIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -496,39 +499,60 @@ const sizeClasses = {
   lg: "h-10 w-10 border-2 text-base",
 };
 
-export interface ActiveSessionsModalRef {
-  toggle: () => void;
+interface ActiveSessionsModalProps {
+  trigger: React.ReactNode;
 }
 
-export const ActiveSessionsModal = React.forwardRef((_, ref) => {
+export default function ActiveSessionModal({
+  trigger,
+}: ActiveSessionsModalProps) {
   const [open, setOpen] = React.useState(false);
-
-  React.useImperativeHandle(ref, () => ({
-    toggle: () => setOpen((prev) => !prev),
-  }));
 
   const [state] = useWalletKit();
 
   const activeSessions = state((state) => state.activeSessions);
 
+  const handleOpenChange = (open: boolean) => {
+    setOpen(open);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Active sessions</DialogTitle>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <div className="cursor-pointer">{trigger}</div>
+      </DialogTrigger>
+
+      <DialogContent className="w-full h-full sm:h-auto sm:max-w-md sm:rounded-lg rounded-none p-6 sm:p-6 flex flex-col">
+        <DialogHeader className="text-left space-y-2">
+          <DialogTitle className="text-xl sm:text-lg">
+            Active Sessions
+          </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="h-[50vh] w-full">
-          {Object.entries(activeSessions).map(([key, session]) => (
-            <SessionListItem key={key} session={session} />
-          ))}
+        <ScrollArea className="h-full w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+          <div className="px-1 py-2">
+            {Object.entries(activeSessions).map(([key, session]) => (
+              <SessionListItem key={key} session={session} />
+            ))}
+          </div>
         </ScrollArea>
+
+        <DialogFooter className="flex-col sm:flex-row gap-3 sm:gap-2 mt-6 sm:mt-4">
+          <DialogClose asChild>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto order-2 sm:order-1 h-11 sm:h-9"
+              onClick={() => setOpen(false)}
+            >
+              Close
+            </Button>
+          </DialogClose>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-});
-
-ActiveSessionsModal.displayName = "ActiveSessionsModal";
+}
 
 interface SessionListItemProps {
   session: SessionTypes.Struct;
@@ -559,44 +583,49 @@ const SessionListItem = ({ session }: SessionListItemProps) => {
   };
 
   return (
-    <div className="grid grid-cols-[auto,1fr,auto] items-center hover:bg-gray-100 p-2">
-      <Avatar
-        key={publicKey}
-        className={cn(
-          "ring-2 ring-background border-primary relative inline-block rounded-full bg-white mr-2",
-          sizeClasses["lg"]
-        )}
-      >
-        <AvatarImage src={icon} alt={`${name}'s avatar`} />
-        <AvatarFallback>
-          {name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
-        <div className="flex justify-between items-baseline">
-          <h2 className="text-sm font-semibold text-gray-900 truncate">
+    <div className="flex items-center justify-between p-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+      <div className="flex items-center min-w-0 flex-1 pr-2">
+        <Avatar
+          key={publicKey}
+          className={cn(
+            "ring-2 ring-background border-primary relative rounded-full bg-white mr-2 flex-shrink-0",
+            sizeClasses["md"] // Using medium size for better small screen experience
+          )}
+        >
+          <AvatarImage src={icon} alt={`${name}'s avatar`} />
+          <AvatarFallback>
+            {name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="min-w-0 overflow-hidden flex-1">
+          <h2 className="text-sm font-semibold text-gray-900 truncate mb-0.5">
             {name}
           </h2>
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs inline-flex items-center gap-1 text-blue-500 hover:text-blue-700 transition-colors cursor-pointer hover:bg-blue-50 rounded-full py-0.5 px-1 max-w-full self-start overflow-hidden"
+          >
+            <span className="truncate max-w-[120px] sm:max-w-[200px]">
+              {url}
+            </span>
+            <ExternalLinkIcon size={12} className="flex-shrink-0" />
+          </a>
         </div>
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm inline-flex items-center gap-1 text-blue-500 hover:text-blue-700 transition-colors cursor-pointer hover:bg-blue-200 rounded-full max-w-full self-start"
-        >
-          <span className="truncate max-w-[200px]">{url}</span>
-          <ExternalLinkIcon size={16} />
-        </a>
       </div>
+
       <Button
         variant="outline"
-        className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-700 p-1 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0"
+        size="icon"
+        className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-700 p-1 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0"
         onClick={onRemove}
       >
-        <X size={16} />
+        <X size={12} />
       </Button>
     </div>
   );

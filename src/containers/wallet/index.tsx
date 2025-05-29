@@ -35,6 +35,9 @@ import WalletConnect from "@/containers/wallet_connect";
 import { useToast } from "@/components/ui/use-toast";
 import WalletKitProvider from "@/provider/wallet_kit";
 import { getBaseUrl } from "@/utils/deeplink";
+import ActiveSessionsStack from "@/containers/wallet_connect/active_sessions_stack";
+import ActiveSessionModal from "@/containers/wallet_connect/active_sessions_modal";
+
 interface ContainerProps {
   config: Config;
 }
@@ -70,10 +73,6 @@ export default function Container({ config }: ContainerProps) {
 
       try {
         await walletKit.pair({ uri });
-        toast({
-          title: "Connected",
-          variant: "success",
-        });
       } catch (error) {
         console.error("WalletConnect pairing failed:", error);
 
@@ -198,6 +197,16 @@ export default function Container({ config }: ContainerProps) {
           <AvatarFallback>{!profile ? "PRF" : profile.username}</AvatarFallback>
         </Avatar>
       </Link>
+
+      <div className="z-20 absolute right-0 top-20 m-4">
+        <ActiveSessionModal
+          trigger={
+            <div className="cursor-pointer hover:opacity-80 transition-opacity">
+              <ActiveSessionsStack />
+            </div>
+          }
+        />
+      </div>
 
       <Flex
         justify="center"

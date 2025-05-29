@@ -4,10 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { SessionTypes } from "@walletconnect/types";
 import { useWalletKit } from "@/state/wallet_kit/actions";
-import {
-  ActiveSessionsModal,
-  ActiveSessionsModalRef,
-} from "./active_sessions_modal";
 
 const session1: SessionTypes.Struct = {
   relay: {
@@ -491,14 +487,13 @@ const sizeClasses = {
 
 const limit = 2;
 
-// TODO: let size be responsive
-
-export function ActiveSessionsStack() {
+export default function ActiveSessionsStack() {
   const [state] = useWalletKit();
 
-  const modalRef = React.useRef<ActiveSessionsModalRef>(null);
+  // const activeSessions = state((state) => state.activeSessions);
+  const activeSessions = [session1, session2, session3, session4, session5, session6];
 
-  const activeSessions = state((state) => state.activeSessions);
+  console.log("activeSessions", activeSessions);
 
   if (Object.keys(activeSessions).length === 0) {
     return null;
@@ -510,7 +505,6 @@ export function ActiveSessionsStack() {
   return (
     <div
       className="flex items-center"
-      onClick={() => modalRef.current?.toggle()}
     >
       <div className="flex -space-x-3">
         {visibleSessions.map(([key, session]) => (
@@ -527,7 +521,6 @@ export function ActiveSessionsStack() {
           </div>
         )}
       </div>
-      <ActiveSessionsModal ref={modalRef} />
     </div>
   );
 }

@@ -17,7 +17,7 @@ const qrcodeRegionId = "html5qr-code-full-region";
 const calculateQrbox: QrDimensionFunction = (viewfinderWidth: number, viewfinderHeight: number): QrDimensions => {
   const minDimension = Math.min(viewfinderWidth, viewfinderHeight);
   
-  const qrboxSize = Math.floor(minDimension * 0.7);
+  const qrboxSize = Math.floor(minDimension * 0.9);
   
   return {
     width: qrboxSize,

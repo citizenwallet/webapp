@@ -529,13 +529,21 @@ export default function ActiveSessionModal({
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="h-full w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-          <div className="px-1 py-2">
-            {Object.entries(activeSessions).map(([key, session]) => (
-              <SessionListItem key={key} session={session} />
-            ))}
+        {Object.entries(activeSessions).length === 0 && (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-sm text-gray-500">No active sessions</p>
           </div>
-        </ScrollArea>
+        )}
+
+        {Object.entries(activeSessions).length > 0 && (
+          <ScrollArea className="h-full w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+            <div className="px-1 py-2">
+              {Object.entries(activeSessions).map(([key, session]) => (
+                <SessionListItem key={key} session={session} />
+              ))}
+            </div>
+          </ScrollArea>
+        )}
 
         <DialogFooter className="flex-col sm:flex-row gap-3 sm:gap-2 mt-6 sm:mt-4">
           <DialogClose asChild>
@@ -560,6 +568,7 @@ interface SessionListItemProps {
 
 const SessionListItem = ({ session }: SessionListItemProps) => {
   const walletKit = WalletKitService.getWalletKit();
+  const [_, actions] = useWalletKit();
 
   const dApp = session.peer;
 
@@ -570,16 +579,19 @@ const SessionListItem = ({ session }: SessionListItemProps) => {
 
   const icon = icons.find((icon) => icon.endsWith(".png"));
 
-  const onRemove = () => {
+  const onRemove = async () => {
     if (!walletKit) {
       console.warn("WalletKit not initialized");
       return;
     }
 
-    walletKit.disconnectSession({
+    await walletKit.disconnectSession({
       topic: session.topic,
       reason: getSdkError("USER_DISCONNECTED"),
     });
+
+    const activeSessions = walletKit.getActiveSessions();
+    actions.setActiveSessions(activeSessions);
   };
 
   return (

@@ -194,11 +194,11 @@ export default function Container({ config, accountAddress }: ContainerProps) {
       ref={scrollableRef}
       className="relative flex min-h-screen w-full flex-col align-center p-4 max-w-xl"
     >
-      {!isReadOnly && (
+      {!isReadOnly && authMethod === "local" && (
         <BackupModal
           community={community}
           account={account}
-          url={getWindow()?.location.href ?? "/"}
+          
           className="z-20 absolute left-0 top-0"
         />
       )}

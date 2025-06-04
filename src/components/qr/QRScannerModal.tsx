@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { DialogClose } from "@radix-ui/react-dialog";
-import QrScanner from "@/components/qr/QrScanner";
+import QRScanner from "@/components/qr/QRScanner";
 
 interface QRScannerModalProps {
   title?: string;
@@ -46,7 +46,7 @@ export default function QRScannerModal({
         </DialogHeader>
 
         <div className="w-full flex-1 flex flex-col items-center justify-center">
-          {open && <QrScanner onScan={handleScan} isActive={open} />}
+          {open && <QRScanner onScan={handleScan} isActive={open} />}
           <p className="text-sm text-muted-foreground mt-3 text-center">
             Position the QR code within the frame to scan
           </p>

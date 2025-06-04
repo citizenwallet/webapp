@@ -23,12 +23,7 @@ class SendActions {
         throw new Error("Unsupported QR code format");
       }
 
-      const alias = parseAliasFromReceiveLink(data);
-      if (!alias) {
-        throw new Error("QR code from another community");
-      }
-
-      const [to, amount] = parseQRCode(data);
+      const [to, amount, description] = parseQRCode(data);
       if (!to) {
         throw new Error("Invalid QR code");
       }
@@ -37,6 +32,10 @@ class SendActions {
 
       if (amount) {
         this.updateAmount(amount);
+      }
+
+      if (description) {
+        this.updateDescription(description);
       }
 
       if (format === QRFormat.receiveUrl) {
@@ -89,7 +88,7 @@ class SendActions {
 
 export const useSend = (): [
   UseBoundStore<StoreApi<SendState>>,
-  SendActions
+  SendActions,
 ] => {
   const sendStore = useSendStore;
 

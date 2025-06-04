@@ -23,13 +23,13 @@ class SendLogic {
 
 export const useReceive = (): [
   UseBoundStore<StoreApi<ReceiveState>>,
-  SendLogic
+  SendLogic,
 ] => {
   const receiveStore = useReceiveStore;
 
   const actions = useMemo(
     () => new SendLogic(receiveStore.getState()),
-    [receiveStore]
+    [receiveStore],
   );
 
   return [receiveStore, actions];

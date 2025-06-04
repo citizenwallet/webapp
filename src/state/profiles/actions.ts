@@ -40,7 +40,7 @@ export class ProfilesActions {
       const profile = await getProfileFromAddress(
         ipfsDomain,
         this.communityConfig,
-        account
+        account,
       );
 
       if (!profile) {
@@ -64,7 +64,7 @@ export class ProfilesActions {
       const profile = await getProfileFromUsername(
         ipfsDomain,
         this.communityConfig,
-        username
+        username,
       );
 
       if (!profile) {
@@ -81,7 +81,7 @@ export class ProfilesActions {
 
   debouncedLoadProfileFromUsername = debounce(
     this.loadProfileFromUsername,
-    500
+    500,
   );
 
   clear() {
@@ -90,13 +90,13 @@ export class ProfilesActions {
 }
 
 export const useProfiles = (
-  config: Config
+  config: Config,
 ): [UseBoundStore<StoreApi<ProfilesState>>, ProfilesActions] => {
   const profilesStore = useProfilesStore;
 
   const actions = useMemo(
     () => new ProfilesActions(profilesStore.getState(), config),
-    [profilesStore, config]
+    [profilesStore, config],
   );
 
   return [profilesStore, actions];

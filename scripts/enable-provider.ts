@@ -45,7 +45,7 @@ const main = async () => {
 
     const signerAccountAddress = await getAccountAddress(
       community,
-      signer.address
+      signer.address,
     );
     if (!signerAccountAddress) {
       throw new Error("Could not find an account for you!");
@@ -55,7 +55,7 @@ const main = async () => {
       signer,
       cardConfig.address,
       signerAccountAddress,
-      ccalldata
+      ccalldata,
     );
 
     console.log("submitted:", hash);

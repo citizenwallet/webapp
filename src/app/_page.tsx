@@ -52,11 +52,7 @@ export default async function Home() {
     return <div>Community not found</div>;
   }
 
-  return (
-    <Suspense fallback={<FallBack config={config} />}>
-      <Wallet config={config} />
-    </Suspense>
-  );
+  return <Suspense fallback={<FallBack config={config} />}></Suspense>;
 }
 
 function FallBack({ config }: { config: Config }) {

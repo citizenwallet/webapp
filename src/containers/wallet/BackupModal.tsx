@@ -11,27 +11,34 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { StorageService } from "@/services/storage";
+import { getBaseUrl } from "@/utils/deeplink";
 import { getWindow } from "@/utils/window";
 import { ConfigCommunity } from "@citizenwallet/sdk";
 import { Flex, Text } from "@radix-ui/themes";
 import { SaveIcon } from "lucide-react";
+import { useState } from "react";
 
 interface BackupModalProps {
   community: ConfigCommunity;
   account: string;
-  url: string;
   className?: string;
 }
 
 export default function BackupModal({
   community,
   account,
-  url,
   className,
 }: BackupModalProps) {
-  const handleOpenEmail = () => {
+  const baseUrl = getBaseUrl();
+
+  const storageService = new StorageService(community.alias);
+  const hash = storageService.getKey("hash");
+  const localAccountUrl = `${baseUrl}/${hash}`;
+
+  const handleOpenEmail = (localAccountUrl: string) => {
     const emailSubject = `${community.name} Account: ${account}`;
-    const emailBody = `Click this link again to access your account: ${url}`;
+    const emailBody = `Click this link again to access your account: ${localAccountUrl}`;
     const mailtoLink = `mailto:?subject=${encodeURIComponent(
       emailSubject
     )}&body=${encodeURIComponent(emailBody)}`;
@@ -61,12 +68,15 @@ export default function BackupModal({
           </DialogDescription>
         </DialogHeader>
         <Flex direction="column" align="center" className="grid gap-4 py-4">
-          <CopyButton value={url} label="Copy your unique account link" />
+          <CopyButton
+            value={localAccountUrl}
+            label="Copy your unique account link"
+          />
           <Text>Or</Text>
           <Button
             variant="outline"
             className="text-lg"
-            onClick={handleOpenEmail}
+            onClick={() => handleOpenEmail(localAccountUrl)}
           >
             Email yourself the link
           </Button>

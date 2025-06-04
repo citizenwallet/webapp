@@ -1,5 +1,5 @@
 "use client";
-import * as React from "react";
+import {useRef} from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { SessionTypes } from "@walletconnect/types";
@@ -496,7 +496,7 @@ const limit = 2;
 export function ActiveSessionsStack() {
   const [state] = useWalletKit();
 
-  const modalRef = React.useRef<ActiveSessionsModalRef>(null);
+  const modalRef = useRef<ActiveSessionsModalRef>(null);
 
   const activeSessions = state((state) => state.activeSessions);
 
@@ -520,7 +520,7 @@ export function ActiveSessionsStack() {
           <div
             className={cn(
               "relative inline-flex items-center justify-center rounded-full bg-muted text-muted-foreground ring-2 ring-background",
-              sizeClasses["lg"]
+              sizeClasses["lg"],
             )}
           >
             <span className="text-xs font-medium">+{remainingSessions}</span>
@@ -551,7 +551,7 @@ const SessionAvatar = ({ session }: SessionAvatarProps) => {
       key={publicKey}
       className={cn(
         "ring-2 ring-background border-primary relative inline-block rounded-full bg-white",
-        sizeClasses["lg"]
+        sizeClasses["lg"],
       )}
     >
       <AvatarImage src={icon} alt={`${name}'s avatar`} />

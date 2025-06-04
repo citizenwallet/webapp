@@ -38,7 +38,7 @@ export default function ActionBar({
   const handlePluginClick = (url: string) => {
     const baseUrl = new URL(window.location.href).origin;
     const fullUrl = `${url}?account=${account}&redirectUrl=${encodeURIComponent(
-      baseUrl
+      baseUrl,
     )}`;
     window.open(fullUrl, "_blank", "noopener,noreferrer");
   };
@@ -55,7 +55,7 @@ export default function ActionBar({
           "rounded-xl border border-white/80 shadow-[0_8px_16px_rgba(0,0,0,0.3)]",
           "animate-grow-bounce",
           "transition-all ease-in-out duration-200",
-          small ? "w-[70%]" : "w-[80%]"
+          small ? "w-[70%]" : "w-[80%]",
         )}
         style={{
           backgroundColor: cardColor,
@@ -99,7 +99,7 @@ export default function ActionBar({
         gap={small ? "4" : "8"}
         className={cn(
           "w-full  max-w-5xl items-center justify-between text-sm",
-          small ? "pt-2 pb-4 pr-4" : "pt-4 pr-4"
+          small ? "pt-2 pb-4 pr-4" : "pt-4 pr-4",
         )}
       >
         {!readonly && (

@@ -12,6 +12,7 @@ import { selectOrderedLogs } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
 import { useSend } from "@/state/send/actions";
 import { useVoucher } from "@/state/voucher/actions";
+import { useSession } from "@/state/session/action";
 import {
   Config,
   CommunityConfig,
@@ -23,7 +24,6 @@ import { Box, Flex } from "@radix-ui/themes";
 import { QrCodeIcon } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import VoucherModal from "./VoucherModal";
-import { getFullUrl } from "@/utils/deeplink";
 import { useIsScrolled } from "@/hooks/scroll";
 import Link from "next/link";
 import BackupModal from "./BackupModal";
@@ -35,22 +35,33 @@ import WalletConnect from "@/containers/wallet_connect";
 import { useToast } from "@/components/ui/use-toast";
 import WalletKitProvider from "@/provider/wallet_kit";
 import { getBaseUrl } from "@/utils/deeplink";
+import { useRouter } from "next/navigation";
+import { StorageService } from "@/services/storage";
+
 interface ContainerProps {
   config: Config;
+  accountAddress: string;
 }
 
-export default function Container({ config }: ContainerProps) {
+export default function Container({ config, accountAddress }: ContainerProps) {
   const { community } = config;
   const communityConfig = new CommunityConfig(config);
+  // const { isReadOnly, authMethod } = useSigninMethod(config);
 
   const isScrolled = useIsScrolled();
 
   const baseUrl = getBaseUrl();
 
-  const [state, actions] = useAccount(baseUrl, config);
+  const [accountState, accountActions] = useAccount(baseUrl, config);
+
+  const [sessionState, sessionActions] = useSession(baseUrl, config);
+  const isReadOnly = sessionState((state) => state.isReadOnly);
+  const authMethod = sessionState((state) => state.authMethod);
+
   const [_, sendActions] = useSend();
   const [profilesState, profilesActions] = useProfiles(config);
   const [voucherState, voucherActions] = useVoucher(config);
+  const router = useRouter();
   const hash = useHash();
 
   const { toast } = useToast();
@@ -119,32 +130,46 @@ export default function Container({ config }: ContainerProps) {
   useThemeUpdater(community);
 
   useEffect(() => {
-    // read the url first
-    const href = getFullUrl();
+    accountActions.getAccount(accountAddress);
 
-    console.log("hash", hash);
-    console.log("href", href);
+    if (authMethod && authMethod === "local") {
+      accountActions.openAccount(hash, (accountAddress: string) => {});
+    }
 
-    actions.openAccount(hash, (hashPath: string) => {
-      history.replaceState(null, "", hashPath);
-      const w = getWindow();
-      if (w) {
-        w.location.hash = hashPath;
-      }
+    if (authMethod && ["email", "passkey"].includes(authMethod)) {
+      accountActions.openSessionAccount(accountAddress);
+    }
 
-      handleScan(href);
-    });
-  }, [actions, hash, profilesActions, community, handleScan]);
+    const storageService = new StorageService(config.community.alias);
+    const deeplink = storageService.getKey("deeplink");
 
-  const account = state((state) => state.account);
+    if (deeplink) {
+      storageService.deleteKey("deeplink");
+      handleScan(deeplink);
+    }
+  }, [
+    accountAddress,
+    accountActions,
+    router,
+    hash,
+    authMethod,
+    config.community.alias,
+    handleScan,
+  ]);
+
+  useEffect(() => {
+    sessionActions.evalAuthSession();
+  }, [sessionActions]);
+
+  const account = accountState((state) => state.account);
 
   useFocusEffect(() => {
     let unsubscribe: () => void | undefined;
 
     if (account) {
       profilesActions.loadProfile(account);
-      actions.fetchBalance();
-      unsubscribe = actions.listen(account);
+      accountActions.fetchBalance();
+      unsubscribe = accountActions.listen(account);
     }
 
     return () => {
@@ -154,13 +179,13 @@ export default function Container({ config }: ContainerProps) {
 
   const fetchMoreTransfers = useCallback(async () => {
     if (!account) return false;
-    return actions.getTransfers(account);
-  }, [actions, account]);
+    return accountActions.getTransfers(account);
+  }, [accountActions, account]);
 
   const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
 
-  const balance = state((state) => state.balance);
-  const logs = state(selectOrderedLogs);
+  const balance = accountState((state) => state.balance);
+  const logs = accountState(selectOrderedLogs);
   const profile = profilesState((state) => state.profiles[account]);
   const profiles = profilesState((state) => state.profiles);
 
@@ -169,12 +194,14 @@ export default function Container({ config }: ContainerProps) {
       ref={scrollableRef}
       className="relative flex min-h-screen w-full flex-col align-center p-4 max-w-xl"
     >
-      <BackupModal
-        community={community}
-        account={account}
-        url={getWindow()?.location.href ?? "/"}
-        className="z-20 absolute left-0 top-0"
-      />
+      {!isReadOnly && authMethod === "local" && (
+        <BackupModal
+          community={community}
+          account={account}
+          
+          className="z-20 absolute left-0 top-0"
+        />
+      )}
 
       <Link
         href={`/profile/${account}`}
@@ -189,28 +216,31 @@ export default function Container({ config }: ContainerProps) {
         </Avatar>
       </Link>
 
-      <Flex
-        justify="center"
-        align="center"
-        gap="2"
-        className="z-20 fixed right-0 bottom-0 w-full mb-6"
-      >
-        <QRScannerModal onScan={handleScan}>
-          <Button
-            variant="ghost"
-            className="h-20 w-20 rounded-full border-primary border-4 m-4 shadow-lg bg-white"
-          >
-            <QrCodeIcon size={40} className="text-primary" />
-          </Button>
-        </QRScannerModal>
-      </Flex>
+      {!isReadOnly && (
+        <Flex
+          justify="center"
+          align="center"
+          gap="2"
+          className="z-20 fixed right-0 bottom-0 w-full mb-6"
+        >
+          <QRScannerModal onScan={handleScan}>
+            <Button
+              variant="ghost"
+              className="h-20 w-20 rounded-full border-primary border-4 m-4 shadow-lg bg-white"
+            >
+              <QrCodeIcon size={40} className="text-primary" />
+            </Button>
+          </QRScannerModal>
+        </Flex>
+      )}
 
       <ActionBar
+        readonly={isReadOnly}
         account={account}
         balance={balance}
         small={isScrolled}
         config={config}
-        accountActions={actions}
+        accountActions={accountActions}
       />
 
       <Flex direction="column" className="w-full pt-[420px]" gap="3">
@@ -227,16 +257,19 @@ export default function Container({ config }: ContainerProps) {
         ))}
       </Flex>
 
-      <VoucherModal config={config} actions={voucherActions} />
+      {!isReadOnly && <VoucherModal config={config} actions={voucherActions} />}
 
       <Box className="z-10 fixed bottom-0 left-0 w-full bg-transparent-from-white h-10"></Box>
-      <WalletKitProvider config={config}>
-        <WalletConnect
-          config={config}
-          account={account}
-          wallet={actions.account}
-        />
-      </WalletKitProvider>
+
+      {!isReadOnly && (
+        <WalletKitProvider config={config}>
+          <WalletConnect
+            config={config}
+            account={account}
+            wallet={accountActions.account}
+          />
+        </WalletKitProvider>
+      )}
     </main>
   );
 }

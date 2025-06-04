@@ -85,9 +85,6 @@ const QrScanner = ({ onScan, isActive = true }: QrScannerProps) => {
       if (html5QrcodeScanner) {
         html5QrcodeScanner
           .stop()
-          .then(() => {
-            console.log("QR Code scanning stopped");
-          })
           .catch((err) => {
             console.error("Failed to stop scanner:", err);
           });

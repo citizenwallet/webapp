@@ -106,7 +106,6 @@ export default function Container({ config, account, wallet }: ContainerProps) {
 
   const onSessionRequest = React.useCallback(
     async (event: WalletKitTypes.SessionRequest) => {
-      console.log("event", JSON.stringify(event));
 
       const method = event.params.request.method;
       if (method === "personal_sign" || method === "eth_sign") {
@@ -149,7 +148,6 @@ export default function Container({ config, account, wallet }: ContainerProps) {
       const authParams = event.params.authPayload;
       const message =
         WalletKitService.populateAuthPayload(authParams, account) || "";
-      console.log("message", message);
 
       setSessionAuthenticateModal({
         open: true,
@@ -620,8 +618,6 @@ function TransactionSignModal({
         encodedTransaction.data,
         encodedTransaction.value
       );
-
-      console.log("hash from call", hash);
 
       if (!hash) {
         throw new Error("Unable to call contract");

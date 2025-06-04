@@ -131,9 +131,6 @@ export default function Container({ config }: ContainerProps) {
     // read the url first
     const href = getFullUrl();
 
-    console.log("hash", hash);
-    console.log("href", href);
-
     actions.openAccount(hash, (hashPath: string) => {
       history.replaceState(null, "", hashPath);
       const w = getWindow();

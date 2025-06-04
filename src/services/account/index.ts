@@ -171,10 +171,6 @@ export class CWAccount {
       const confirmations = options?.confirmations || 1;
       const timeout = options?.timeout || 60000; // Default 60 seconds
 
-      console.log(
-        `Waiting for transaction ${txHash} (${confirmations} confirmations)`
-      );
-
       // Add timeout handling
       const receiptPromise = this.provider.waitForTransaction(
         txHash,
@@ -188,12 +184,6 @@ export class CWAccount {
         console.warn(`No receipt returned for transaction ${txHash}`);
         return false;
       }
-
-      console.log(`Transaction ${txHash} mined:`, {
-        blockNumber: receipt.blockNumber,
-        status: receipt.status,
-        gasUsed: receipt.gasUsed?.toString(),
-      });
 
       // Explicitly handle all possible status values
       if (receipt.status === 1) {

@@ -1,104 +1,98 @@
-import React, { useRef, useState, useCallback } from "react";
 import {
   Html5Qrcode,
+  Html5QrcodeCameraScanConfig,
+  Html5QrcodeResult,
+} from "html5-qrcode";
+import {
+  Html5QrcodeError,
   QrcodeErrorCallback,
   QrcodeSuccessCallback,
-} from "html5-qrcode";
+  QrDimensionFunction,
+  QrDimensions,
+} from "html5-qrcode/esm/core";
 import { useSafeEffect } from "@/hooks/useSafeEffect";
 
-interface QrCodeScannerProps {
-  isActive: boolean;
+const qrcodeRegionId = "html5qr-code-full-region";
+
+const calculateQrbox: QrDimensionFunction = (viewfinderWidth: number, viewfinderHeight: number): QrDimensions => {
+  const minDimension = Math.min(viewfinderWidth, viewfinderHeight);
+  
+  const qrboxSize = Math.floor(minDimension * 0.9);
+  
+  return {
+    width: qrboxSize,
+    height: qrboxSize
+  };
+};
+
+const getScannerConfig = (): Html5QrcodeCameraScanConfig => {
+  return {
+    fps: 1,
+    aspectRatio: 4 / 3,
+    disableFlip: false,
+    qrbox: calculateQrbox,
+  };
+};
+
+interface QrScannerProps {
   onScan: (data: string) => void;
+  isActive?: boolean;
 }
 
-const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ isActive, onScan }) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const [isScanning, setIsScanning] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  const onScanSuccess: QrcodeSuccessCallback = async (decodedText, result) => {
-    await stopScanner().then(() => {
-      onScan(decodedText);
-    });
+const QrScanner = ({ onScan, isActive = true }: QrScannerProps) => {
+  const onScanSuccess: QrcodeSuccessCallback = (
+    decodedText: string,
+    result: Html5QrcodeResult
+  ) => {
+    onScan(decodedText);
   };
 
-  const onScanFailure: QrcodeErrorCallback = (errorMessage, error) => {
-    if (errorMessage.includes("NotFoundException")) return;
-    console.error("QR code scan failed:", errorMessage);
-  };
-
-  const stopScanner = useCallback(async () => {
-    if (!isScanning || !scannerRef.current || isTransitioning) return;
-
-    try {
-      setIsTransitioning(true);
-      await scannerRef.current.stop();
-      setIsScanning(false);
-    } catch (err) {
-      console.error("Failed to stop scanner:", err);
-    } finally {
-      setIsTransitioning(false);
+  const onScanError: QrcodeErrorCallback = (
+    errorMessage: string,
+    error: Html5QrcodeError
+  ) => {
+    // Only log significant errors, not "NotFoundException" which happens when no QR is found
+    if (!errorMessage.includes("NotFoundException")) {
+      console.error("QR scan error:", errorMessage, error);
     }
-  }, [isScanning, isTransitioning]);
+  };
 
   useSafeEffect(() => {
-    if (!containerRef.current) return;
+    // Only start scanner if component is active
+    if (!isActive) return;
 
-    async function startScanner() {
-      if (isScanning || !isActive) return;
+    let html5QrcodeScanner: Html5Qrcode | null = null;
 
-      try {
-        const scanner = new Html5Qrcode("qr-reader");
-        scannerRef.current = scanner;
+    try {
+      html5QrcodeScanner = new Html5Qrcode(qrcodeRegionId);
 
-        await scanner.start(
+      html5QrcodeScanner
+        .start(
           { facingMode: "environment" },
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
-          },
+          getScannerConfig(),
           onScanSuccess,
-          onScanFailure
-        );
-        setIsScanning(true);
-      } catch (err) {
-        console.error("Failed to start scanner:", err);
-        setIsScanning(false);
-      }
+          onScanError
+        )
+        .catch((err) => {
+          console.error("Failed to start scanner:", err);
+        });
+    } catch (error) {
+      console.error("Error initializing scanner:", error);
     }
 
-    if (isActive) {
-      startScanner();
-    } else {
-      stopScanner();
-    }
-
-    // Cleanup
+    // Cleanup function when component will unmount or isActive changes
     return () => {
-      if (isScanning && scannerRef.current && !isTransitioning) {
-        scannerRef.current
+      if (html5QrcodeScanner) {
+        html5QrcodeScanner
           .stop()
-          .then(() => {
-            setIsScanning(false);
-            if (scannerRef.current) {
-              scannerRef.current = null;
-            }
-          })
-          .catch((err) => console.error("Cleanup error:", err))
-          .finally(() => {
-            setIsTransitioning(false);
+          .catch((err) => {
+            console.error("Failed to stop scanner:", err);
           });
       }
     };
-  }, [isActive, isScanning, stopScanner, isTransitioning]);
+  }, [isActive, onScan]);
 
-  return (
-    <div className="h-full w-full">
-      <div id="qr-reader" ref={containerRef} className="h-full w-full" />
-    </div>
-  );
+  return <div id={qrcodeRegionId} className="w-full h-full" />;
 };
 
-export default QrCodeScanner;
+export default QrScanner;

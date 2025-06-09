@@ -42,15 +42,12 @@ export const getCommunityFromHeaders = async (
 ): Promise<Config | undefined> => {
   const domain = headersList.get("host") || "";
 
-  console.log("domain", domain);
   let alias = domain;
   if (typedManualMapping[domain]) {
     alias = typedManualMapping[domain];
   } else {
     alias = parseAliasFromDomain(domain, process.env.DOMAIN_BASE_PATH || "");
   }
-
-  console.log("alias", alias);
 
   return readCommunityFile(alias);
 };

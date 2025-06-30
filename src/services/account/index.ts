@@ -8,8 +8,8 @@ import {
 } from "@citizenwallet/sdk";
 import { HDNodeWallet, JsonRpcProvider, Wallet } from "ethers";
 import {
-  generateWalletHash,
-  generateWalletHashV4,
+  generateWalletHashV3,
+  generateWalletHashV4FromV3,
   parseLegacyWalletFromHash,
   parsePrivateKeyFromHash,
   parsePrivateKeyFromV4Hash,
@@ -77,6 +77,8 @@ export class CWAccount {
   ) {
     const [_, encoded] = hash.split("#/wallet/");
 
+    const communityConfig = new CommunityConfig(config);
+
     let account: string | undefined;
     let signer: Wallet | HDNodeWallet | undefined;
     let accountFactory: string | undefined;
@@ -103,9 +105,9 @@ export class CWAccount {
           throw new Error("Invalid wallet format");
         }
 
-        const hashV4 = await generateWalletHashV4(
+        const hashV4 = await generateWalletHashV4FromV3(
           account,
-          config,
+          communityConfig,
           signer,
           walletPassword
         );
@@ -126,7 +128,6 @@ export class CWAccount {
           throw new Error("Invalid wallet format");
         }
 
-        const communityConfig = new CommunityConfig(config);
         account =
           (await getAccountAddress(communityConfig, signer.address)) ||
           undefined;
@@ -135,7 +136,7 @@ export class CWAccount {
           throw new Error("Invalid wallet format");
         }
 
-        const hashV3 = await generateWalletHash(
+        const hashV3 = await generateWalletHashV3(
           account,
           signer,
           walletPassword
@@ -208,6 +209,8 @@ export class CWAccount {
       this.account,
       dataBytes,
       BigInt(value ?? 0),
+      undefined,
+      undefined,
       this.accountFactory
     );
 

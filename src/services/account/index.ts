@@ -203,16 +203,17 @@ export class CWAccount {
       accountFactoryAddress: this.accountFactory,
     });
 
-    const hash = await bundler.call(
-      this.signer,
-      to,
-      this.account,
-      dataBytes,
-      BigInt(value ?? 0),
-      undefined,
-      undefined,
-      { accountFactoryAddress: this.accountFactory }
-    );
+    try {
+      const hash = await bundler.call(
+        this.signer,
+        to,
+        this.account,
+        dataBytes,
+        BigInt(value ?? 0),
+        undefined,
+        undefined,
+        { accountFactoryAddress: this.accountFactory }
+      );
 
       return hash;
     } catch (error) {

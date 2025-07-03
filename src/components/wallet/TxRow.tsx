@@ -1,11 +1,6 @@
 import { Flex, Text } from "@radix-ui/themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  ConfigCommunity,
-  ConfigToken,
-  Profile,
-  Log
-} from "@citizenwallet/sdk";
+import { ConfigCommunity, ConfigToken, Profile, Log } from "@citizenwallet/sdk";
 import { useSafeEffect } from "@/hooks/useSafeEffect";
 import { AGO_THRESHOLD, ago } from "@/utils/ago";
 import { formatAddress } from "@/utils/formatting";
@@ -34,14 +29,13 @@ export default function TxRow({
   actions,
   profiles,
 }: TxRowProps) {
-
   const from = tx.data?.from ?? "";
   const to = tx.data?.to ?? "";
 
-  let description = '';
+  let description = "";
   if (tx.extra_data) {
     const extraData = tx.extra_data as { [key: string]: string };
-    description = 'description' in extraData ? extraData.description : '';
+    description = "description" in extraData ? extraData.description : "";
   }
 
   const self = from === account;
@@ -56,11 +50,11 @@ export default function TxRow({
 
   let profile: Profile | undefined = profiles[other];
   if (isMinting) {
-    profile = getMinterProfile(other, community);
+    profile = getMinterProfile(other, community, token);
   }
 
   if (isBurning) {
-    profile = getBurnerProfile(other, community);
+    profile = getBurnerProfile(other, community, token);
   }
 
   const weekAgo = Date.now() - AGO_THRESHOLD;
@@ -106,7 +100,8 @@ export default function TxRow({
         </Flex>
         <Flex direction="column" justify="end" align="end">
           <Text size="4" weight="bold" className="text-primary">
-            {self ? "-" : "+"} {formatUnits(`${tx.data?.value}`, token.decimals)}
+            {self ? "-" : "+"}{" "}
+            {formatUnits(`${tx.data?.value}`, token.decimals)}
           </Text>
           {status === "success" && <Text size="2">{formattedDate}</Text>}
           {status !== "success" && (

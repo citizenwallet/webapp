@@ -11,6 +11,7 @@ interface PageProps {
   }>;
   searchParams: Promise<{
     project?: string;
+    token?: string;
   }>;
 }
 
@@ -25,7 +26,7 @@ export default async function Page(props: PageProps) {
   const communityConfig = new CommunityConfig(config);
 
   const { serialNumber } = await props.params;
-  const { project = "" } = await props.searchParams;
+  const { project = "", token } = await props.searchParams;
 
   const address = await getCardAddress(communityConfig, id(serialNumber));
   if (!address) {
@@ -43,6 +44,7 @@ export default async function Page(props: PageProps) {
         config={config}
         accountAddress={address}
         cardColor={cardColor}
+        tokenAddress={token}
       />
     </>
   );

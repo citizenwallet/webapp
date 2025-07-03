@@ -16,6 +16,7 @@ interface ActionBarProps {
   small?: boolean;
   config: Config;
   accountActions: AccountLogic;
+  token?: string;
 }
 
 export default function ActionBar({
@@ -25,10 +26,11 @@ export default function ActionBar({
   small,
   config,
   accountActions,
+  token: initialToken,
 }: ActionBarProps) {
   const { community, plugins = [] } = config;
   const communityConfig = new CommunityConfig(config);
-  const primaryToken = communityConfig.primaryToken;
+  const token = communityConfig.getToken(initialToken);
 
   return (
     <Flex
@@ -44,7 +46,7 @@ export default function ActionBar({
         >
           <Avatar className="h-28 w-28">
             <AvatarImage src={community.logo} alt="community logo" />
-            <AvatarFallback>{primaryToken.symbol}</AvatarFallback>
+            <AvatarFallback>{token.symbol}</AvatarFallback>
           </Avatar>
         </Flex>
       )}
@@ -73,7 +75,7 @@ export default function ActionBar({
             {balance}
           </Text>
           <Text size="6" weight="bold">
-            {primaryToken.symbol}
+            {token.symbol}
           </Text>
         </Flex>
       )}
@@ -87,13 +89,13 @@ export default function ActionBar({
         >
           <Avatar className="h-14 w-14">
             <AvatarImage src={community.logo} alt="community logo" />
-            <AvatarFallback>{primaryToken.symbol}</AvatarFallback>
+            <AvatarFallback>{token.symbol}</AvatarFallback>
           </Avatar>
           <Text size="8" weight="bold">
             {balance}
           </Text>
           <Text size="6" weight="bold">
-            {primaryToken.symbol}
+            {token.symbol}
           </Text>
         </Flex>
       )}
@@ -116,7 +118,7 @@ export default function ActionBar({
           </SendModal>
         )}
 
-        <ReceiveModal token={primaryToken} communityConfig={communityConfig}>
+        <ReceiveModal token={token} communityConfig={communityConfig}>
           <WalletAction
             compact={small}
             icon={<ArrowDownIcon size={small ? 30 : 40} />}

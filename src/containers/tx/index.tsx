@@ -22,6 +22,7 @@ interface ContainerProps {
   fromProfile?: Profile;
   toProfile?: Profile;
   config: Config;
+  token?: string;
 }
 
 export default function Container({
@@ -29,10 +30,11 @@ export default function Container({
   fromProfile,
   toProfile,
   config,
+  token: initialToken,
 }: ContainerProps) {
   const { community, scan } = config;
   const communityConfig = new CommunityConfig(config);
-  const primaryToken = communityConfig.primaryToken;
+  const token = communityConfig.getToken(initialToken);
 
   useThemeUpdater(community);
 
@@ -141,10 +143,10 @@ export default function Container({
       <Flex direction="column" gap="2">
         <Flex justify="center" align="center" gap="4">
           <Text size="8" weight="bold">
-            {formatUnits(`${tx?.data?.value ?? 0}`, primaryToken.decimals)}
+            {formatUnits(`${tx?.data?.value ?? 0}`, token.decimals)}
           </Text>
           <Text size="6" weight="bold">
-            {primaryToken.symbol}
+            {token.symbol}
           </Text>
         </Flex>
         <Flex justify="center">

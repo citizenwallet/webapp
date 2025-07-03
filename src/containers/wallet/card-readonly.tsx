@@ -10,27 +10,35 @@ import { useAccount } from "@/state/account/actions";
 import { selectOrderedLogs } from "@/state/account/selectors";
 import { useProfiles } from "@/state/profiles/actions";
 import { getBaseUrl } from "@/utils/deeplink";
-import { CommunityConfig, Config } from "@citizenwallet/sdk";
+import { CommunityConfig, Config, ConfigToken } from "@citizenwallet/sdk";
 import { Flex, Text } from "@radix-ui/themes";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 interface ContainerProps {
   config: Config;
   accountAddress: string;
   cardColor: string;
+  tokenAddress?: string;
 }
 
 export default function ReadOnly({
   config,
   accountAddress,
   cardColor,
+  tokenAddress,
 }: ContainerProps) {
   const [loading, setLoading] = useState(true);
 
   const { community } = config;
 
-  const communityConfig = new CommunityConfig(config);
+  const communityConfig = useMemo(() => new CommunityConfig(config), [config]);
+
+  const [token, setToken] = useState<ConfigToken>(
+    communityConfig.getToken(tokenAddress)
+  );
+
+  console.log("token", token);
 
   const isScrolled = useIsScrolled();
 
@@ -50,30 +58,40 @@ export default function ReadOnly({
   useEffect(() => {
     (async () => {
       if (account) {
-        await actions.getTransfers(account);
+        console.log("fetching transfers", account, token.address);
+        await actions.getTransfers(account, token.address, true);
         setLoading(false);
       }
     })();
-  }, [account, actions]);
+  }, [account, actions, token.address]);
 
   useFocusEffect(() => {
     let unsubscribe: () => void | undefined;
 
     if (account) {
+      console.log("fetching balance", account, token.address);
       profilesActions.loadProfile(account);
-      actions.fetchBalance();
-      unsubscribe = actions.listen(account);
+      actions.fetchBalance(token.address);
+      unsubscribe = actions.listen(account, token.address);
     }
 
     return () => {
       unsubscribe?.();
     };
-  }, [account]);
+  }, [account, token.address]);
+
+  const handleTokenChange = useCallback(
+    (tokenAddress: string) => {
+      const newToken = communityConfig.getToken(tokenAddress);
+      setToken(newToken);
+    },
+    [communityConfig]
+  );
 
   const fetchMoreTransfers = useCallback(async () => {
     if (!account) return false;
-    return actions.getTransfers(account);
-  }, [actions, account]);
+    return actions.getTransfers(account, token.address);
+  }, [actions, account, token]);
 
   const scrollableRef = useScrollableWindowFetcher(fetchMoreTransfers);
 
@@ -109,6 +127,8 @@ export default function ReadOnly({
         balance={balance}
         config={config}
         accountActions={actions}
+        tokenAddress={token.address}
+        onTokenChange={handleTokenChange}
       />
 
       <Flex direction="column" className="w-full pt-[440px]" gap="3">
@@ -121,13 +141,13 @@ export default function ReadOnly({
             gap="3"
           >
             <Image
-              src="/hello.png"
+              src="/coins.png"
               alt="card"
               width={140}
               height={140}
               className="pb-8"
             />
-            <Text>Spending is coming soon</Text>
+            <Text>No transactions yet</Text>
           </Flex>
         )}
         {loading && logs.length === 0 && (
@@ -144,7 +164,7 @@ export default function ReadOnly({
         {logs.map((tx) => (
           <TxRow
             key={tx.hash}
-            token={communityConfig.primaryToken}
+            token={token}
             community={community}
             account={account}
             tx={tx}

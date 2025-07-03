@@ -30,7 +30,6 @@ import Spinner from "@/components/Spinner";
 import { useAccountStore } from "@/state/account/state";
 import { CommunityConfig } from "@citizenwallet/sdk";
 
-
 interface VoucherModalProps {
   config: Config;
   actions: VoucherActions;
@@ -168,6 +167,7 @@ interface VoucherContentProps {
   voucher: Voucher | null;
   hasBalance: boolean;
   className?: string;
+  token?: string;
 }
 
 const VoucherContent = ({
@@ -175,9 +175,10 @@ const VoucherContent = ({
   voucher,
   hasBalance = true,
   className,
+  token: initialToken,
 }: VoucherContentProps) => {
   const communityConfig = new CommunityConfig(config);
-  const primaryToken = communityConfig.primaryToken;
+  const token = communityConfig.getToken(initialToken);
 
   const balance = useVoucherStore((state) => state.balance);
 
@@ -199,7 +200,7 @@ const VoucherContent = ({
 
       {hasBalance ? (
         <Text size="6" weight="bold" className="text-center">
-          {balance} {primaryToken.symbol}
+          {balance} {token.symbol}
         </Text>
       ) : (
         <Text size="6" weight="bold" className="text-center">

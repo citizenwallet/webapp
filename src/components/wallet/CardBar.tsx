@@ -7,6 +7,14 @@ import ReceiveModal from "@/containers/wallet/ReceiveModal";
 import { AccountLogic } from "@/state/account/actions";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState, useMemo } from "react";
 
 interface ActionBarProps {
   readonly?: boolean;
@@ -17,6 +25,8 @@ interface ActionBarProps {
   small?: boolean;
   config: Config;
   accountActions: AccountLogic;
+  tokenAddress?: string;
+  onTokenChange?: (tokenAddress: string) => void;
 }
 
 export default function ActionBar({
@@ -28,12 +38,19 @@ export default function ActionBar({
   small,
   config,
   accountActions,
+  tokenAddress,
+  onTokenChange,
 }: ActionBarProps) {
   const { community, plugins = [] } = config;
   const communityConfig = new CommunityConfig(config);
-  const primaryToken = communityConfig.primaryToken;
+  const token = communityConfig.getToken(tokenAddress);
 
   const logo = community.logo;
+
+  // Get all available tokens
+  const availableTokens = useMemo(() => {
+    return Object.values(config.tokens || {});
+  }, [config.tokens]);
 
   const handlePluginClick = (url: string) => {
     const baseUrl = new URL(window.location.href).origin;
@@ -41,6 +58,10 @@ export default function ActionBar({
       baseUrl
     )}`;
     window.open(fullUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleTokenSelect = (selectedTokenAddress: string) => {
+    onTokenChange?.(selectedTokenAddress);
   };
 
   return (
@@ -80,17 +101,66 @@ export default function ActionBar({
             className="animate-fade-in"
           />
         </div>
+
+        {/* Clickable balance section with token selector */}
         <div className="absolute bottom-4 right-4 flex items-center justify-center text-white space-x-2 animate-fade-in">
-          <Image
-            src={logo}
-            alt="community logo"
-            width={48}
-            height={48}
-            className="rounded-full"
-          />
-          <Text size="8" weight="bold">
-            {balance}
-          </Text>
+          {availableTokens.length > 1 ? (
+            <Select value={tokenAddress} onValueChange={handleTokenSelect}>
+              <SelectTrigger className="w-auto bg-transparent border border-white/80 text-white hover:bg-white/10 focus:ring-0 focus:ring-offset-0 px-2 py-1 h-auto rounded-full">
+                <SelectValue>
+                  <div className="flex items-center space-x-2">
+                    <Image
+                      src={token.logo ?? logo}
+                      alt="community logo"
+                      width={48}
+                      height={48}
+                      className="rounded-full"
+                    />
+                    <Text size="8" weight="bold" className="text-white">
+                      {balance}
+                    </Text>
+                    <div className="w-[4px]" />
+                  </div>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {availableTokens.map((availableToken) => (
+                  <SelectItem
+                    key={availableToken.address}
+                    value={availableToken.address}
+                    className="flex items-center space-x-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Image
+                        src={availableToken.logo ?? logo}
+                        alt="community logo"
+                        width={40}
+                        height={40}
+                        className="rounded-full"
+                      />
+                      <Text size="4" weight="bold">
+                        {availableToken.symbol}
+                      </Text>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Image
+                src={token.logo ?? logo}
+                alt="community logo"
+                width={48}
+                height={48}
+                className="rounded-full"
+              />
+              <Text size="8" weight="bold">
+                {balance}
+              </Text>
+              <div className="w-[4px]" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -113,7 +183,7 @@ export default function ActionBar({
         )}
 
         {!readonly && (
-          <ReceiveModal token={primaryToken} communityConfig={communityConfig}>
+          <ReceiveModal token={token} communityConfig={communityConfig}>
             <WalletAction
               compact={small}
               icon={<ArrowDownIcon size={small ? 30 : 40} />}
@@ -122,22 +192,26 @@ export default function ActionBar({
           </ReceiveModal>
         )}
 
-        {plugins.map((plugin) => (
-          <WalletAction
-            key={plugin.name}
-            compact={small}
-            icon={
-              <Image
-                src={plugin.icon}
-                alt={plugin.name}
-                width={24}
-                height={24}
-              />
-            }
-            label={plugin.name}
-            onClick={() => handlePluginClick(plugin.url)}
-          />
-        ))}
+        {plugins
+          .filter((plugin) =>
+            plugin.token_address ? plugin.token_address === token.address : true
+          )
+          .map((plugin) => (
+            <WalletAction
+              key={plugin.name}
+              compact={small}
+              icon={
+                <Image
+                  src={plugin.icon}
+                  alt={plugin.name}
+                  width={24}
+                  height={24}
+                />
+              }
+              label={plugin.name}
+              onClick={() => handlePluginClick(plugin.url)}
+            />
+          ))}
       </Flex>
 
       {/* <Box className="bg-transparent-to-white h-10 w-full"></Box> */}

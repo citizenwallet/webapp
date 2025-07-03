@@ -54,7 +54,7 @@ export default function ReadOnly({
   const [state, actions] = useAccount(baseUrl, config);
   const [profilesState, profilesActions] = useProfiles(config);
 
-  useThemeUpdater(community);
+  useThemeUpdater(community, cardColor);
 
   useEffect(() => {
     actions.getAccount(accountAddress);

@@ -52,12 +52,16 @@ interface PageProps {
   params: Promise<{
     address: string;
   }>;
+  searchParams: Promise<{
+    token?: string;
+  }>;
 }
 
 export default async function Page(props: PageProps) {
   const params = await props.params;
 
   const { address } = params;
+  const { token } = await props.searchParams;
 
   const headersList = await headers();
 
@@ -68,7 +72,7 @@ export default async function Page(props: PageProps) {
 
   return (
     <Suspense fallback={<Profile config={config} />}>
-      <AsyncPage config={config} address={address} />
+      <AsyncPage config={config} address={address} token={token} />
     </Suspense>
   );
 }
@@ -76,9 +80,11 @@ export default async function Page(props: PageProps) {
 async function AsyncPage({
   config,
   address,
+  token,
 }: {
   config: Config;
   address: string;
+  token?: string;
 }) {
   const baseUrl = process.env.NEXT_PUBLIC_DEEPLINK_DOMAIN;
   if (!baseUrl) {
@@ -87,6 +93,8 @@ async function AsyncPage({
 
   const communityConfig = new CommunityConfig(config);
 
+  const tokenConfig = communityConfig.getToken(token);
+
   try {
     const ipfsDomain = communityConfig.ipfs.url.replace("https://", "");
 
@@ -94,7 +102,7 @@ async function AsyncPage({
       (await getProfileFromAddress(ipfsDomain, communityConfig, address)) ??
       getEmptyProfile(address);
     if (ZeroAddress === address) {
-      profile = getMinterProfile(address, config.community);
+      profile = getMinterProfile(address, config.community, tokenConfig);
     }
 
     const receiveLink = generateReceiveLink(

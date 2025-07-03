@@ -28,14 +28,14 @@ export const getEmptyProfile = (account: string): Profile => {
 export const getMinterProfile = (
   account: string,
   community: ConfigCommunity,
-  token: ConfigToken
+  token?: ConfigToken
 ): Profile => {
   return {
     account,
     description: "",
-    image: token.logo ?? community.logo,
-    image_medium: token.logo ?? community.logo,
-    image_small: token.logo ?? community.logo,
+    image: token?.logo ?? community.logo,
+    image_medium: token?.logo ?? community.logo,
+    image_small: token?.logo ?? community.logo,
     name: "Mint",
     username: "@mint",
   };
@@ -44,14 +44,14 @@ export const getMinterProfile = (
 export const getBurnerProfile = (
   account: string,
   community: ConfigCommunity,
-  token: ConfigToken
+  token?: ConfigToken
 ): Profile => {
   return {
     account,
     description: "",
-    image: token.logo ?? community.logo,
-    image_medium: token.logo ?? community.logo,
-    image_small: token.logo ?? community.logo,
+    image: token?.logo ?? community.logo,
+    image_medium: token?.logo ?? community.logo,
+    image_small: token?.logo ?? community.logo,
     name: "Burn",
     username: "@burn",
   };

@@ -4,6 +4,7 @@ import CardReadOnly from "@/containers/wallet/card-readonly";
 import { CommunityConfig, getCardAddress } from "@citizenwallet/sdk";
 import { id } from "ethers";
 import { ColorMappingOverrides } from "@/components/wallet/colorMappingOverrides";
+import { TokenMappingOverrides } from "@/components/wallet/tokenMappingOverrides";
 
 interface PageProps {
   params: Promise<{
@@ -38,13 +39,15 @@ export default async function Page(props: PageProps) {
     communityConfig.community.theme?.primary ??
     "#272727";
 
+  const tokenAddress = TokenMappingOverrides[project] ?? token;
+
   return (
     <>
       <CardReadOnly
         config={config}
         accountAddress={address}
         cardColor={cardColor}
-        tokenAddress={token}
+        tokenAddress={tokenAddress}
       />
     </>
   );

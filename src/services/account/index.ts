@@ -17,7 +17,6 @@ import {
 
 export class CWAccount {
   provider: JsonRpcProvider;
-  bundler: BundlerService;
 
   config: Config;
   communityConfig: CommunityConfig;
@@ -36,10 +35,6 @@ export class CWAccount {
     this.provider = new JsonRpcProvider(
       this.communityConfig.getRPCUrl(accountFactory)
     );
-
-    this.bundler = new BundlerService(this.communityConfig, {
-      accountFactoryAddress: accountFactory,
-    });
 
     this.config = config;
     this.account = account;
@@ -163,31 +158,32 @@ export class CWAccount {
     return new CWAccount(config, account, signer, accountFactory);
   }
 
-  async getBalance() {
+  async getBalance(token: string) {
     return (
-      (await getAccountBalance(
-        this.communityConfig,
-        this.account,
-        this.accountFactory
-      )) ?? 0n
+      (await getAccountBalance(this.communityConfig, this.account, {
+        accountFactoryAddress: this.accountFactory,
+        tokenAddress: token,
+      })) ?? 0n
     );
   }
 
-  async send(to: string, amount: string, description?: string) {
-    const primaryToken = this.communityConfig.primaryToken;
-
+  async send(token: string, to: string, amount: string, description?: string) {
     if (!this.signer) {
       throw new Error("Signer not found");
     }
 
-    const hash = await this.bundler.sendERC20Token(
+    const bundler = new BundlerService(this.communityConfig, {
+      accountFactoryAddress: this.accountFactory,
+    });
+
+    const hash = await bundler.sendERC20Token(
       this.signer,
-      primaryToken.address,
+      token,
       this.account,
       to,
       amount,
       description,
-      this.accountFactory
+      { accountFactoryAddress: this.accountFactory }
     );
 
     return hash;
@@ -203,16 +199,21 @@ export class CWAccount {
       throw new Error("Signer not found");
     }
 
-    const hash = await this.bundler.call(
-      this.signer,
-      to,
-      this.account,
-      dataBytes,
-      BigInt(value ?? 0),
-      undefined,
-      undefined,
-      this.accountFactory
-    );
+    const bundler = new BundlerService(this.communityConfig, {
+      accountFactoryAddress: this.accountFactory,
+    });
+
+    try {
+      const hash = await bundler.call(
+        this.signer,
+        to,
+        this.account,
+        dataBytes,
+        BigInt(value ?? 0),
+        undefined,
+        undefined,
+        { accountFactoryAddress: this.accountFactory }
+      );
 
       return hash;
     } catch (error) {

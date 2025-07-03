@@ -40,11 +40,17 @@ import ActiveSessionModal from "@/containers/wallet_connect/active_sessions_moda
 
 interface ContainerProps {
   config: Config;
+  token?: string;
 }
 
-export default function Container({ config }: ContainerProps) {
+export default function Container({
+  config,
+  token: initialToken,
+}: ContainerProps) {
   const { community } = config;
   const communityConfig = new CommunityConfig(config);
+
+  const token = communityConfig.getToken(initialToken);
 
   const isScrolled = useIsScrolled();
 
@@ -233,7 +239,7 @@ export default function Container({ config }: ContainerProps) {
         {logs.map((tx) => (
           <TxRow
             key={tx.hash}
-            token={communityConfig.primaryToken}
+            token={token}
             community={community}
             account={account}
             tx={tx}

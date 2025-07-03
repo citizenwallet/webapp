@@ -34,17 +34,19 @@ interface SendModalProps {
   accountActions: AccountLogic;
   config: Config;
   children: React.ReactNode;
+  token?: string;
 }
 
 export default function SendModal({
   accountActions,
   config,
   children,
+  token: initialToken,
 }: SendModalProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const communityConfig = new CommunityConfig(config);
-  const primaryToken = communityConfig.primaryToken;
+  const token = communityConfig.getToken(initialToken);
 
   const { toast } = useToast();
 
@@ -85,15 +87,20 @@ export default function SendModal({
     sendDescription?: string
   ) => {
     if (!resolvedTo) return;
-    const tx = await accountActions.send(sendTo, sendAmount, sendDescription);
+    const tx = await accountActions.send(
+      token.address,
+      sendTo,
+      sendAmount,
+      sendDescription
+    );
     if (tx) {
       // send toast
       const profile = profiles[sendTo];
       let toastDescription = `Sent ${sendAmount} ${
-        primaryToken.symbol
+        token.symbol
       } to ${formatAddress(sendTo)}`;
       if (profile) {
-        toastDescription = `Sent ${sendAmount} ${primaryToken.symbol} to ${profile.username}`;
+        toastDescription = `Sent ${sendAmount} ${token.symbol} to ${profile.username}`;
       }
 
       toast({
@@ -103,7 +110,7 @@ export default function SendModal({
       });
     } else {
       toast({
-        title: `Failed to send ${primaryToken.symbol}`,
+        title: `Failed to send ${token.symbol}`,
         duration: 5000,
         variant: "destructive",
         action: (
@@ -165,11 +172,16 @@ export default function SendModal({
 interface SendFormProps {
   config: Config;
   className?: string;
+  token?: string;
 }
 
-const SendForm = ({ config, className }: SendFormProps) => {
+const SendForm = ({
+  config,
+  className,
+  token: initialToken,
+}: SendFormProps) => {
   const communityConfig = new CommunityConfig(config);
-  const primaryToken = communityConfig.primaryToken;
+  const token = communityConfig.getToken(initialToken);
 
   const [sendStore, actions] = useSend();
   const [profilesStore, profilesActions] = useProfiles(config);
@@ -195,7 +207,7 @@ const SendForm = ({ config, className }: SendFormProps) => {
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const amount = e.target.value;
-    actions.updateAmount(formatCurrency(amount, primaryToken.decimals > 0));
+    actions.updateAmount(formatCurrency(amount, token.decimals > 0));
   };
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -277,12 +289,12 @@ const SendForm = ({ config, className }: SendFormProps) => {
             onChange={handleAmountChange}
           />
           <Text size="6" weight="bold" className="font-bold">
-            {primaryToken.symbol}
+            {token.symbol}
           </Text>
         </Flex>
         <Flex justify="center" align="center" className="w-full">
           <Text>
-            Current Balance: {balance} {primaryToken.symbol}
+            Current Balance: {balance} {token.symbol}
           </Text>
         </Flex>
         <Flex

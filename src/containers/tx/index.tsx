@@ -17,11 +17,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useThemeUpdater } from "@/hooks/theme";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 interface ContainerProps {
   tx?: Log;
   fromProfile?: Profile;
   toProfile?: Profile;
   config: Config;
+  tokenAddress?: string;
 }
 
 export default function Container({
@@ -29,10 +31,11 @@ export default function Container({
   fromProfile,
   toProfile,
   config,
+  tokenAddress,
 }: ContainerProps) {
   const { community, scan } = config;
   const communityConfig = new CommunityConfig(config);
-  const primaryToken = communityConfig.primaryToken;
+  const token = communityConfig.getToken(tokenAddress);
 
   useThemeUpdater(community);
 
@@ -140,11 +143,15 @@ export default function Container({
 
       <Flex direction="column" gap="2">
         <Flex justify="center" align="center" gap="4">
+          <Image
+            src={token.logo ?? community.logo}
+            alt="token logo"
+            width={48}
+            height={48}
+            className="rounded-full"
+          />
           <Text size="8" weight="bold">
-            {formatUnits(`${tx?.data?.value ?? 0}`, primaryToken.decimals)}
-          </Text>
-          <Text size="6" weight="bold">
-            {primaryToken.symbol}
+            {formatUnits(`${tx?.data?.value ?? 0}`, token.decimals)}
           </Text>
         </Flex>
         <Flex justify="center">

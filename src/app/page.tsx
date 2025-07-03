@@ -61,7 +61,7 @@ export default async function Home() {
 
 function FallBack({ config }: { config: Config }) {
   const communityConfig = new CommunityConfig(config);
-  const primaryToken = communityConfig.primaryToken;
+  const primaryToken = communityConfig.getToken();
 
   return (
     <div className="relative flex min-h-screen w-full flex-col align-center p-4 max-w-xl">

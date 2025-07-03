@@ -122,18 +122,18 @@ export class AccountLogic {
     }
   }
 
-  async fetchBalance() {
-    const primaryToken = this.communityConfig.primaryToken;
+  async fetchBalance(_token?: string) {
+    const token = this.communityConfig.getToken(_token);
 
     try {
       if (!this.account) {
         throw new Error("Account not set");
       }
 
-      const balance = await this.account.getBalance();
+      const balance = await this.account.getBalance(token.address);
 
-      let formattedBalance = formatUnits(balance, primaryToken.decimals);
-      if (primaryToken.decimals === 0) {
+      let formattedBalance = formatUnits(balance, token.decimals);
+      if (token.decimals === 0) {
         formattedBalance = parseInt(formattedBalance).toFixed(0);
       } else {
         formattedBalance = parseFloat(formattedBalance).toFixed(2);
@@ -147,8 +147,8 @@ export class AccountLogic {
   private listenMaxDate = new Date();
   private listenerFetchLimit = 10;
 
-  listen(account: string) {
-    const primaryToken = this.communityConfig.primaryToken;
+  listen(account: string, _token?: string) {
+    const token = this.communityConfig.getToken(_token);
 
     try {
       if (this.listenerInterval) {
@@ -172,7 +172,7 @@ export class AccountLogic {
         };
 
         const { array: logs = [] } = await this.logsService.getNewLogs(
-          primaryToken.address,
+          token.address,
           tokenTransferEventTopic,
           params
         );
@@ -187,7 +187,7 @@ export class AccountLogic {
           return;
         }
 
-        this.fetchBalance();
+        this.fetchBalance(token.address);
 
         // new items, add them to the store
         this.state.putLogs(logs);
@@ -200,8 +200,8 @@ export class AccountLogic {
     return () => {};
   }
 
-  async fetchInitialTransfers(account: string) {
-    const primaryToken = this.communityConfig.primaryToken;
+  async fetchInitialTransfers(account: string, _token?: string) {
+    const token = this.communityConfig.getToken(_token);
     try {
       const params = {
         maxDate: new Date("10/06/2024").toISOString(),
@@ -210,7 +210,7 @@ export class AccountLogic {
       };
 
       const { array: logs } = await this.logsService.getLogs(
-        primaryToken.address,
+        token.address,
         account,
         params
       );
@@ -232,8 +232,12 @@ export class AccountLogic {
    * @param reset - Indicates whether to reset the state before fetching transfers.
    * @returns A promise that resolves to a boolean indicating whether the transfers were successfully retrieved.
    */
-  async getTransfers(account: string, reset = false): Promise<boolean> {
-    const primaryToken = this.communityConfig.primaryToken;
+  async getTransfers(
+    account: string,
+    _token?: string,
+    reset = false
+  ): Promise<boolean> {
+    const token = this.communityConfig.getToken(_token);
     try {
       if (reset) {
         this.fetchMaxDate = new Date();
@@ -271,7 +275,7 @@ export class AccountLogic {
       };
 
       const logs = await this.logsService.getLogs(
-        primaryToken.address,
+        token.address,
         tokenTransferEventTopic,
         params
       );
@@ -292,6 +296,7 @@ export class AccountLogic {
   }
 
   async send(
+    token: string,
     to: string,
     amount: string,
     description?: string
@@ -301,7 +306,7 @@ export class AccountLogic {
         throw new Error("Account not set");
       }
 
-      const tx = await this.account.send(to, amount, description);
+      const tx = await this.account.send(token, to, amount, description);
 
       return tx;
     } catch (error) {

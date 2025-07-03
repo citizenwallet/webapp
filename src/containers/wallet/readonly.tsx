@@ -18,12 +18,19 @@ import { useCallback, useEffect } from "react";
 interface ContainerProps {
   config: Config;
   accountAddress: string;
+  token?: string;
 }
 
-export default function ReadOnly({ config, accountAddress }: ContainerProps) {
+export default function ReadOnly({
+  config,
+  accountAddress,
+  token: initialToken,
+}: ContainerProps) {
   const { community } = config;
 
   const communityConfig = new CommunityConfig(config);
+
+  const token = communityConfig.getToken(initialToken);
 
   const baseUrl = getBaseUrl();
 
@@ -100,7 +107,7 @@ export default function ReadOnly({ config, accountAddress }: ContainerProps) {
         {logs.map((tx) => (
           <TxRow
             key={tx.hash}
-            token={communityConfig.primaryToken}
+            token={token}
             community={community}
             account={account}
             tx={tx}

@@ -38,8 +38,12 @@ const main = async () => {
 
   const owner = await instanceOwner(community);
   if (owner === ZeroAddress) {
+    const tokens = Object.values(community.tokens).map(
+      (token) => token.address
+    );
+
     const ccalldata = createInstanceCallData(community, [
-      community.primaryToken.address,
+      ...tokens,
       community.community.profile.address,
     ]);
 
@@ -65,6 +69,7 @@ const main = async () => {
     console.log("Instance created");
   } else {
     console.log("Instance already exists");
+    // TODO: update whitelist
   }
 };
 

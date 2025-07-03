@@ -124,9 +124,10 @@ class WalletKitService {
 
   static buildNamespaces(
     proposal: ProposalTypes.Struct,
-    account: string
+    account: string,
+    token?: string
   ): SessionTypes.Namespaces {
-    const chainId = WalletKitService.communityConfig.primaryToken.chain_id;
+    const chainId = WalletKitService.communityConfig.getToken(token).chain_id;
 
     const approvedNamespaces = buildApprovedNamespaces({
       proposal: proposal,
@@ -145,10 +146,11 @@ class WalletKitService {
 
   static populateAuthPayload(
     payloadParams: AuthTypes.PayloadParams,
-    account: string
+    account: string,
+    token?: string
   ) {
     if (!WalletKitService.walletKit) return;
-    const chainId = WalletKitService.communityConfig.primaryToken.chain_id;
+    const chainId = WalletKitService.communityConfig.getToken(token).chain_id;
     const supportedChains = [`eip155:${chainId}`];
 
     const authPayload = WC_populateAuthPayload({

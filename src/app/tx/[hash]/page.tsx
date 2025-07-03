@@ -56,6 +56,9 @@ interface PageProps {
   params: Promise<{
     hash: string;
   }>;
+  searchParams: Promise<{
+    token?: string;
+  }>;
 }
 
 export default async function Page(props: PageProps) {
@@ -67,25 +70,34 @@ export default async function Page(props: PageProps) {
   }
 
   const params = await props.params;
+  const searchParams = await props.searchParams;
 
   const { hash } = params;
+  const { token } = searchParams;
 
   return (
     <Suspense fallback={<Tx config={config} />}>
-      <AsyncPage config={config} hash={hash} />
+      <AsyncPage config={config} hash={hash} token={token} />
     </Suspense>
   );
 }
 
-async function AsyncPage({ config, hash }: { config: Config; hash: string }) {
+async function AsyncPage({
+  config,
+  hash,
+  token,
+}: {
+  config: Config;
+  hash: string;
+  token?: string;
+}) {
   const communityConfig = new CommunityConfig(config);
   const logsService = new LogsService(communityConfig);
 
+  const tokenConfig = communityConfig.getToken(token);
+
   try {
-    const { object } = await logsService.getLog(
-      communityConfig.primaryToken.address,
-      hash
-    );
+    const { object } = await logsService.getLog(tokenConfig.address, hash);
 
     const logData = object.data;
 
@@ -103,7 +115,7 @@ async function AsyncPage({ config, hash }: { config: Config; hash: string }) {
       getEmptyProfile(txFrom);
 
     if (ZeroAddress === txFrom) {
-      fromProfile = getMinterProfile(txFrom, config.community);
+      fromProfile = getMinterProfile(txFrom, config.community, tokenConfig);
     }
 
     let toProfile =
@@ -111,7 +123,7 @@ async function AsyncPage({ config, hash }: { config: Config; hash: string }) {
       getEmptyProfile(txTo);
 
     if (ZeroAddress === txTo) {
-      toProfile = getBurnerProfile(txTo, config.community);
+      toProfile = getBurnerProfile(txTo, config.community, tokenConfig);
     }
 
     return (
@@ -120,6 +132,7 @@ async function AsyncPage({ config, hash }: { config: Config; hash: string }) {
         fromProfile={fromProfile}
         toProfile={toProfile}
         config={config}
+        tokenAddress={tokenConfig.address}
       />
     );
   } catch (error) {}

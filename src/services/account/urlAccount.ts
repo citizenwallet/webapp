@@ -1,4 +1,4 @@
-import { CommunityConfig, Config } from "@citizenwallet/sdk";
+import { CommunityConfig } from "@citizenwallet/sdk";
 import { HDNodeWallet, Wallet, pbkdf2, scrypt } from "ethers";
 import { getAccount, getDecryptKdfParams, getPassword } from "./ethers";
 

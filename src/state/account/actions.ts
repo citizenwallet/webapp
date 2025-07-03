@@ -12,7 +12,7 @@ import {
 } from "@citizenwallet/sdk";
 import { StorageService } from "@/services/storage";
 import { CWAccount } from "@/services/account";
-import { generateWalletHash } from "@/services/account/urlAccount";
+import { generateWalletHashV4 } from "@/services/account/urlAccount";
 import { formatUnits } from "ethers";
 import { generateAccountHashPath } from "@/utils/hash";
 
@@ -99,8 +99,9 @@ export class AccountLogic {
         throw new Error("Signer not found");
       }
 
-      const hash = await generateWalletHash(
+      const hash = await generateWalletHashV4(
         this.account.account,
+        this.communityConfig,
         this.account.signer,
         walletPassword
       );

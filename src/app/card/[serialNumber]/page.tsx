@@ -12,6 +12,7 @@ interface PageProps {
   }>;
   searchParams: Promise<{
     project?: string;
+    community?: string; // mistake when ordering cards, it is = project
     token?: string;
   }>;
 }
@@ -27,7 +28,7 @@ export default async function Page(props: PageProps) {
   const communityConfig = new CommunityConfig(config);
 
   const { serialNumber } = await props.params;
-  const { project = "", token } = await props.searchParams;
+  const { project = "", community = "", token } = await props.searchParams;
 
   const address = await getCardAddress(communityConfig, id(serialNumber));
   if (!address) {
@@ -35,11 +36,11 @@ export default async function Page(props: PageProps) {
   }
 
   const cardColor =
-    ColorMappingOverrides[project] ??
+    ColorMappingOverrides[project ?? community] ??
     communityConfig.community.theme?.primary ??
     "#272727";
 
-  const tokenAddress = token ?? TokenMappingOverrides[project];
+  const tokenAddress = token ?? TokenMappingOverrides[project ?? community];
 
   return (
     <>
@@ -47,7 +48,7 @@ export default async function Page(props: PageProps) {
         config={config}
         accountAddress={address}
         serialNumber={serialNumber}
-        project={project}
+        project={project ?? community}
         cardColor={cardColor}
         tokenAddress={tokenAddress}
       />

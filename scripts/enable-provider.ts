@@ -2,6 +2,7 @@ import {
   CommunityConfig,
   createInstanceCallData,
   instanceOwner,
+  updateWhitelistCallData,
 } from "@citizenwallet/sdk";
 import { Wallet, ZeroAddress } from "ethers";
 import { BundlerService, getAccountAddress } from "@citizenwallet/sdk";
@@ -36,12 +37,10 @@ const main = async () => {
 
   console.log("cardConfig", cardConfig);
 
+  const tokens = Object.values(community.tokens).map((token) => token.address);
+
   const owner = await instanceOwner(community);
   if (owner === ZeroAddress) {
-    const tokens = Object.values(community.tokens).map(
-      (token) => token.address
-    );
-
     const ccalldata = createInstanceCallData(community, [
       ...tokens,
       community.community.profile.address,
@@ -68,8 +67,33 @@ const main = async () => {
 
     console.log("Instance created");
   } else {
-    console.log("Instance already exists");
-    // TODO: update whitelist
+    console.log("Instance already exists, updating...");
+
+    const ccalldata = updateWhitelistCallData(community, [
+      ...tokens,
+      community.community.profile.address,
+    ]);
+
+    const signerAccountAddress = await getAccountAddress(
+      community,
+      signer.address
+    );
+    if (!signerAccountAddress) {
+      throw new Error("Could not find an account for you!");
+    }
+
+    const hash = await bundler.call(
+      signer,
+      cardConfig.address,
+      signerAccountAddress,
+      ccalldata
+    );
+
+    console.log("submitted:", hash);
+
+    await bundler.awaitSuccess(hash);
+
+    console.log("Instance updated");
   }
 };
 

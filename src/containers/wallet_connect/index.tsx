@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ExternalLinkIcon, Loader2, ShieldAlert } from "lucide-react";
 import { getSdkError } from "@walletconnect/utils";
 import WalletKitService, { ContractData } from "@/services/walletkit";
@@ -92,18 +92,20 @@ export default function Container({ config, account, wallet }: ContainerProps) {
     []
   );
 
-  const onSessionDisconnect = React.useCallback(async () => {
-    const walletKit = WalletKitService.getWalletKit();
-    if (!walletKit) return;
+  const onSessionDisconnect = React.useCallback(
+    async (event: WalletKitTypes.SessionDelete) => {
+      const walletKit = WalletKitService.getWalletKit();
+      if (!walletKit) return;
 
-    // update active sessions after a session is disconnected
-    const activeSessions = walletKit.getActiveSessions();
-    actions.setActiveSessions(activeSessions);
-  }, [actions]);
+      // update active sessions after a session is disconnected
+      const activeSessions = walletKit.getActiveSessions();
+      actions.setActiveSessions(activeSessions);
+    },
+    [actions]
+  );
 
   const onSessionRequest = React.useCallback(
     async (event: WalletKitTypes.SessionRequest) => {
-      console.log("event", JSON.stringify(event));
 
       const method = event.params.request.method;
       if (method === "personal_sign" || method === "eth_sign") {
@@ -146,7 +148,6 @@ export default function Container({ config, account, wallet }: ContainerProps) {
       const authParams = event.params.authPayload;
       const message =
         WalletKitService.populateAuthPayload(authParams, account) || "";
-      console.log("message", message);
 
       setSessionAuthenticateModal({
         open: true,
@@ -245,8 +246,8 @@ function SessionProposalModal({
         namespaces,
       });
 
-      const sessions = walletKit.getActiveSessions();
-      actions.setActiveSessions(sessions);
+      const activeSessions = walletKit.getActiveSessions();
+      actions.setActiveSessions(activeSessions);
 
       toast({
         title: "Connected successfully",
@@ -304,6 +305,9 @@ function SessionProposalModal({
             <div className="flex flex-col items-center text-center space-y-1">
               <Avatar className="h-28 w-28">
                 <AvatarImage src={icon} alt="dApp logo" />
+                <AvatarFallback>
+                  {name?.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <h2 className="text-xl font-semibold mt-4">
                 {name} wants to connect
@@ -615,7 +619,15 @@ function TransactionSignModal({
         encodedTransaction.value
       );
 
-      await wallet.waitForTransactionSuccess(hash);
+      if (!hash) {
+        throw new Error("Unable to call contract");
+      }
+
+      const success = await wallet.waitForTransactionSuccess(hash);
+
+      if (!success) {
+        throw new Error("Transaction failed to succeed");
+      }
 
       const response = { id, result: hash, jsonrpc: "2.0" };
 
@@ -626,6 +638,31 @@ function TransactionSignModal({
       });
     } catch (error) {
       console.error("Error signing message", error);
+
+      if (
+        error instanceof Error &&
+        error.message === "Unable to call contract"
+      ) {
+        toast({
+          title: "Signing failed",
+          description: "Unable to call contract",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (
+        error instanceof Error &&
+        error.message === "Transaction failed to succeed"
+      ) {
+        toast({
+          title: "Signing failed",
+          description: "Transaction failed to succeed",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "Signing failed",
         description: "Unable to sign message",

@@ -35,6 +35,9 @@ import WalletConnect from "@/containers/wallet_connect";
 import { useToast } from "@/components/ui/use-toast";
 import WalletKitProvider from "@/provider/wallet_kit";
 import { getBaseUrl } from "@/utils/deeplink";
+import ActiveSessionsStack from "@/containers/wallet_connect/active_sessions_stack";
+import ActiveSessionModal from "@/containers/wallet_connect/active_sessions_modal";
+
 interface ContainerProps {
   config: Config;
   token?: string;
@@ -76,12 +79,18 @@ export default function Container({
 
       try {
         await walletKit.pair({ uri });
-        toast({
-          title: "Connected",
-          variant: "success",
-        });
       } catch (error) {
         console.error("WalletConnect pairing failed:", error);
+
+        if (error instanceof Error && error.message.includes("Expired")) {
+          toast({
+            title: "Connection request expired",
+            description: "Please try again with a new connection URI.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         toast({
           title: "Connection failed",
           description: "Unable to connect to wallet",
@@ -127,9 +136,6 @@ export default function Container({
   useEffect(() => {
     // read the url first
     const href = getFullUrl();
-
-    console.log("hash", hash);
-    console.log("href", href);
 
     actions.openAccount(hash, (hashPath: string) => {
       history.replaceState(null, "", hashPath);
@@ -194,6 +200,16 @@ export default function Container({
           <AvatarFallback>{!profile ? "PRF" : profile.username}</AvatarFallback>
         </Avatar>
       </Link>
+
+      <div className="z-20 absolute right-0 top-20 m-4">
+        <ActiveSessionModal
+          trigger={
+            <div className="cursor-pointer hover:opacity-80 transition-opacity">
+              <ActiveSessionsStack />
+            </div>
+          }
+        />
+      </div>
 
       <Flex
         justify="center"

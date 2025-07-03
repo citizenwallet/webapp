@@ -94,11 +94,10 @@ async function AsyncPage({
   const communityConfig = new CommunityConfig(config);
   const logsService = new LogsService(communityConfig);
 
+  const tokenConfig = communityConfig.getToken(token);
+
   try {
-    const { object } = await logsService.getLog(
-      communityConfig.getToken(token).address,
-      hash
-    );
+    const { object } = await logsService.getLog(tokenConfig.address, hash);
 
     const logData = object.data;
 
@@ -116,7 +115,7 @@ async function AsyncPage({
       getEmptyProfile(txFrom);
 
     if (ZeroAddress === txFrom) {
-      fromProfile = getMinterProfile(txFrom, config.community);
+      fromProfile = getMinterProfile(txFrom, config.community, tokenConfig);
     }
 
     let toProfile =
@@ -124,7 +123,7 @@ async function AsyncPage({
       getEmptyProfile(txTo);
 
     if (ZeroAddress === txTo) {
-      toProfile = getBurnerProfile(txTo, config.community);
+      toProfile = getBurnerProfile(txTo, config.community, tokenConfig);
     }
 
     return (
@@ -133,6 +132,7 @@ async function AsyncPage({
         fromProfile={fromProfile}
         toProfile={toProfile}
         config={config}
+        tokenAddress={tokenConfig.address}
       />
     );
   } catch (error) {}

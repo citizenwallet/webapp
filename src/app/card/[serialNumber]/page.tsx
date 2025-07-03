@@ -39,13 +39,15 @@ export default async function Page(props: PageProps) {
     communityConfig.community.theme?.primary ??
     "#272727";
 
-  const tokenAddress = TokenMappingOverrides[project] ?? token;
+  const tokenAddress = token ?? TokenMappingOverrides[project];
 
   return (
     <>
       <CardReadOnly
         config={config}
         accountAddress={address}
+        serialNumber={serialNumber}
+        project={project}
         cardColor={cardColor}
         tokenAddress={tokenAddress}
       />

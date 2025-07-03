@@ -67,7 +67,7 @@ export default function TxRow({
   const isConfirmed = status === "success";
 
   return (
-    <Link href={`/tx/${tx.hash}`}>
+    <Link href={`/tx/${tx.hash}?token=${token.address}`}>
       <Flex
         justify="start"
         align="center"

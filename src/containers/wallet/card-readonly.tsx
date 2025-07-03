@@ -14,10 +14,13 @@ import { CommunityConfig, Config, ConfigToken } from "@citizenwallet/sdk";
 import { Flex, Text } from "@radix-ui/themes";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 interface ContainerProps {
   config: Config;
   accountAddress: string;
+  serialNumber: string;
+  project?: string;
   cardColor: string;
   tokenAddress?: string;
 }
@@ -25,17 +28,21 @@ interface ContainerProps {
 export default function ReadOnly({
   config,
   accountAddress,
+  serialNumber,
+  project,
   cardColor,
   tokenAddress,
 }: ContainerProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   const { community } = config;
 
   const communityConfig = useMemo(() => new CommunityConfig(config), [config]);
 
-  const [token, setToken] = useState<ConfigToken>(
-    communityConfig.getToken(tokenAddress)
+  const token = useMemo(
+    () => communityConfig.getToken(tokenAddress),
+    [communityConfig, tokenAddress]
   );
 
   console.log("token", token);
@@ -82,10 +89,18 @@ export default function ReadOnly({
 
   const handleTokenChange = useCallback(
     (tokenAddress: string) => {
-      const newToken = communityConfig.getToken(tokenAddress);
-      setToken(newToken);
+      let path = `/card/${serialNumber}`;
+      if (project) {
+        path += `?project=${project}`;
+      }
+      if (tokenAddress) {
+        path += path.includes("?")
+          ? `&token=${tokenAddress}`
+          : `?token=${tokenAddress}`;
+      }
+      router.replace(path);
     },
-    [communityConfig]
+    [serialNumber, project, router]
   );
 
   const fetchMoreTransfers = useCallback(async () => {

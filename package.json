@@ -24,6 +24,7 @@
     "@radix-ui/react-toast": "^1.2.1",
     "@radix-ui/themes": "^3.0.5",
     "@reown/walletkit": "^1.1.2",
+    "@supabase/supabase-js": "^2.50.3",
     "@walletconnect/core": "^2.17.5",
     "@walletconnect/utils": "^2.17.5",
     "class-variance-authority": "^0.7.0",

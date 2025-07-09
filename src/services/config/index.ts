@@ -1,40 +1,36 @@
 import { Config, parseAliasFromDomain } from "@citizenwallet/sdk";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
-
-import CommunitiesJson from "./communities.json";
-import LocalCommunitiesJson from "./communities.local.json";
+import { getServiceRoleClient } from "../top-db";
+import { getCommunityByAlias } from "../top-db/community";
 import ManualMappingJson from "./manualMapping.json";
 
 // Define type for manual mapping to allow string indexing
 type ManualMapping = { [key: string]: string };
 const typedManualMapping = ManualMappingJson as ManualMapping;
 
-const getCommunityFile = async (): Promise<Config[]> => {
-  if (process.env.NODE_ENV === "production") {
-    return CommunitiesJson as unknown as Config[];
-  }
-
-  return LocalCommunitiesJson as unknown as Config[];
-};
-
 export const readCommunityFile = async (
   _alias = process.env.FALLBACK_COMMUNITY_ALIAS ?? ""
 ): Promise<Config | undefined> => {
   let alias = _alias;
+
   if (process.env.NODE_ENV === "development") {
     alias = process.env.FALLBACK_COMMUNITY_ALIAS ?? "";
   }
 
-  const configs = await getCommunityFile();
-  if (!configs) {
+  const client = getServiceRoleClient();
+
+  try {
+    const community = await getCommunityByAlias(client, alias);
+
+    if (community.data) {
+      return community.data.json;
+    }
+
+    return undefined;
+  } catch (error) {
+    console.error("Error fetching community by alias:", error);
     return undefined;
   }
-
-  if (configs.length === 0) {
-    return undefined;
-  }
-
-  return configs.find((c) => c.community.alias === alias);
 };
 
 export const getCommunityFromHeaders = async (
